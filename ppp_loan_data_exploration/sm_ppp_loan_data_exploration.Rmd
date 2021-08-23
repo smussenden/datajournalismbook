@@ -1,0 +1,212 @@
+---
+title: "ppp_loan_data_exploration"
+author: "sean mussenden"
+date: "7/27/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Load Libraries
+```{r}
+# General data science goodness 
+library(tidyverse)
+# Census data
+library(tidycensus)
+# Data cleaning
+library(janitor)
+# For reading excel files
+library(readxl)
+# For summarization
+library(gtsummary)
+```
+
+## Load data
+```{r}
+# 11,786,689 records
+ppp_loans <- read_csv("../data/ppp_loan_data/recipients.csv")
+
+
+
+
+```
+
+## Create datasets
+### Chapter 5 Aggregates
+```{r}
+### Chapter 5: Aggregates
+# 195,869 records
+maryland_ppp_loans <- ppp_loans %>%
+  filter(state == "MD") %>%
+  filter(!project_county_name %in% c("BROWARD","COBB","FAIRFAX","MIDDLESEX","PORTSMOUTH CITY","RICHLAND","YORK")) %>%
+  filter(!is.na(project_county_name))
+
+write_rds(maryland_ppp_loans,"../in_class_demonstrations/class_01_demonstration/class_01_demonstration.rds", compress="gz")
+
+```
+
+
+# Chapter 6 mutate
+```{r}
+# Load county data
+maryland_ppp_loan_county_pop <- ppp_loans %>%
+  filter(state == "MD") %>%
+  filter(!project_county_name %in% c("BROWARD","COBB","FAIRFAX","MIDDLESEX","PORTSMOUTH CITY","RICHLAND","YORK")) %>%
+  filter(!is.na(project_county_name)) %>%
+  group_by(project_county_name) %>%
+    summarize(
+      count=n(),
+      total_amount = sum(amount)
+    )
+
+# load tidycensus variable list
+census_api_key("549950d36c22ff16455fe196bbbd01d63cfbe6cf")
+acs_vars <- load_variables(year=2019,dataset="acs5")
+
+# Get maryland 2019 population
+maryland_county_pop <- get_acs(geography="county",variables="B01001_001", geometry = FALSE, state="MD") %>%
+  clean_names() %>%
+  mutate(name=toupper(str_remove_all(name,"\\, Maryland| County|'|\\."))) %>%
+  mutate(name=str_replace_all(name,"^ST","SAINT")) %>%
+  select(county=name,pop_2019=estimate)
+
+maryland_ppp_loan_county_pop <- maryland_ppp_loan_county_pop %>%
+  inner_join(maryland_county_pop, c("project_county_name" = "county"))
+
+write_rds(maryland_ppp_loan_county_pop,"../in_class_demonstrations/class_01_demonstration/class_01_demonstration_a.rds", compress="gz")
+
+    
+
+
+
+```
+
+# Lab 01
+
+```{r}
+wv_ppp_loans <- ppp_loans %>%
+  filter(state == "WV") %>%
+  filter(!project_county_name %in% c("PALM BEACH","ALLEGHENY")) 
+
+write_rds(wv_ppp_loans,"../labs/lab_01/lab_01.rds", compress="gz")
+  
+  
+# load tidycensus variable list
+census_api_key("549950d36c22ff16455fe196bbbd01d63cfbe6cf")
+acs_vars <- load_variables(year=2019,dataset="acs5")
+
+# Get maryland 2019 population
+west_virginia_county_pop <- get_acs(geography="county",variables="B01001_001", geometry = FALSE, state="WV") %>%
+  clean_names() %>%
+  mutate(name=toupper(str_remove_all(name,"\\, West Virginia| County|'|\\."))) %>%
+  select(county=name,pop_2019=estimate)
+
+wv_ppp_loan_county_pop <- wv_ppp_loans %>%
+  inner_join(west_virginia_county_pop, c("project_county_name" = "county"))
+
+```
+
+# Lab 02
+
+```{r}
+west_virginia_ppp_loans <- ppp_loans %>%
+  filter(state=="WV") %>%
+  group_by(project_county_name) %>%
+  count()
+
+```
+
+
+## Load data, write out sample for testing, read in
+```{r}
+#ppp_loans_sample <- head(ppp_loans, 100000)
+#rm(ppp_loans)
+#write_rds(ppp_loans_sample, "../data/ppp_loan_data/ppp_loans_sample.rds")
+#ppp_loans_sample <- read_rds("../data/ppp_loan_data/ppp_loans_sample.rds")
+
+```
+
+### Load and clean data dictionary
+```{r}
+dictionary <-  read_xlsx("../data/ppp_loan_data/ppp-data-dictionary.xlsx") %>%
+  clean_names()
+
+descript_fix <- dictionary %>%
+  filter(field_name == "UTILITIES_PROCEED")
+
+descript_fix <- descript_fix$field_description
+
+dictionary <- dictionary %>%
+  mutate(field_description = case_when(
+    is.na(field_description) ~ descript_fix,
+    TRUE ~ field_description)
+  )
+
+# write clean data dictionary out
+write_rds(dictionary, "../data/ppp_loan_data/ppp-data-dictionary.rds")
+dictionary <- read_rds("../data/ppp_loan_data/ppp-data-dictionary.rds")
+
+```
+
+
+## Examine column values
+```{r}
+# http://www.danieldsjoberg.com/gtsummary/
+ppp_loans_sample %>%
+  select(state, amount,business_type, race,gender,veteran, non_profit, jobs_retained,date_approved,lender) %>%
+  select(-id,-name,-slug,)
+  tbl_summary(
+    sort=list(everything() ~ "frequency"),
+    statistic = list(all_continuous() ~ "min:{min}|max:{max}|mean:{mean}|median:{median}|sd:{sd}|"),
+    missing = "always",
+    missing_text = "na_values"
+    )
+ppp_loans_columns <- colnames(ppp_loans_sample) %>%
+  as_vector() %>%
+  unname()
+print(ppp_loans_columns)
+#summary(ppp_loans_sample)
+```
+```{r}
+
+select(amount,state,naics_code,business_type,race,gender,veteran,non_profit,jobs_retained,date_approved,congressional_district,sba_office_code,processing_method,loan_status,term,sba_guaranty_percentage,initial_approval_amount,current_approval_amount,undisbursed_amount,franchise_name,)
+-select(id,name,slug,address,city,zip,lender,loan_range_sort_key,previous_loan_range,previous_name,loan_number,servicing_lender_location_id,servicing_lender_name, servicing_lender_address"   )
+
+[1] "id"                             "name"                          
+ [3] "slug"                           "amount"                        
+ [5] "state"                          "address"                       
+ [7] "city"                           "zip"                           
+ [9] "naics_code"                     "business_type"                 
+[11] "race"                           "gender"                        
+[13] "veteran"                        "non_profit"                    
+[15] "jobs_retained"                  "date_approved"                 
+[17] "lender"                         "congressional_district"        
+[19] "loan_range_sort_key"            "previous_loan_range"           
+[21] "previous_name"                  "loan_number"                   
+[23] "sba_office_code"                "processing_method"             
+[25] "loan_status"                    "term"                          
+[27] "sba_guaranty_percentage"        "initial_approval_amount"       
+[29] "current_approval_amount"        "undisbursed_amount"            
+[31] "franchise_name"                 "servicing_lender_location_id"  
+[33] "servicing_lender_name"          "servicing_lender_address"      
+[35] "servicing_lender_city"          "servicing_lender_state"        
+[37] "servicing_lender_zip"           "rural_urban_indicator"         
+[39] "hubzone_indicator"              "business_age_description"      
+[41] "project_city"                   "project_county_name"           
+[43] "project_state"                  "project_zip"                   
+[45] "utilities_proceed"              "payroll_proceed"               
+[47] "mortgage_interest_proceed"      "rent_proceed"                  
+[49] "refinance_eidl_proceed"         "health_care_proceed"           
+[51] "debt_interest_proceed"          "originating_lender_city"       
+[53] "originating_lender_state"       "loan_status_date"              
+[55] "originating_lender_location_id" "old_slug"                      
+[57] "lmi_indicator"                  "unmatched_original"            
+[59] "unmatched_updated"              "previous_jobs_reported"        
+[61] "ethnicity"                      "forgiveness_amount"            
+[63] "forgiveness_date"     
+
+
+
+```
