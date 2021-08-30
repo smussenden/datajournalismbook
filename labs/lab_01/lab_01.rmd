@@ -18,11 +18,12 @@ To complete this lab, you need to:
 * modify existing code as directed (look for **Task**).
 * write code in empty codeblocks provided to answer questions included (look for **Q**). 
 * write out the answer in the form of a complete sentence in the space given (look for **A**). 
+
 When you are finished, commit changes and push to your personal GitHub repo, then submit the URL to this document on ELMS. 
 
 ## Load libraries and establish settings
 
-**Task** Run the codeblock below to load the Tidyverse.To run the codeblock, hit the little green play button in the upper right corner of the gray area (the codeblock) below.
+**Task** Run the codeblock below to load the Tidyverse. To run the codeblock, hit the little green play button in the upper right corner of the gray area (the codeblock) below.
 
 ```{r}
 
