@@ -14,12 +14,12 @@ options(scipen=999)
 ## About this lab
 
 To complete this lab, you need to:
-* run existing code as directed (look for **Task**). 
+* run existing code as directed (look for **Task**).
 * modify existing code as directed (look for **Task**).
-* write code in empty codeblocks provided to answer questions included (look for **Q**). 
-* write out the answer in the form of a complete sentence in the space given (look for **A**). 
+* write code in empty codeblocks provided to answer questions included (look for **Q**).
+* write out the answer in the form of a complete sentence in the space given (look for **A**).
 
-When you are finished, commit changes and push to your personal GitHub repo, then submit the URL to this document on ELMS. 
+When you are finished, commit changes and push to your personal GitHub repo, then submit the URL to this document on ELMS.
 
 ## Load libraries and establish settings
 
@@ -33,11 +33,11 @@ When you are finished, commit changes and push to your personal GitHub repo, the
 library(tidyverse)
 ```
 
-## Load Data 
+## Load Data
 
 We're going to load the slice of PPP loans for West Virginia.
 
-**Task** Run the codeblock below to load the data. 
+**Task** Run the codeblock below to load the data.
 
 ```{r}
 wv_ppp_loans <- read_rds("lab_01.rds")
@@ -45,7 +45,7 @@ wv_ppp_loans <- read_rds("lab_01.rds")
 
 ## Examine Data
 
-**Task** Run the codeblock below to use glimpse to get a sense of the column names, types and sample data. 
+**Task** Run the codeblock below to use glimpse to get a sense of the column names, types and sample data.
 **Q1** How many rows and columns does this dataframe have?
 **A1** [write your answer here]
 
@@ -92,7 +92,7 @@ glimpse(wv_ppp_loans)
 * the smallest loan amount
 * the largest loan amount
 
-Store it as a variable object called `wv_summary` so that you can examine it with the data viewer. What newsworthy nuggets jump out at you that you could imagine dropping into a news story? Write a few summary sentences with overall findings. 
+Store it as a variable object called `wv_summary` so that you can examine it with the data viewer. What newsworthy nuggets jump out at you that you could imagine dropping into a news story? Write a few summary sentences with overall findings.
 
 **A7** [write your answer here]
 ```{r}
@@ -107,9 +107,9 @@ Store it as a variable object called `wv_summary` so that you can examine it wit
 * the smallest loan amount
 * the largest loan amount
 
-Store it as a variable object called `wv_county_summary` so that you can examine it with the data viewer. 
+Store it as a variable object called `wv_county_summary` so that you can examine it with the data viewer.
 
-What newsworthy nuggets or patterns jump out at you that you could imagine dropping into a news story or doing follow up reporting on? Write up a few sentence that summarizes one county. 
+What newsworthy nuggets or patterns jump out at you that you could imagine dropping into a news story or doing follow up reporting on? Write up a few sentence that summarizes one county.
 
 **A8** [write your answer here]
 ```{r}

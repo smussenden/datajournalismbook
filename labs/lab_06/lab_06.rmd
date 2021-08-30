@@ -9,12 +9,21 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## You will need
+## About this lab
 
-* Tabula
-* The [Atom](https://atom.io/) text editor.
+To complete this lab, you need to:
+* install Tabula](https://tabula.technology/)
+* run existing code as directed (look for **Task**).
+* modify existing code as directed (look for **Task**).
+* write code in empty codeblocks provided to answer questions included (look for **Q**).
+* write out the answer in the form of a complete sentence in the space given (look for **A**).
+
+When you are finished, commit changes and push to your personal GitHub repo, then submit the URL to this document on ELMS.
 
 ## Load libraries and establish settings
+
+**Task** Run the codeblock below to load the Tidyverse. To run the codeblock, hit the little green play button in the upper right corner of the gray area (the codeblock) below.
+
 ```{r}
 # Turn off scientific notation
 options(scipen=999)
@@ -27,7 +36,11 @@ library(tidyverse)
 
 We'll be working with the [Maryland Statistical Handbook](https://planning.maryland.gov/MSDC/Documents/md-statistical-handbook.pdf) from the state Department of Planning. It's not tiny (44MB), and you'll want to download it to a place you'll remember (like your Downloads folder).
 
+**Task** Download the file from the above link and save it.
+
 ## Setup Tabula
+
+**Task** Start Tabula and load the PDF, then extract a table
 
 Start Tabula, then go to http://127.0.0.1:8080/ in your browser. Click the "Browse" button and find the Statistical Handbook file and click "open", and then click the "Import button" in Tabula. This will take a minute or two.
 
@@ -37,11 +50,15 @@ Let's go to page 30 of the PDF, Table 2A, "International Migration for Maryland'
 
 Let's load it into R, and in doing so we'll skip the first two rows and add our own headers that are cleaner. `read_csv` allows us to do this ([and more](https://readr.tidyverse.org/reference/read_delim.html)):
 
+**Task** Run the codeblock below to load the data.
+
 ```{r}
 international_migration <- read_csv('tabula-md-statistical-handbook.csv', skip=2, col_names=c("jurisdiction", "july_2011", "july_2012", "july_2013", "july_2014", "july_2015", "july_2016", "july_2017", "july_2018", "july_2019", "total"))
 ```
 
 Add a column for the type of migration ("international") and populate it:
+
+**Task** Run the codeblock below to add a column to the data.
 
 ```{r}
 international_migration <- international_migration %>% mutate(type='international')
@@ -49,15 +66,32 @@ international_migration <- international_migration %>% mutate(type='internationa
 
 ## Answer questions
 
-Q1. Which region and county/city below the state level accounted for the largest percentage of international migration overall?  You'll need to add and populate columns representing percent of total using `mutate`.
+**Q1** Which region and county/city below the state level accounted for the largest percentage of international migration overall?  You'll need to add and populate columns representing percent of total using `mutate`.
+**A1** [write your answer here]
 
-Q2. Write a sentence or two that describes the data you produced in A1. Treat this as if you were trying to convey the most important part.
+```{r}
+# Write the code to produce your answer here
 
-Q3. Which region & jurisdiction had the biggest percentage change for international migration between July 2018 and July 2017? The formula for percentage change is easy to remember: (New-Old)/Old.
+```
 
-Q4. What's your best guess as to why these declines occurred, and in those area in particular?
+**Q2** Write a sentence or two that describes the data you produced in A1. Treat this as if you were trying to convey the most important part.
+**A2** [write your answer here]
+
+**Q3** Which region & jurisdiction had the biggest percentage change for international migration between July 2018 and July 2017? The formula for percentage change is easy to remember: (New-Old)/Old.
+**A3** [write your answer here]
+
+```{r}
+# Write the code to produce your answer here
+
+```
+
+**Q4** What's your best guess as to why these declines occurred, and in those area in particular?
+**A4** [write your answer here]
+
 
 ## Back to Tabula
+
+**Task** Extract second table from Tabula
 
 Let's go to page 31 of the PDF, Table 2B, "Domestic Migration for Maryland's Jurisdictions, July 1, 2010 to July 1, 2019". In Tabula, hit the "Clear All Selections" button and then draw a box around that table's border and click the "Preview & Export Extracted Data" button. It should look pretty clean. Let's export that CSV to your Downloads folder (let's rename it to `tabula-md-statistical-handbook-domestic.csv`).
 
@@ -65,19 +99,36 @@ Let's go to page 31 of the PDF, Table 2B, "Domestic Migration for Maryland's Jur
 
 Let's load it into R, and in doing so we'll skip the first two rows and add our own headers that are cleaner:
 
+**Task** Run the codeblock below to load the data.
+
 ```{r}
 domestic_migration <- read_csv('tabula-md-statistical-handbook-domestic.csv', skip=2, col_names=c("jurisdiction", "july_2011", "july_2012", "july_2013", "july_2014", "july_2015", "july_2016", "july_2017", "july_2018", "july_2019", "total"))
 ```
 
 Add a column for the type of migration ("domestic") and populate it:
 
+**Task** Run the codeblock below to add a column to the data.
+
 ```{r}
 domestic_migration <- domestic_migration %>% mutate(type='domestic')
 ```
 
 ## Answer questions
-Q5. Which Maryland individual jurisdiction saw the largest net decrease in domestic migration overall?
+**Q5** Which Maryland individual jurisdiction saw the largest net decrease in domestic migration overall?
+**A5** [write your answer here]
 
-Q6. How many regions & jurisdictions had net positive migration for July 2017, July 2018 and July 2019?
+```{r}
+# Write the code to produce your answer here
 
-Q7. How would you describe this data? Is there a county or region that stands out, and why?
+```
+
+**Q6** How many regions & jurisdictions had net positive migration for July 2017, July 2018 and July 2019?
+**A6** [write your answer here]
+
+```{r}
+# Write the code to produce your answer here
+
+```
+
+**Q7** How would you describe this data? Is there a county or region that stands out, and why?
+**A7** [write your answer here]
