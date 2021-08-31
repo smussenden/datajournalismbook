@@ -28,5 +28,32 @@ library(tidycensus)
 You'll need your Census API Key:
 
 ```{r echo=FALSE}
-census_api_key("YOUR KEY HERE")
+census_api_key("YOUR KEY HERE", install=TRUE)
 ```
+
+## Answer questions
+
+**Q1** What is the Maryland jurisdiction with the lowest median age, according to the 2019 5-year estimates? You will need to find the variable for median age first.
+**A1** Baltimore City, with an estimated median age of 35.4 years and a margin of error of 0.2 years.
+
+```{r}
+md_median_age <- get_acs(geography='county', variables=c(median_age='B01002_001'), state='MD')
+arrange(md_median_age, estimate)
+```
+
+**Q2** Which Maryland jurisdictions have a median age of at least 50?
+**A2** Talbot and Worcester counties
+
+```{r}
+md_median_age %>% filter(estimate >= 50)
+```
+
+**Q3** Which two Maryland jurisdictions have the most children between 5 and 17 that speak Spanish at home?
+**A3** Prince George's and Montgomery counties, although given the margin of error it's not clear which one has the most.
+
+```{r}
+speak_spanish_5_17 <- get_acs(geography='county', variables=c(speak_spanish_5_17='B16007_004'), state='MD')
+arrange(speak_spanish_5_17, desc(estimate))
+```
+
+**Q4**

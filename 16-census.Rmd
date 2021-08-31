@@ -18,12 +18,16 @@ library(tidycensus)
 To use the API, you need an API key. To get that, you need to [apply for an API key with the Census Bureau](https://api.census.gov/data/key_signup.html). It takes a few minutes and you need to activate your key via email. Once you have your key, you need to set that for this session. Just FYI: Your key is your key. Do not share it around.
 
 ```{r, include=FALSE}
-census_api_key("549950d36c22ff16455fe196bbbd01d63cfbe6cf")
+census_api_key("549950d36c22ff16455fe196bbbd01d63cfbe6cf", install=TRUE)
 ```
 
 ```{r, eval=FALSE}
-census_api_key("YOUR KEY HERE")
+census_api_key("YOUR KEY HERE", install=TRUE)
 ```
+
+The two main functions in tidycensus are `get_decennial`, which retrieves data from the 2000 and 2010 Censuses (and soon the 2020 Census), and `get_acs`, which pulls data from the American Community Survey, a between-Censuses annual survey that provides estimates, not hard counts, but asks more detailed questions. If you're new to Census data, there's [a very good set of slides from Kyle Walker](http://walker-data.com/umich-workshop/census-data-in-r/slides/#1), the creator of tidycensus, and he's working on a [book](https://walker-data.com/census-r/index.html) that you can read for free online.
+
+It's important to keep in mind that Census data represents people - you, your neighbors and total strangers. It also requires some level of definitions, especially about race & ethnicity, that may or may not match how you define yourself or how others define themselves.
 
 So to give you some idea of how complicated the data is, let's pull up just one file from the decennial Census. We'll use Summary File 1, or SF1. That has the major population and housing stuff.
 
@@ -92,9 +96,9 @@ You may be asking: hey, wasn't there a 2020 Census? Where's that data? The answe
 
 ## The ACS
 
-In 2010, the Census Bureau replaced SF3 with the American Community Survey. The Good News is that the data would be updated on a rolling basis. The bad news is that it's more complicated because it's more like survey data with a large sample. That means there's margins of error and confidence intervals to worry about.
+In 2010, the Census Bureau replaced SF3 with the American Community Survey. The Good News is that the data would be updated on a rolling basis. The bad news is that it's more complicated because it's more like survey data with a large sample. That means there's margins of error and confidence intervals to worry about. By default, using `get_acs` fetches data from the 5-year estimates (currently 2015-2019), but you can specify 1-year estimates for jurisdictions with at least 65,000 people (many counties and cities).
 
-Here's an example:
+Here's an example using the 5-year ACS estimates:
 
 What is Maryland's richest county?
 
@@ -165,35 +169,29 @@ But did they?
 
 Look at the min and max values for both. Is the change statistically significant?
 
-## Bonus API example: Coronavirus
-
-Of course there would be an R package about the novel coronavirus, COVID-19. It pulls daily updates of coronavirus reports. You install it with `install.packages("coronavirus")`
+The ACS data has lots of variables, just like the decennial Census does. To browse them, you can do this:
 
 ```{r}
-library(coronavirus)
-
-data("coronavirus")
-update_dataset()
+v19 <- load_variables(2019, "acs5", cache=TRUE)
 ```
 
-What just happened, without you having to do anything, is the library just made a call to servers at Johns Hopkins University and got the latest coronavirus numbers from around the world.
+And then view `v19` to see what kinds of variables are available via the API.
 
-Check it out:
+## "Wide" Results
 
-```{r, eval=FALSE}
-coronavirus
-```
+Although one of the chief strengths of tidycensus is that it offers a, well, tidy display of Census data, it also has the ability to view multiple variables spread across columns. This can be useful for creating percentages and comparing multiple variables.
 
-So now we can start using it for data analysis. How about cases in the US?
+
+## Sorting Results
+
+You'll notice that we've used `arrange` to sort the results of tidycensus functions, although that's done after we create a new variable to hold the data. There's another way to use `arrange` that you should know about, one that you can use for exploratory analysis. An example using median household income from 2019:
 
 ```{r}
-coronavirus %>% filter(country == "US")
+md19 <- get_acs(geography = "county",
+              variables = c(medincome = "B19013_001"),
+              state = "MD",
+              year = 2019)
+arrange(md19, desc(estimate))
 ```
 
-How about confirmed cases by country?
-
-```{r}
-coronavirus %>% filter(type == "confirmed") %>% group_by(country) %>% summarize(total=sum(cases)) %>% arrange(desc(total))
-```
-
-Seems a little out of date, but the idea is a good one.
+In this case we don't save the sorted results to a variable, we can just see the output in the console.
