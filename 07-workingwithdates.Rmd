@@ -12,7 +12,7 @@ First, we'll import `tidyverse` like we always do.
 library(tidyverse)
 ```
 
-We're going to use a dataset of [PPP applications from Maryland](https://umd.box.com/s/czolak14n8ts55aqnt7rrqfb6cb8blr1). If we do this the old way -- using read.csv -- this is what we get:
+Now we'll import a dataset of PPP applications from Maryland that is in the data folder in this chapter's pre-lab directory. If we do this the old way -- using read.csv -- this is what we get:
 
 ```{r}
 maryland_ppp <- read.csv('data/ppp_applications_md.csv')

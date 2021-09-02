@@ -10,11 +10,10 @@ So first we'll import the tidyverse so we can read in our data and begin to work
 library(tidyverse)
 ```
 
-Now we'll import a dataset of [PPP applications from Maryland](https://umd.box.com/s/czolak14n8ts55aqnt7rrqfb6cb8blr1). We'll use this, a sample of the entire PPP loan data, to explore ways to create new information from existing data.
+Now we'll import a dataset of PPP applications from Maryland that is in the data folder in this chapter's pre-lab directory. We'll use this, a sample of the entire PPP loan data, to explore ways to create new information from existing data.
 
 ```{r}
 maryland_ppp <- read.csv('data/ppp_applications_md.csv')
-
 ```
 
 First, let's add a column called `percent_payroll` for the percentage of each loan application that payroll expenses represent. The code to calculate a percentage is pretty simple. Remember, with `summarize`, we used `n()` to count things. With `mutate`, we use very similar syntax to calculate a new value -- a new column of data -- using other values in our dataset. So in this case, we're trying to do , but we're doing it with fields.
