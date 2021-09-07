@@ -161,37 +161,4 @@ So according to this, Somerset and Caroline counties lost ground from the financ
 
 But did they?
 
-Look at the min and max values for both. Is the change statistically significant?
-
-## Bonus API example: Coronavirus
-
-Of course there would be an R package about the novel coronavirus, COVID-19. It pulls daily updates of coronavirus reports. You install it with `install.packages("coronavirus")`
-
-```{r}
-library(coronavirus)
-
-data("coronavirus")
-update_dataset()
-```
-
-What just happened, without you having to do anything, is the library just made a call to servers at Johns Hopkins University and got the latest coronavirus numbers from around the world.
-
-Check it out:
-
-```{r}
-view(coronavirus)
-```
-
-So now we can start using it for data analysis. How about cases in the U.S.?
-
-```{r}
-coronavirus %>% filter(country == "US")
-```
-
-How about confirmed cases by country?
-
-```{r}
-coronavirus %>% filter(type == "confirmed") %>% group_by(country) %>% summarize(total=sum(cases)) %>% arrange(desc(total))
-```
-
-Seems a little out of date, but the idea is a good one.
+Look at the min and max values for both. Is the change outside the margin of error?
