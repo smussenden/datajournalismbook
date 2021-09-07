@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>Chapter 13 Cleaning Data Part IV: PDFs | Data Journalism with R and the Tidyverse</title>
   <meta name="description" content="This is a book built on a very opinionated philosophy for journalism students doing data journalism in R with replicable methods." />
-  <meta name="generator" content="bookdown 0.23 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
 
   <meta property="og:title" content="Chapter 13 Cleaning Data Part IV: PDFs | Data Journalism with R and the Tidyverse" />
   <meta property="og:type" content="book" />
@@ -24,7 +24,7 @@
 <meta name="author" content="Matt Waite (original author); updated by Derek Willis and Sean Mussenden" />
 
 
-<meta name="date" content="2021-08-29" />
+<meta name="date" content="2021-09-07" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -35,6 +35,7 @@
 <link rel="next" href="combining-and-joining.html"/>
 <script src="libs/header-attrs-2.10/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
@@ -50,12 +51,11 @@
 
 
 
-
 <link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
 <script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
 <script src="libs/htmlwidgets-1.5.3/htmlwidgets.js"></script>
 <link href="libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
-<script src="libs/datatables-binding-0.18/datatables.js"></script>
+<script src="libs/datatables-binding-0.19/datatables.js"></script>
 <link href="libs/dt-core-1.10.20/css/jquery.dataTables.min.css" rel="stylesheet" />
 <link href="libs/dt-core-1.10.20/css/jquery.dataTables.extra.css" rel="stylesheet" />
 <script src="libs/dt-core-1.10.20/js/jquery.dataTables.min.js"></script>
@@ -241,7 +241,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="17" data-path="intro-to-apis-the-census.html"><a href="intro-to-apis-the-census.html"><i class="fa fa-check"></i><b>17</b> Intro to APIs: The Census</a>
 <ul>
 <li class="chapter" data-level="17.1" data-path="intro-to-apis-the-census.html"><a href="intro-to-apis-the-census.html#the-acs"><i class="fa fa-check"></i><b>17.1</b> The ACS</a></li>
-<li class="chapter" data-level="17.2" data-path="intro-to-apis-the-census.html"><a href="intro-to-apis-the-census.html#bonus-api-example-coronavirus"><i class="fa fa-check"></i><b>17.2</b> Bonus API example: Coronavirus</a></li>
+<li class="chapter" data-level="17.2" data-path="intro-to-apis-the-census.html"><a href="intro-to-apis-the-census.html#wide-results"><i class="fa fa-check"></i><b>17.2</b> “Wide” Results</a></li>
+<li class="chapter" data-level="17.3" data-path="intro-to-apis-the-census.html"><a href="intro-to-apis-the-census.html#sorting-results"><i class="fa fa-check"></i><b>17.3</b> Sorting Results</a></li>
 </ul></li>
 <li class="chapter" data-level="18" data-path="visualizing-your-data-for-reporting.html"><a href="visualizing-your-data-for-reporting.html"><i class="fa fa-check"></i><b>18</b> Visualizing your data for reporting</a>
 <ul>
@@ -333,20 +334,27 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>Tabula works best when tables in PDFs are clearly defined and have nicely-formatted information. Here’s a perfect example: <a href="https://elections.maryland.gov/press_room/2020_stats/Eligible%20Active%20Voters%20by%20County%20-%20PG20.pdf">active voters by county in Maryland</a>.</p>
 <p><a href="https://tabula.technology/">Download and install Tabula</a>. Tabula works much the same way as Open Refine does – it works in the browser by spinning up a small webserver in your computer.</p>
 <p>When Tabula opens, you click browse to find the PDF on your computer somewhere, and then click import. After it imports, click autodetect tables. You’ll see red boxes appear around what Tabula believes are the tables. You’ll see it does a pretty good job at this.</p>
-<p><img src="images/md_voters.png" /><!-- --></p>
+<p><img src="images/md_voters.png" width="590" /></p>
 <p>Now you can hit the green “Preview &amp; Export Extracted Data” button on the top right. You should see something very like this:</p>
-<p><img src="images/md_voters2.png" /><!-- --></p>
+<p><img src="images/md_voters2.png" width="1175" /></p>
 <p>You can now export that extracted table to a CSV file using the “Export” button. And then we can read it into R:</p>
-<div class="sourceCode" id="cb167"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb167-1"><a href="cleaning-data-part-iv-pdfs.html#cb167-1" aria-hidden="true" tabindex="-1"></a>voters_by_county <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;data/tabula-Eligible Active Voters by County - PG20.csv&quot;</span>)</span></code></pre></div>
-<pre><code>## Rows: 25 Columns: 10</code></pre>
-<pre><code>## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (1): County</code></pre>
+<div class="sourceCode" id="cb163"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb163-1"><a href="cleaning-data-part-iv-pdfs.html#cb163-1" aria-hidden="true" tabindex="-1"></a>voters_by_county <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;data/tabula-Eligible Active Voters by County - PG20.csv&quot;</span>)</span></code></pre></div>
 <pre><code>## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<div class="sourceCode" id="cb171"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb171-1"><a href="cleaning-data-part-iv-pdfs.html#cb171-1" aria-hidden="true" tabindex="-1"></a>voters_by_county</span></code></pre></div>
-<pre><code>## # A tibble: 25 × 10
+## ── Column specification ────────────────────────────────────────────────────────
+## cols(
+##   County = col_character(),
+##   DEM = col_number(),
+##   REP = col_number(),
+##   BAR = col_number(),
+##   GRN = col_number(),
+##   LIB = col_number(),
+##   WCP = col_number(),
+##   OTH = col_number(),
+##   UNA = col_number(),
+##   TOTAL = col_number()
+## )</code></pre>
+<div class="sourceCode" id="cb165"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb165-1"><a href="cleaning-data-part-iv-pdfs.html#cb165-1" aria-hidden="true" tabindex="-1"></a>voters_by_county</span></code></pre></div>
+<pre><code>## # A tibble: 25 x 10
 ##    County              DEM    REP   BAR   GRN   LIB   WCP   OTH    UNA  TOTAL
 ##    &lt;chr&gt;             &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;
 ##  1 Allegany          12820  22530    20    74   204    19   395   7674  43736
@@ -365,24 +373,25 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="when-it-looks-good-but-needs-a-little-fixing" class="section level2" number="13.2">
 <h2><span class="header-section-number">13.2</span> When it looks good, but needs a little fixing</h2>
 <p>Here’s a slightly more involved PDF. Check out the table on page 4 of <a href="https://www.sba.gov/sites/default/files/2021-06/PPP_Report_Public_210531-508.pdf">this SBA PDF</a>.</p>
-<p><img src="images/ppp_1.png" /><!-- --></p>
+<p><img src="images/ppp_1.png" width="1150" /></p>
 <p>Looks like a spreadsheet, right? Save that PDF file to your computer in a place where you’ll remember it (like a Downloads folder).</p>
 <p>Now let’s repeat the steps we did to import the PDF into Tabula and autodetect the tables. Page 4 should look like this:</p>
-<p><img src="images/ppp_2.png" /><!-- --></p>
+<p><img src="images/ppp_2.png" width="797" /></p>
 <p>We just want the table on page 4, which shows 2021 loan activity by type of lender, so hit the “Clear All Selections” button to remove the red boxes. Now, in Tabula, let’s draw a box around the table on page 4. Click and drag to draw the box.</p>
 <p>Now you can hit the green “Preview &amp; Export Extracted Data” button on the top right. You should see something very like this:</p>
-<p><img src="images/ppp_3.png" /><!-- --></p>
+<p><img src="images/ppp_3.png" width="1205" /></p>
 <p>You can now export that extracted table to a CSV file using the “Export” button. And then we can read it into R:</p>
-<div class="sourceCode" id="cb173"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb173-1"><a href="cleaning-data-part-iv-pdfs.html#cb173-1" aria-hidden="true" tabindex="-1"></a>lender_types <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;data/tabula-PPP_Report_Public_210531-508.csv&quot;</span>)</span></code></pre></div>
-<pre><code>## Rows: 13 Columns: 4</code></pre>
-<pre><code>## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (2): Lender Type, Net Dollars</code></pre>
+<div class="sourceCode" id="cb167"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb167-1"><a href="cleaning-data-part-iv-pdfs.html#cb167-1" aria-hidden="true" tabindex="-1"></a>lender_types <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;data/tabula-PPP_Report_Public_210531-508.csv&quot;</span>)</span></code></pre></div>
 <pre><code>## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<div class="sourceCode" id="cb177"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb177-1"><a href="cleaning-data-part-iv-pdfs.html#cb177-1" aria-hidden="true" tabindex="-1"></a>lender_types</span></code></pre></div>
-<pre><code>## # A tibble: 13 × 4
+## ── Column specification ────────────────────────────────────────────────────────
+## cols(
+##   `Lender Type` = col_character(),
+##   `Lender Count` = col_number(),
+##   `Loans Approved` = col_number(),
+##   `Net Dollars` = col_character()
+## )</code></pre>
+<div class="sourceCode" id="cb169"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb169-1"><a href="cleaning-data-part-iv-pdfs.html#cb169-1" aria-hidden="true" tabindex="-1"></a>lender_types</span></code></pre></div>
+<pre><code>## # A tibble: 13 x 4
 ##    `Lender Type`                 `Lender Count` `Loans Approved` `Net Dollars`  
 ##    &lt;chr&gt;                                  &lt;dbl&gt;            &lt;dbl&gt; &lt;chr&gt;          
 ##  1 Banks and S&amp;Ls($10B or more)             112          1807532 $118,331,350,2…
@@ -403,17 +412,18 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h2><span class="header-section-number">13.3</span> Cleaning up the data in R</h2>
 <p>The good news is that we have data we don’t have to retype. The bad news is, it’s hardly in importable shape.</p>
 <p>See the “Net Dollars” column? Thanks to the dollar signs, R doesn’t recognize those values as numbers. The column names seem ok, but having spaces in them is a pain. Let’s fix that by re-importing it and calling <code>mutate</code> so that the new <code>net_dollars</code> column is numeric.</p>
-<div class="sourceCode" id="cb179"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb179-1"><a href="cleaning-data-part-iv-pdfs.html#cb179-1" aria-hidden="true" tabindex="-1"></a>lender_types <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;data/tabula-PPP_Report_Public_210531-508.csv&quot;</span>, <span class="at">skip=</span><span class="dv">1</span>, <span class="at">col_names=</span><span class="fu">c</span>(<span class="st">&quot;type&quot;</span>, <span class="st">&quot;count&quot;</span>, <span class="st">&quot;approved&quot;</span>, <span class="st">&quot;net_dollars&quot;</span>))</span></code></pre></div>
-<pre><code>## Rows: 13 Columns: 4</code></pre>
-<pre><code>## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (2): type, net_dollars</code></pre>
+<div class="sourceCode" id="cb171"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb171-1"><a href="cleaning-data-part-iv-pdfs.html#cb171-1" aria-hidden="true" tabindex="-1"></a>lender_types <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;data/tabula-PPP_Report_Public_210531-508.csv&quot;</span>, <span class="at">skip=</span><span class="dv">1</span>, <span class="at">col_names=</span><span class="fu">c</span>(<span class="st">&quot;type&quot;</span>, <span class="st">&quot;count&quot;</span>, <span class="st">&quot;approved&quot;</span>, <span class="st">&quot;net_dollars&quot;</span>))</span></code></pre></div>
 <pre><code>## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<div class="sourceCode" id="cb183"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb183-1"><a href="cleaning-data-part-iv-pdfs.html#cb183-1" aria-hidden="true" tabindex="-1"></a>lender_types <span class="ot">&lt;-</span> lender_types <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">net_dollars=</span><span class="fu">as.numeric</span>(<span class="fu">parse_number</span>(net_dollars)))</span>
-<span id="cb183-2"><a href="cleaning-data-part-iv-pdfs.html#cb183-2" aria-hidden="true" tabindex="-1"></a>lender_types</span></code></pre></div>
-<pre><code>## # A tibble: 13 × 4
+## ── Column specification ────────────────────────────────────────────────────────
+## cols(
+##   type = col_character(),
+##   count = col_number(),
+##   approved = col_number(),
+##   net_dollars = col_character()
+## )</code></pre>
+<div class="sourceCode" id="cb173"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb173-1"><a href="cleaning-data-part-iv-pdfs.html#cb173-1" aria-hidden="true" tabindex="-1"></a>lender_types <span class="ot">&lt;-</span> lender_types <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">net_dollars=</span><span class="fu">as.numeric</span>(<span class="fu">parse_number</span>(net_dollars)))</span>
+<span id="cb173-2"><a href="cleaning-data-part-iv-pdfs.html#cb173-2" aria-hidden="true" tabindex="-1"></a>lender_types</span></code></pre></div>
+<pre><code>## # A tibble: 13 x 4
 ##    type                                 count approved  net_dollars
 ##    &lt;chr&gt;                                &lt;dbl&gt;    &lt;dbl&gt;        &lt;dbl&gt;
 ##  1 Banks and S&amp;Ls($10B or more)           112  1807532 118331350203
@@ -444,7 +454,6 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
-<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
 <script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
@@ -485,7 +494,7 @@ gitbook.start({
 },
 "download": ["datajournalism.pdf", "datajournalism.epub"],
 "search": {
-"engine": "lunr",
+"engine": "fuse",
 "options": null
 },
 "toc": {

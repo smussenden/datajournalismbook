@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>Chapter 15 Scraping data with Rvest | Data Journalism with R and the Tidyverse</title>
   <meta name="description" content="This is a book built on a very opinionated philosophy for journalism students doing data journalism in R with replicable methods." />
-  <meta name="generator" content="bookdown 0.23 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
 
   <meta property="og:title" content="Chapter 15 Scraping data with Rvest | Data Journalism with R and the Tidyverse" />
   <meta property="og:type" content="book" />
@@ -24,7 +24,7 @@
 <meta name="author" content="Matt Waite (original author); updated by Derek Willis and Sean Mussenden" />
 
 
-<meta name="date" content="2021-08-29" />
+<meta name="date" content="2021-09-07" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -35,6 +35,7 @@
 <link rel="next" href="advanced-rvest.html"/>
 <script src="libs/header-attrs-2.10/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
@@ -50,12 +51,11 @@
 
 
 
-
 <link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
 <script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
 <script src="libs/htmlwidgets-1.5.3/htmlwidgets.js"></script>
 <link href="libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
-<script src="libs/datatables-binding-0.18/datatables.js"></script>
+<script src="libs/datatables-binding-0.19/datatables.js"></script>
 <link href="libs/dt-core-1.10.20/css/jquery.dataTables.min.css" rel="stylesheet" />
 <link href="libs/dt-core-1.10.20/css/jquery.dataTables.extra.css" rel="stylesheet" />
 <script src="libs/dt-core-1.10.20/js/jquery.dataTables.min.js"></script>
@@ -241,7 +241,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="17" data-path="intro-to-apis-the-census.html"><a href="intro-to-apis-the-census.html"><i class="fa fa-check"></i><b>17</b> Intro to APIs: The Census</a>
 <ul>
 <li class="chapter" data-level="17.1" data-path="intro-to-apis-the-census.html"><a href="intro-to-apis-the-census.html#the-acs"><i class="fa fa-check"></i><b>17.1</b> The ACS</a></li>
-<li class="chapter" data-level="17.2" data-path="intro-to-apis-the-census.html"><a href="intro-to-apis-the-census.html#bonus-api-example-coronavirus"><i class="fa fa-check"></i><b>17.2</b> Bonus API example: Coronavirus</a></li>
+<li class="chapter" data-level="17.2" data-path="intro-to-apis-the-census.html"><a href="intro-to-apis-the-census.html#wide-results"><i class="fa fa-check"></i><b>17.2</b> “Wide” Results</a></li>
+<li class="chapter" data-level="17.3" data-path="intro-to-apis-the-census.html"><a href="intro-to-apis-the-census.html#sorting-results"><i class="fa fa-check"></i><b>17.3</b> Sorting Results</a></li>
 </ul></li>
 <li class="chapter" data-level="18" data-path="visualizing-your-data-for-reporting.html"><a href="visualizing-your-data-for-reporting.html"><i class="fa fa-check"></i><b>18</b> Visualizing your data for reporting</a>
 <ul>
@@ -331,32 +332,32 @@ One of the most powerful tools you can learn as a data journalist is how to scra
 <p>Let’s try an easy one.</p>
 <p>We’re going to use a library called <code>rvest</code>, which you can install it the same way we’ve done all installs: go to the console and <code>install.packages("rvest")</code>.</p>
 <p>We’ll load them first:</p>
-<div class="sourceCode" id="cb232"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb232-1"><a href="scraping-data-with-rvest.html#cb232-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rvest)</span></code></pre></div>
+<div class="sourceCode" id="cb210"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb210-1"><a href="scraping-data-with-rvest.html#cb210-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rvest)</span></code></pre></div>
 <pre><code>## 
 ## Attaching package: &#39;rvest&#39;</code></pre>
 <pre><code>## The following object is masked from &#39;package:readr&#39;:
 ## 
 ##     guess_encoding</code></pre>
-<div class="sourceCode" id="cb235"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb235-1"><a href="scraping-data-with-rvest.html#cb235-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code></pre></div>
+<div class="sourceCode" id="cb213"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb213-1"><a href="scraping-data-with-rvest.html#cb213-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code></pre></div>
 <p>The first thing we need to do is define a URL. What URL are we going to scrape? This is where paying attention to URLs pays off. Some search urls are addressable – meaning you can copy the url of your search and go to it again and again. Or is the search term invisible?</p>
 <p>Let’s take an example from the Nebraska Legislature. The Legislature publishes a daily agenda that tells you what bills will be debated on the floor that day. Here’s <a href="https://nebraskalegislature.gov/calendar/agenda.php?day=2020-02-03">an example from Feb. 3</a>. Go that page. You’ll see multiple sections – a reports section, and the General File section. General File is the first stage of floor debate. Those are the bills to be debated.</p>
 <p>Let’s grab them with rvest.</p>
 <p>First, we create a url variable and set it equal to that url.</p>
-<div class="sourceCode" id="cb236"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb236-1"><a href="scraping-data-with-rvest.html#cb236-1" aria-hidden="true" tabindex="-1"></a>url <span class="ot">&lt;-</span> <span class="st">&quot;https://nebraskalegislature.gov/calendar/agenda.php?day=2020-02-03&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb214"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb214-1"><a href="scraping-data-with-rvest.html#cb214-1" aria-hidden="true" tabindex="-1"></a>url <span class="ot">&lt;-</span> <span class="st">&quot;https://nebraskalegislature.gov/calendar/agenda.php?day=2020-02-03&quot;</span></span></code></pre></div>
 <p>Now we’re going to do a handful of things at once. We’re going to take that url, pass it to a <code>read_html</code> command, which does what you think it does. We’re then going to search that HTML for a specific node, the node that contains our data.</p>
 <p>The most difficult part of scraping data from any website is knowing what exact HTML tag you need to grab. In this case, we want a <code>&lt;table&gt;</code> tag that has all of our data table in it. But how do you tell R which one that is? Well, it’s easy, once you know what to do. But it’s not simple. So I’ve made a short video to show you how to find it.</p>
 <iframe width="560" height="315" src="https://www.youtube.com/embed/kYkSE3zWa9Y" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
 </iframe>
 <p>Using that same trick on the Legislature page, we find the table with those general file bills and it’s in something called <code>agenda_table_4464</code>. With that, we can turn it into a table.</p>
-<div class="sourceCode" id="cb237"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb237-1"><a href="scraping-data-with-rvest.html#cb237-1" aria-hidden="true" tabindex="-1"></a>agenda <span class="ot">&lt;-</span> url <span class="sc">%&gt;%</span></span>
-<span id="cb237-2"><a href="scraping-data-with-rvest.html#cb237-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read_html</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb237-3"><a href="scraping-data-with-rvest.html#cb237-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_nodes</span>(<span class="at">xpath =</span> <span class="st">&#39;//*[@id=&quot;agenda_table_4464&quot;]&#39;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb237-4"><a href="scraping-data-with-rvest.html#cb237-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_table</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb215"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb215-1"><a href="scraping-data-with-rvest.html#cb215-1" aria-hidden="true" tabindex="-1"></a>agenda <span class="ot">&lt;-</span> url <span class="sc">%&gt;%</span></span>
+<span id="cb215-2"><a href="scraping-data-with-rvest.html#cb215-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read_html</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb215-3"><a href="scraping-data-with-rvest.html#cb215-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_nodes</span>(<span class="at">xpath =</span> <span class="st">&#39;//*[@id=&quot;agenda_table_4464&quot;]&#39;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb215-4"><a href="scraping-data-with-rvest.html#cb215-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_table</span>()</span></code></pre></div>
 <p>After doing that, looking at the environment for your agenda. And you’ll see … not a dataframe. You’ll see a list. With one thing in it. That one thing? A dataframe. So we need to grab that first element. We get it by doing this:</p>
-<div class="sourceCode" id="cb238"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb238-1"><a href="scraping-data-with-rvest.html#cb238-1" aria-hidden="true" tabindex="-1"></a>agenda <span class="ot">&lt;-</span> agenda[[<span class="dv">1</span>]]</span></code></pre></div>
+<div class="sourceCode" id="cb216"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb216-1"><a href="scraping-data-with-rvest.html#cb216-1" aria-hidden="true" tabindex="-1"></a>agenda <span class="ot">&lt;-</span> agenda[[<span class="dv">1</span>]]</span></code></pre></div>
 <p>And now we can take a look:</p>
-<div class="sourceCode" id="cb239"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb239-1"><a href="scraping-data-with-rvest.html#cb239-1" aria-hidden="true" tabindex="-1"></a>agenda</span></code></pre></div>
-<pre><code>## # A tibble: 10 × 3
+<div class="sourceCode" id="cb217"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb217-1"><a href="scraping-data-with-rvest.html#cb217-1" aria-hidden="true" tabindex="-1"></a>agenda</span></code></pre></div>
+<pre><code>## # A tibble: 10 x 3
 ##    Document                         Introducer Description                      
 ##    &lt;chr&gt;                            &lt;chr&gt;      &lt;chr&gt;                            
 ##  1 &quot;Currently or Pendingon Floor\n… Bolz       Provide a duty for the county bo…
@@ -370,8 +371,8 @@ One of the most powerful tools you can learn as a data journalist is how to scra
 ##  9 &quot;Currently or Pendingon Floor\n… McDonnell  Change provisions relating to co…
 ## 10 &quot;Currently or Pendingon Floor\n… Vargas     Change provisions relating to th…</code></pre>
 <p>And as you can see, it’s … not perfect. But we can fix that with a little <code>gsub</code> magic.</p>
-<div class="sourceCode" id="cb241"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb241-1"><a href="scraping-data-with-rvest.html#cb241-1" aria-hidden="true" tabindex="-1"></a>agenda <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">Document =</span> <span class="fu">gsub</span>(<span class="st">&quot;Currently or Pendingon Floor</span><span class="sc">\n</span><span class="st"> &quot;</span>,<span class="st">&quot;&quot;</span>,Document))</span></code></pre></div>
-<pre><code>## # A tibble: 10 × 3
+<div class="sourceCode" id="cb219"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb219-1"><a href="scraping-data-with-rvest.html#cb219-1" aria-hidden="true" tabindex="-1"></a>agenda <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">Document =</span> <span class="fu">gsub</span>(<span class="st">&quot;Currently or Pendingon Floor</span><span class="sc">\n</span><span class="st"> &quot;</span>,<span class="st">&quot;&quot;</span>,Document))</span></code></pre></div>
+<pre><code>## # A tibble: 10 x 3
 ##    Document                        Introducer Description                       
 ##    &lt;chr&gt;                           &lt;chr&gt;      &lt;chr&gt;                             
 ##  1 &quot;                             … Bolz       Provide a duty for the county boa…
@@ -389,14 +390,14 @@ One of the most powerful tools you can learn as a data journalist is how to scra
 <p>The Nebraska Legislature, with it’s unique unicameral or one house structure, does some things a little differently than other legislatures. Example: Bills have to go through three rounds of debate before getting passed. There’s General File (round 1), Select File (round 2), and Final Reading (round 3).</p>
 <p>So what does a day where they do more than general file look like? <a href="https://nebraskalegislature.gov/calendar/agenda.php?day=2020-02-21">Like this</a>.</p>
 <p>How do we scrape that?</p>
-<div class="sourceCode" id="cb243"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb243-1"><a href="scraping-data-with-rvest.html#cb243-1" aria-hidden="true" tabindex="-1"></a>harderurl <span class="ot">&lt;-</span> <span class="st">&quot;https://nebraskalegislature.gov/calendar/agenda.php?day=2020-02-21&quot;</span></span></code></pre></div>
-<div class="sourceCode" id="cb244"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb244-1"><a href="scraping-data-with-rvest.html#cb244-1" aria-hidden="true" tabindex="-1"></a>harderagenda <span class="ot">&lt;-</span> harderurl <span class="sc">%&gt;%</span></span>
-<span id="cb244-2"><a href="scraping-data-with-rvest.html#cb244-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read_html</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb244-3"><a href="scraping-data-with-rvest.html#cb244-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_nodes</span>(<span class="st">&quot;table&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb244-4"><a href="scraping-data-with-rvest.html#cb244-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_table</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb221"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb221-1"><a href="scraping-data-with-rvest.html#cb221-1" aria-hidden="true" tabindex="-1"></a>harderurl <span class="ot">&lt;-</span> <span class="st">&quot;https://nebraskalegislature.gov/calendar/agenda.php?day=2020-02-21&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb222"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb222-1"><a href="scraping-data-with-rvest.html#cb222-1" aria-hidden="true" tabindex="-1"></a>harderagenda <span class="ot">&lt;-</span> harderurl <span class="sc">%&gt;%</span></span>
+<span id="cb222-2"><a href="scraping-data-with-rvest.html#cb222-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read_html</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb222-3"><a href="scraping-data-with-rvest.html#cb222-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_nodes</span>(<span class="st">&quot;table&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb222-4"><a href="scraping-data-with-rvest.html#cb222-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_table</span>()</span></code></pre></div>
 <p>You can see that <code>harderagenda</code> has a list of four instead of a list of one. We can see each item in the list has a dataframe. We can see them individually. Here’s the first:</p>
-<div class="sourceCode" id="cb245"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb245-1"><a href="scraping-data-with-rvest.html#cb245-1" aria-hidden="true" tabindex="-1"></a>harderagenda[[<span class="dv">1</span>]]</span></code></pre></div>
-<pre><code>## # A tibble: 4 × 3
+<div class="sourceCode" id="cb223"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb223-1"><a href="scraping-data-with-rvest.html#cb223-1" aria-hidden="true" tabindex="-1"></a>harderagenda[[<span class="dv">1</span>]]</span></code></pre></div>
+<pre><code>## # A tibble: 4 x 3
 ##   Document                          Introducer Description                      
 ##   &lt;chr&gt;                             &lt;chr&gt;      &lt;chr&gt;                            
 ## 1 &quot;Currently or Pendingon Floor\n … Kolterman  Define the required beginning da…
@@ -404,8 +405,8 @@ One of the most powerful tools you can learn as a data journalist is how to scra
 ## 3 &quot;Currently or Pendingon Floor\n … Chambers   Change provisions relating to ra…
 ## 4 &quot;Currently or Pendingon Floor\n … Gragert    Provide for state park permits  …</code></pre>
 <p>Here’s the second:</p>
-<div class="sourceCode" id="cb247"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb247-1"><a href="scraping-data-with-rvest.html#cb247-1" aria-hidden="true" tabindex="-1"></a>harderagenda[[<span class="dv">2</span>]]</span></code></pre></div>
-<pre><code>## # A tibble: 4 × 3
+<div class="sourceCode" id="cb225"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb225-1"><a href="scraping-data-with-rvest.html#cb225-1" aria-hidden="true" tabindex="-1"></a>harderagenda[[<span class="dv">2</span>]]</span></code></pre></div>
+<pre><code>## # A tibble: 4 x 3
 ##   Document                          Introducer Description                      
 ##   &lt;chr&gt;                             &lt;chr&gt;      &lt;chr&gt;                            
 ## 1 &quot;Currently or Pendingon Floor\n … Crawford   Change the Child Protection and …
@@ -415,20 +416,20 @@ One of the most powerful tools you can learn as a data journalist is how to scra
 <p>So we can merge those together no problem, but how would we know what stage each bill is at?</p>
 <p>Look at the page – we can see that the bills are separated by a big headline like “SELECT FILE: 2020 PRIORITY BILLS.” To separate these, we need to grab those and then add them to each bill using mutate.</p>
 <p>Here’s how we grab them:</p>
-<div class="sourceCode" id="cb249"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb249-1"><a href="scraping-data-with-rvest.html#cb249-1" aria-hidden="true" tabindex="-1"></a>labels <span class="ot">&lt;-</span> harderurl <span class="sc">%&gt;%</span></span>
-<span id="cb249-2"><a href="scraping-data-with-rvest.html#cb249-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read_html</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb249-3"><a href="scraping-data-with-rvest.html#cb249-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_nodes</span>(<span class="st">&quot;.card-header&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb249-4"><a href="scraping-data-with-rvest.html#cb249-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_text</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb227"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb227-1"><a href="scraping-data-with-rvest.html#cb227-1" aria-hidden="true" tabindex="-1"></a>labels <span class="ot">&lt;-</span> harderurl <span class="sc">%&gt;%</span></span>
+<span id="cb227-2"><a href="scraping-data-with-rvest.html#cb227-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read_html</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb227-3"><a href="scraping-data-with-rvest.html#cb227-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_nodes</span>(<span class="st">&quot;.card-header&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb227-4"><a href="scraping-data-with-rvest.html#cb227-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_text</span>()</span></code></pre></div>
 <p>Another list. If you look at the first, it’s at the top of the page with no bills. Here’s the second:</p>
-<div class="sourceCode" id="cb250"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb250-1"><a href="scraping-data-with-rvest.html#cb250-1" aria-hidden="true" tabindex="-1"></a>labels[[<span class="dv">2</span>]]</span></code></pre></div>
+<div class="sourceCode" id="cb228"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb228-1"><a href="scraping-data-with-rvest.html#cb228-1" aria-hidden="true" tabindex="-1"></a>labels[[<span class="dv">2</span>]]</span></code></pre></div>
 <pre><code>## [1] &quot;\n                    SELECT FILE:  2020 PRIORITY BILLS\n\t\t                    &quot;</code></pre>
 <p>So we know can see there’s some garbage in there we want to clean out. We can use a new library called <code>stringr</code> to trim the excess spaces and <code>gsub</code> to strip the newline character: <code>\n</code>.</p>
-<div class="sourceCode" id="cb252"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb252-1"><a href="scraping-data-with-rvest.html#cb252-1" aria-hidden="true" tabindex="-1"></a>harderagenda[[<span class="dv">1</span>]] <span class="sc">%&gt;%</span> </span>
-<span id="cb252-2"><a href="scraping-data-with-rvest.html#cb252-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Document =</span> <span class="fu">gsub</span>(<span class="st">&quot;Currently or Pendingon Floor</span><span class="sc">\n</span><span class="st"> &quot;</span>,<span class="st">&quot;&quot;</span>,Document)) <span class="sc">%&gt;%</span></span>
-<span id="cb252-3"><a href="scraping-data-with-rvest.html#cb252-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Stage =</span> labels[[<span class="dv">2</span>]]) <span class="sc">%&gt;%</span></span>
-<span id="cb252-4"><a href="scraping-data-with-rvest.html#cb252-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Stage =</span> <span class="fu">gsub</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>,<span class="st">&quot;&quot;</span>,Stage)) <span class="sc">%&gt;%</span></span>
-<span id="cb252-5"><a href="scraping-data-with-rvest.html#cb252-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Stage =</span> <span class="fu">str_trim</span>(Stage, <span class="at">side =</span> <span class="st">&quot;both&quot;</span>))</span></code></pre></div>
-<pre><code>## # A tibble: 4 × 4
+<div class="sourceCode" id="cb230"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb230-1"><a href="scraping-data-with-rvest.html#cb230-1" aria-hidden="true" tabindex="-1"></a>harderagenda[[<span class="dv">1</span>]] <span class="sc">%&gt;%</span> </span>
+<span id="cb230-2"><a href="scraping-data-with-rvest.html#cb230-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Document =</span> <span class="fu">gsub</span>(<span class="st">&quot;Currently or Pendingon Floor</span><span class="sc">\n</span><span class="st"> &quot;</span>,<span class="st">&quot;&quot;</span>,Document)) <span class="sc">%&gt;%</span></span>
+<span id="cb230-3"><a href="scraping-data-with-rvest.html#cb230-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Stage =</span> labels[[<span class="dv">2</span>]]) <span class="sc">%&gt;%</span></span>
+<span id="cb230-4"><a href="scraping-data-with-rvest.html#cb230-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Stage =</span> <span class="fu">gsub</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>,<span class="st">&quot;&quot;</span>,Stage)) <span class="sc">%&gt;%</span></span>
+<span id="cb230-5"><a href="scraping-data-with-rvest.html#cb230-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Stage =</span> <span class="fu">str_trim</span>(Stage, <span class="at">side =</span> <span class="st">&quot;both&quot;</span>))</span></code></pre></div>
+<pre><code>## # A tibble: 4 x 4
 ##   Document                  Introducer Description                  Stage       
 ##   &lt;chr&gt;                     &lt;chr&gt;      &lt;chr&gt;                        &lt;chr&gt;       
 ## 1 &quot;                       … Kolterman  Define the required beginni… SELECT FILE…
@@ -437,29 +438,29 @@ One of the most powerful tools you can learn as a data journalist is how to scra
 ## 4 &quot;                       … Gragert    Provide for state park perm… SELECT FILE…</code></pre>
 <p>Now it’s just a matter grinding through the items in the list.</p>
 <p>NOTE: This is grossly inefficient and very manual. And, we’d have to change this for every day we want to scrape. As such, this is not the “right” way to do this. We’ll cover that in the next chapter.</p>
-<div class="sourceCode" id="cb254"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb254-1"><a href="scraping-data-with-rvest.html#cb254-1" aria-hidden="true" tabindex="-1"></a>harderagenda1 <span class="ot">&lt;-</span> harderagenda[[<span class="dv">1</span>]] <span class="sc">%&gt;%</span> </span>
-<span id="cb254-2"><a href="scraping-data-with-rvest.html#cb254-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Document =</span> <span class="fu">gsub</span>(<span class="st">&quot;Currently or Pendingon Floor</span><span class="sc">\n</span><span class="st"> &quot;</span>,<span class="st">&quot;&quot;</span>,Document)) <span class="sc">%&gt;%</span></span>
-<span id="cb254-3"><a href="scraping-data-with-rvest.html#cb254-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Stage =</span> labels[[<span class="dv">2</span>]]) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">Stage =</span> <span class="fu">gsub</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>,<span class="st">&quot;&quot;</span>,Stage)) <span class="sc">%&gt;%</span></span>
-<span id="cb254-4"><a href="scraping-data-with-rvest.html#cb254-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Stage =</span> <span class="fu">str_trim</span>(Stage, <span class="at">side =</span> <span class="st">&quot;both&quot;</span>))</span></code></pre></div>
-<div class="sourceCode" id="cb255"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb255-1"><a href="scraping-data-with-rvest.html#cb255-1" aria-hidden="true" tabindex="-1"></a>harderagenda2 <span class="ot">&lt;-</span> harderagenda[[<span class="dv">2</span>]] <span class="sc">%&gt;%</span> </span>
-<span id="cb255-2"><a href="scraping-data-with-rvest.html#cb255-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Document =</span> <span class="fu">gsub</span>(<span class="st">&quot;Currently or Pendingon Floor</span><span class="sc">\n</span><span class="st"> &quot;</span>,<span class="st">&quot;&quot;</span>,Document)) <span class="sc">%&gt;%</span></span>
-<span id="cb255-3"><a href="scraping-data-with-rvest.html#cb255-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Stage =</span> labels[[<span class="dv">3</span>]]) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">Stage =</span> <span class="fu">gsub</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>,<span class="st">&quot;&quot;</span>,Stage)) <span class="sc">%&gt;%</span></span>
-<span id="cb255-4"><a href="scraping-data-with-rvest.html#cb255-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Stage =</span> <span class="fu">str_trim</span>(Stage, <span class="at">side =</span> <span class="st">&quot;both&quot;</span>))</span></code></pre></div>
-<div class="sourceCode" id="cb256"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb256-1"><a href="scraping-data-with-rvest.html#cb256-1" aria-hidden="true" tabindex="-1"></a>harderagenda3 <span class="ot">&lt;-</span> harderagenda[[<span class="dv">3</span>]] <span class="sc">%&gt;%</span> </span>
-<span id="cb256-2"><a href="scraping-data-with-rvest.html#cb256-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Document =</span> <span class="fu">gsub</span>(<span class="st">&quot;Currently or Pendingon Floor</span><span class="sc">\n</span><span class="st"> &quot;</span>,<span class="st">&quot;&quot;</span>,Document)) <span class="sc">%&gt;%</span></span>
-<span id="cb256-3"><a href="scraping-data-with-rvest.html#cb256-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Stage =</span> labels[[<span class="dv">4</span>]]) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">Stage =</span> <span class="fu">gsub</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>,<span class="st">&quot;&quot;</span>,Stage)) <span class="sc">%&gt;%</span></span>
-<span id="cb256-4"><a href="scraping-data-with-rvest.html#cb256-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Stage =</span> <span class="fu">str_trim</span>(Stage, <span class="at">side =</span> <span class="st">&quot;both&quot;</span>))</span></code></pre></div>
-<div class="sourceCode" id="cb257"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb257-1"><a href="scraping-data-with-rvest.html#cb257-1" aria-hidden="true" tabindex="-1"></a>harderagenda4 <span class="ot">&lt;-</span> harderagenda[[<span class="dv">4</span>]] <span class="sc">%&gt;%</span> </span>
-<span id="cb257-2"><a href="scraping-data-with-rvest.html#cb257-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Document =</span> <span class="fu">gsub</span>(<span class="st">&quot;Currently or Pendingon Floor</span><span class="sc">\n</span><span class="st"> &quot;</span>,<span class="st">&quot;&quot;</span>,Document)) <span class="sc">%&gt;%</span></span>
-<span id="cb257-3"><a href="scraping-data-with-rvest.html#cb257-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Stage =</span> labels[[<span class="dv">5</span>]]) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">Stage =</span> <span class="fu">gsub</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>,<span class="st">&quot;&quot;</span>,Stage)) <span class="sc">%&gt;%</span></span>
-<span id="cb257-4"><a href="scraping-data-with-rvest.html#cb257-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Stage =</span> <span class="fu">str_trim</span>(Stage, <span class="at">side =</span> <span class="st">&quot;both&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb232"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb232-1"><a href="scraping-data-with-rvest.html#cb232-1" aria-hidden="true" tabindex="-1"></a>harderagenda1 <span class="ot">&lt;-</span> harderagenda[[<span class="dv">1</span>]] <span class="sc">%&gt;%</span> </span>
+<span id="cb232-2"><a href="scraping-data-with-rvest.html#cb232-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Document =</span> <span class="fu">gsub</span>(<span class="st">&quot;Currently or Pendingon Floor</span><span class="sc">\n</span><span class="st"> &quot;</span>,<span class="st">&quot;&quot;</span>,Document)) <span class="sc">%&gt;%</span></span>
+<span id="cb232-3"><a href="scraping-data-with-rvest.html#cb232-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Stage =</span> labels[[<span class="dv">2</span>]]) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">Stage =</span> <span class="fu">gsub</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>,<span class="st">&quot;&quot;</span>,Stage)) <span class="sc">%&gt;%</span></span>
+<span id="cb232-4"><a href="scraping-data-with-rvest.html#cb232-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Stage =</span> <span class="fu">str_trim</span>(Stage, <span class="at">side =</span> <span class="st">&quot;both&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb233"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb233-1"><a href="scraping-data-with-rvest.html#cb233-1" aria-hidden="true" tabindex="-1"></a>harderagenda2 <span class="ot">&lt;-</span> harderagenda[[<span class="dv">2</span>]] <span class="sc">%&gt;%</span> </span>
+<span id="cb233-2"><a href="scraping-data-with-rvest.html#cb233-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Document =</span> <span class="fu">gsub</span>(<span class="st">&quot;Currently or Pendingon Floor</span><span class="sc">\n</span><span class="st"> &quot;</span>,<span class="st">&quot;&quot;</span>,Document)) <span class="sc">%&gt;%</span></span>
+<span id="cb233-3"><a href="scraping-data-with-rvest.html#cb233-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Stage =</span> labels[[<span class="dv">3</span>]]) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">Stage =</span> <span class="fu">gsub</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>,<span class="st">&quot;&quot;</span>,Stage)) <span class="sc">%&gt;%</span></span>
+<span id="cb233-4"><a href="scraping-data-with-rvest.html#cb233-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Stage =</span> <span class="fu">str_trim</span>(Stage, <span class="at">side =</span> <span class="st">&quot;both&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb234"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb234-1"><a href="scraping-data-with-rvest.html#cb234-1" aria-hidden="true" tabindex="-1"></a>harderagenda3 <span class="ot">&lt;-</span> harderagenda[[<span class="dv">3</span>]] <span class="sc">%&gt;%</span> </span>
+<span id="cb234-2"><a href="scraping-data-with-rvest.html#cb234-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Document =</span> <span class="fu">gsub</span>(<span class="st">&quot;Currently or Pendingon Floor</span><span class="sc">\n</span><span class="st"> &quot;</span>,<span class="st">&quot;&quot;</span>,Document)) <span class="sc">%&gt;%</span></span>
+<span id="cb234-3"><a href="scraping-data-with-rvest.html#cb234-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Stage =</span> labels[[<span class="dv">4</span>]]) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">Stage =</span> <span class="fu">gsub</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>,<span class="st">&quot;&quot;</span>,Stage)) <span class="sc">%&gt;%</span></span>
+<span id="cb234-4"><a href="scraping-data-with-rvest.html#cb234-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Stage =</span> <span class="fu">str_trim</span>(Stage, <span class="at">side =</span> <span class="st">&quot;both&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb235"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb235-1"><a href="scraping-data-with-rvest.html#cb235-1" aria-hidden="true" tabindex="-1"></a>harderagenda4 <span class="ot">&lt;-</span> harderagenda[[<span class="dv">4</span>]] <span class="sc">%&gt;%</span> </span>
+<span id="cb235-2"><a href="scraping-data-with-rvest.html#cb235-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Document =</span> <span class="fu">gsub</span>(<span class="st">&quot;Currently or Pendingon Floor</span><span class="sc">\n</span><span class="st"> &quot;</span>,<span class="st">&quot;&quot;</span>,Document)) <span class="sc">%&gt;%</span></span>
+<span id="cb235-3"><a href="scraping-data-with-rvest.html#cb235-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Stage =</span> labels[[<span class="dv">5</span>]]) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">Stage =</span> <span class="fu">gsub</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>,<span class="st">&quot;&quot;</span>,Stage)) <span class="sc">%&gt;%</span></span>
+<span id="cb235-4"><a href="scraping-data-with-rvest.html#cb235-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Stage =</span> <span class="fu">str_trim</span>(Stage, <span class="at">side =</span> <span class="st">&quot;both&quot;</span>))</span></code></pre></div>
 <p>Now we merge:</p>
-<div class="sourceCode" id="cb258"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb258-1"><a href="scraping-data-with-rvest.html#cb258-1" aria-hidden="true" tabindex="-1"></a>largeragenda <span class="ot">&lt;-</span> <span class="fu">rbind</span>(harderagenda1, harderagenda2)</span>
-<span id="cb258-2"><a href="scraping-data-with-rvest.html#cb258-2" aria-hidden="true" tabindex="-1"></a>largeragenda <span class="ot">&lt;-</span> <span class="fu">rbind</span>(largeragenda, harderagenda3)</span>
-<span id="cb258-3"><a href="scraping-data-with-rvest.html#cb258-3" aria-hidden="true" tabindex="-1"></a>largeragenda <span class="ot">&lt;-</span> <span class="fu">rbind</span>(largeragenda, harderagenda4)</span></code></pre></div>
+<div class="sourceCode" id="cb236"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb236-1"><a href="scraping-data-with-rvest.html#cb236-1" aria-hidden="true" tabindex="-1"></a>largeragenda <span class="ot">&lt;-</span> <span class="fu">rbind</span>(harderagenda1, harderagenda2)</span>
+<span id="cb236-2"><a href="scraping-data-with-rvest.html#cb236-2" aria-hidden="true" tabindex="-1"></a>largeragenda <span class="ot">&lt;-</span> <span class="fu">rbind</span>(largeragenda, harderagenda3)</span>
+<span id="cb236-3"><a href="scraping-data-with-rvest.html#cb236-3" aria-hidden="true" tabindex="-1"></a>largeragenda <span class="ot">&lt;-</span> <span class="fu">rbind</span>(largeragenda, harderagenda4)</span></code></pre></div>
 <p>And now we have a dataset of all bills and what stage they’re at for that day.</p>
-<div class="sourceCode" id="cb259"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb259-1"><a href="scraping-data-with-rvest.html#cb259-1" aria-hidden="true" tabindex="-1"></a>largeragenda</span></code></pre></div>
-<pre><code>## # A tibble: 10 × 4
+<div class="sourceCode" id="cb237"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb237-1"><a href="scraping-data-with-rvest.html#cb237-1" aria-hidden="true" tabindex="-1"></a>largeragenda</span></code></pre></div>
+<pre><code>## # A tibble: 10 x 4
 ##    Document             Introducer    Description             Stage             
 ##    &lt;chr&gt;                &lt;chr&gt;         &lt;chr&gt;                   &lt;chr&gt;             
 ##  1 &quot;                  … Kolterman     Define the required be… &quot;SELECT FILE:  20…
@@ -485,7 +486,6 @@ One of the most powerful tools you can learn as a data journalist is how to scra
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
-<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
 <script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
@@ -526,7 +526,7 @@ gitbook.start({
 },
 "download": ["datajournalism.pdf", "datajournalism.epub"],
 "search": {
-"engine": "lunr",
+"engine": "fuse",
 "options": null
 },
 "toc": {

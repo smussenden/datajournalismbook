@@ -726,11 +726,10 @@ So first we'll import the tidyverse so we can read in our data and begin to work
 library(tidyverse)
 ```
 
-Now we'll import a dataset of [PPP applications from Maryland](https://umd.box.com/s/czolak14n8ts55aqnt7rrqfb6cb8blr1). We'll use this, a sample of the entire PPP loan data, to explore ways to create new information from existing data.
+Now we'll import a dataset of PPP applications from Maryland that is in the data folder in this chapter's pre-lab directory. We'll use this, a sample of the entire PPP loan data, to explore ways to create new information from existing data.
 
 ```{r}
 maryland_ppp <- read.csv('data/ppp_applications_md.csv')
-
 ```
 
 First, let's add a column called `percent_payroll` for the percentage of each loan application that payroll expenses represent. The code to calculate a percentage is pretty simple. Remember, with `summarize`, we used `n()` to count things. With `mutate`, we use very similar syntax to calculate a new value -- a new column of data -- using other values in our dataset. So in this case, we're trying to do , but we're doing it with fields.
@@ -848,7 +847,7 @@ First, we'll import `tidyverse` like we always do.
 library(tidyverse)
 ```
 
-We're going to use a dataset of [PPP applications from Maryland](https://umd.box.com/s/czolak14n8ts55aqnt7rrqfb6cb8blr1). If we do this the old way -- using read.csv -- this is what we get:
+Now we'll import a dataset of PPP applications from Maryland that is in the data folder in this chapter's pre-lab directory. If we do this the old way -- using read.csv -- this is what we get:
 
 ```{r}
 maryland_ppp <- read.csv('data/ppp_applications_md.csv')
@@ -924,14 +923,14 @@ More often than not, we have more data than we want. Sometimes we need to be rid
 
 **Selecting simply returns only the fields named**. So if you only want to see city and amount, you select those fields. When you look at your data again, you'll have two columns. If you try to use one of your columns that you had before you used select, you'll get an error. **Selecting works with columns. You will have the same number of records when you are done, but fewer columns of data to work with.**
 
-Let's work with the [PPP applications from Maryland](https://umd.box.com/s/czolak14n8ts55aqnt7rrqfb6cb8blr1). It has loan applications from all over the state, so one way to filter is to isolate on "county" - Maryland has both counties and Baltimore City as jurisdictions. Let's start by loading tidyverse and reading in the Maryland data:
+Now we'll import a dataset of PPP applications from Maryland that is in the data folder in this chapter's pre-lab directory. It has loan applications from all over the state, so one way to filter is to isolate on "county" - Maryland has both counties and Baltimore City as jurisdictions. Let's start by loading tidyverse and reading in the Maryland data:
 
 ```{r}
 library(tidyverse)
 ```
 
 ```{r}
-maryland_ppp <- read.csv('data/ppp_applications_md.csv')
+maryland_ppp <- read_csv('data/ppp_applications_md.csv')
 ```
 
 The data we want to filter on is in `project_county_name`. So we're going to use filter and something called a comparison operator. We need to filter all records equal to "PRINCE GEORGES". The comparison operators in R, like most programming languages, are == for equal to, != for not equal to, > for greater than, >= for greater than or equal to and so on.
@@ -1473,19 +1472,19 @@ That's a good approach for the future. A good rule of thumb is that you should o
 
 # Data Cleaning Part III: Open Refine
 
-Gather 'round kids and let me tell you a tale about your author. In college, your author (Matt Waite) got involved in a project where he mapped crime in the city, looking specifically in the neighborhoods surrounding campus. This was in the mid 1990s. Computers were under powered. Tools were pretty primitive. I was given a database of nearly 50,000 calls for service. 
+Gather 'round kids and let me tell you a tale about your author. In college, your author (Matt Waite) got involved in a project where he mapped crime in the city, looking specifically in the neighborhoods surrounding campus. This was in the mid 1990s. Computers were under powered. Tools were pretty primitive. I was given a database of nearly 50,000 calls for service.
 
-And then I learned that addresses were not stored in a standard way. However the officer wrote it down, that's how it was recorded. 
+And then I learned that addresses were not stored in a standard way. However the officer wrote it down, that's how it was recorded.
 
-What did that mean? 
+What did that mean?
 
-It meant the Lincoln (Nebraska) Police Department came up with dozens of ways to say a single place. And since the mapping software needed the addressed to be in a specific form, I had to fix them. For example, I will go to my grave knowing that Lincoln High School's street address is 2229 J Street. Police officers wrote down LHS, L.H.S., Lincoln HS, Lincoln H.S., LHS (J Street), 2229 J, 2229 J ST, St., Street and on and on and on. That one was relatively easy. The local convenience store chain, with 8 locations around the city, was harder. I had to use the patrol district to locate them. 
+It meant the Lincoln (Nebraska) Police Department came up with dozens of ways to say a single place. And since the mapping software needed the addressed to be in a specific form, I had to fix them. For example, I will go to my grave knowing that Lincoln High School's street address is 2229 J Street. Police officers wrote down LHS, L.H.S., Lincoln HS, Lincoln H.S., LHS (J Street), 2229 J, 2229 J ST, St., Street and on and on and on. That one was relatively easy. The local convenience store chain, with 8 locations around the city, was harder. I had to use the patrol district to locate them.
 
-It took me four months to clean up more than 30,000 unique addresses and map them. 
+It took me four months to clean up more than 30,000 unique addresses and map them.
 
-I tell you this because if I had Open Refine, it would have taken me a week, not four months. 
+I tell you this because if I had Open Refine, it would have taken me a week, not four months.
 
-Every time I talk about Open Refine, I remember this, and I get mad. 
+Every time I talk about Open Refine, I remember this, and I get mad.
 
 Fortunately (unfortunately?) several columns in the PPP loan data we're working with are flawed in exactly the same way. There are dozens of variations on just "Baltimore".    
 
@@ -1493,9 +1492,9 @@ We're going to explore two ways into Open Refine: Through R, and through Open Re
 
 ## Refinr, Open Refine in R
 
-What is Open Refine? 
+What is Open Refine?
 
-Open Refine is a software program that has tools -- algorithms -- that find small differences in text and helps you fix them quickly. How Open Refine finds those small differences is through something called clustering. The algorithms behind clustering are not exclusive to Open Refine, so they can be used elsewhere. 
+Open Refine is a software program that has tools -- algorithms -- that find small differences in text and helps you fix them quickly. How Open Refine finds those small differences is through something called clustering. The algorithms behind clustering are not exclusive to Open Refine, so they can be used elsewhere.
 
 Enter `refinr`, a package that contains the same clustering algorithms as Open Refine but all within R. Go ahead and install it if you haven't already by opening the console and running `install.packages("refinr")`. Then we can load libraries as we do.
 
@@ -1505,7 +1504,7 @@ library(refinr)
 library(janitor)
 ```
 
-Let's load our full Maryland PPP loans data. 
+Let's load our full Maryland PPP loans data.
 
 ```{r}
 md_loans <- read_rds("data/ppp_loan_data/processed/md/ppp_loans_md.rmd")
@@ -1514,8 +1513,8 @@ md_loans <- read_rds("data/ppp_loan_data/processed/md/ppp_loans_md.rmd")
 Now let's try and group and count the number of loans by city. To make it a bit more managable, let's use another string function from `stringr` and filter for cities that start with the uppercase "A" or lowercase "a" using the function `str_detect()` with a regular expression.  The filter function in the codeblock below says: look in the city column, and pluck out any value that starts with (the "^" symbol means "starts with") a lowercase "a" OR (the vertical "|", called a pipe, means OR) an uppercase "A".  
 
 ```{r}
-md_loans %>% 
-  group_by(city) %>% 
+md_loans %>%
+  group_by(city) %>%
   summarise(
     count=n()
   ) %>%
@@ -1523,70 +1522,70 @@ md_loans %>%
   arrange(city)
 ```
 
-By using the OpenRefine package for R, `refinr`, our hope is that it can identify and standardize the data. 
+By using the OpenRefine package for R, `refinr`, our hope is that it can identify and standardize the data.
 
-The first merging technique that's part of the `refinr` package we'll try is the `key_collision_merge`. 
+The first merging technique that's part of the `refinr` package we'll try is the `key_collision_merge`.
 
-The key collision merge function takes each string and extracts the key parts of it. It then puts every key in a bin based on the keys matching. 
+The key collision merge function takes each string and extracts the key parts of it. It then puts every key in a bin based on the keys matching.
 
-One rule you should follow when using this is: **do not overwrite your original fields**. Always work on a copy. If you overwrite your original field, how will you know if it did the right thing? How can you compare it to your original data? To follow this, I'm going to mutate a new field called clean_city and put the results of key collision merge there. 
+One rule you should follow when using this is: **do not overwrite your original fields**. Always work on a copy. If you overwrite your original field, how will you know if it did the right thing? How can you compare it to your original data? To follow this, I'm going to mutate a new field called clean_city and put the results of key collision merge there.
 
 ```{r}
-cleaned_md_loans <- md_loans %>% 
+cleaned_md_loans <- md_loans %>%
   mutate(city_clean=key_collision_merge(city)) %>%
   select(id:city, city_clean, everything())
 
 cleaned_md_loans
 
 ```
-To examine changes `refinr` made, let's examine the changes it made to cities that start with the letter "A". 
+To examine changes `refinr` made, let's examine the changes it made to cities that start with the letter "A".
 
 ```{r}
-cleaned_md_loans %>% 
-  group_by(city_clean, city) %>% 
+cleaned_md_loans %>%
+  group_by(city_clean, city) %>%
   summarise(
     count=n()
   ) %>%
   filter(str_detect(city, "^a|^A")) %>%
   arrange(city)
 ```
-It got a bunch of things right.  It merged three variations of "Aberdeen" -- "aberdeen","Aberdeen" and "ABERDEEN" -- and it didn't merge it with "Aberdeen Proving Ground", which are likely two distinct things. But it wasn't smart enough to convert "Abereen". 
+It got a bunch of things right.  It merged three variations of "Aberdeen" -- "aberdeen","Aberdeen" and "ABERDEEN" -- and it didn't merge it with "Aberdeen Proving Ground", which are likely two distinct things. But it wasn't smart enough to convert "Abereen".
 
 It also merged "Annapolis" and "ANNAPOLIS" under "Annapolis", and was smart enough not to merge it with "Annapolis Junction", which is not the same city. But it wasn't smart enough to merge "Annapoils" or "Annalpolis".
 
-There's another merging algorithim that's part of refinr that works a bit differently, called `n_gram_merge()`.  Let's try applying that one. 
+There's another merging algorithim that's part of refinr that works a bit differently, called `n_gram_merge()`.  Let's try applying that one.
 
 ```{r}
-cleaned_md_loans <- md_loans %>% 
+cleaned_md_loans <- md_loans %>%
   mutate(city_clean=n_gram_merge(city)) %>%
-  select(id:city, city_clean, everything()) 
+  select(id:city, city_clean, everything())
 
 cleaned_md_loans
 
 ```
 
-To examine changes `refinr` made with this algorithm, let's again look at cities that start with the letter "A". Examining Aberdeen and Annapolis, we see there wasn't a substantial change. 
+To examine changes `refinr` made with this algorithm, let's again look at cities that start with the letter "A". Examining Aberdeen and Annapolis, we see there wasn't a substantial change.
 
 ```{r}
-cleaned_md_loans %>% 
-  group_by(city_clean, city) %>% 
+cleaned_md_loans %>%
+  group_by(city_clean, city) %>%
   summarise(
     count=n()
   ) %>%
   filter(str_detect(city, "^a|^A")) %>%
   arrange(city)
 ```
-Let's upload the data to the interactive version of OpenRefine, which really shines at this task. 
+Let's upload the data to the interactive version of OpenRefine, which really shines at this task.
 
 ## Manually cleaning data with Open Refine
 
-Open Refine is free software. [You should download and install it](https://openrefine.org/). Refinr is great for quick things on smaller datasets that you can check to make sure it's not up to any mischief. 
+Open Refine is free software. [You should download and install it](https://openrefine.org/). Refinr is great for quick things on smaller datasets that you can check to make sure it's not up to any mischief.
 
 For bigger datasets, Open Refine is the way to go. And it has a lot more tools than refinr does (by design).
 
-After you install it, run it. Open Refine works in the browser, and the app spins up a small web server visible only on your computer to interact with it. A browser will pop up automatically. 
+After you install it, run it. Open Refine works in the browser, and the app spins up a small web server visible only on your computer to interact with it. A browser will pop up automatically.
 
-You first have to import your data into a project. 
+You first have to import your data into a project.
 
 ```{r, echo=FALSE}
 knitr::include_graphics(rep("images/open1.png"))
@@ -1610,9 +1609,9 @@ After that, a new box will appear on the left. It tells us how many unique offen
 knitr::include_graphics(rep("images/open4.png"))
 ```
 
-The default clustering algorithm used is key collision, using the fingerprint function. This is the same method we used with Sheridan County above. 
+The default clustering algorithm used is key collision, using the fingerprint function. This is the same method we used with Sheridan County above.
 
-At the top, you'll see which method was used, and how many clusters that algorithm identified. Then, below that, you can see what those clusters are. Then, using human judgement, you can say if you agree with the cluster. If you do, click the  merge checkbox. When it merges, the new result will be what it says  in New Cell Value. Most often, that's the row with the most common result. 
+At the top, you'll see which method was used, and how many clusters that algorithm identified. Then, below that, you can see what those clusters are. Then, using human judgement, you can say if you agree with the cluster. If you do, click the  merge checkbox. When it merges, the new result will be what it says  in New Cell Value. Most often, that's the row with the most common result.
 
 ```{r, echo=FALSE}
 knitr::include_graphics(rep("images/open6.png"))
@@ -1626,7 +1625,7 @@ If any new clusters come up, evaluate them. Repeat until either no clusters come
 
 Now. Try a new method. Rinse and repeat. You'll keep doing this, and if the dataset is reasonably clean, you'll find the end.
 
-If it's not, it'll go on forever. 
+If it's not, it'll go on forever.
 
 ```{r, echo=FALSE}
 knitr::include_graphics(rep("images/open7.png"))
@@ -2214,12 +2213,16 @@ library(tidycensus)
 To use the API, you need an API key. To get that, you need to [apply for an API key with the Census Bureau](https://api.census.gov/data/key_signup.html). It takes a few minutes and you need to activate your key via email. Once you have your key, you need to set that for this session. Just FYI: Your key is your key. Do not share it around.
 
 ```{r, include=FALSE}
-census_api_key("549950d36c22ff16455fe196bbbd01d63cfbe6cf")
+census_api_key("549950d36c22ff16455fe196bbbd01d63cfbe6cf", install=TRUE, overwrite=TRUE)
 ```
 
 ```{r, eval=FALSE}
-census_api_key("YOUR KEY HERE")
+census_api_key("YOUR KEY HERE", install=TRUE)
 ```
+
+The two main functions in tidycensus are `get_decennial`, which retrieves data from the 2000 and 2010 Censuses (and soon the 2020 Census), and `get_acs`, which pulls data from the American Community Survey, a between-Censuses annual survey that provides estimates, not hard counts, but asks more detailed questions. If you're new to Census data, there's [a very good set of slides from Kyle Walker](http://walker-data.com/umich-workshop/census-data-in-r/slides/#1), the creator of tidycensus, and he's working on a [book](https://walker-data.com/census-r/index.html) that you can read for free online.
+
+It's important to keep in mind that Census data represents people - you, your neighbors and total strangers. It also requires some level of definitions, especially about race & ethnicity, that may or may not match how you define yourself or how others define themselves.
 
 So to give you some idea of how complicated the data is, let's pull up just one file from the decennial Census. We'll use Summary File 1, or SF1. That has the major population and housing stuff.
 
@@ -2288,9 +2291,9 @@ You may be asking: hey, wasn't there a 2020 Census? Where's that data? The answe
 
 ## The ACS
 
-In 2010, the Census Bureau replaced SF3 with the American Community Survey. The Good News is that the data would be updated on a rolling basis. The bad news is that it's more complicated because it's more like survey data with a large sample. That means there's margins of error and confidence intervals to worry about.
+In 2010, the Census Bureau replaced SF3 with the American Community Survey. The Good News is that the data would be updated on a rolling basis. The bad news is that it's more complicated because it's more like survey data with a large sample. That means there's margins of error and confidence intervals to worry about. By default, using `get_acs` fetches data from the 5-year estimates (currently 2015-2019), but you can specify 1-year estimates for jurisdictions with at least 65,000 people (many counties and cities).
 
-Here's an example:
+Here's an example using the 5-year ACS estimates:
 
 What is Maryland's richest county?
 
@@ -2361,38 +2364,32 @@ But did they?
 
 Look at the min and max values for both. Is the change statistically significant?
 
-## Bonus API example: Coronavirus
-
-Of course there would be an R package about the novel coronavirus, COVID-19. It pulls daily updates of coronavirus reports. You install it with `install.packages("coronavirus")`
+The ACS data has lots of variables, just like the decennial Census does. To browse them, you can do this:
 
 ```{r}
-library(coronavirus)
-
-data("coronavirus")
-update_dataset()
+v19 <- load_variables(2019, "acs5", cache=TRUE)
 ```
 
-What just happened, without you having to do anything, is the library just made a call to servers at Johns Hopkins University and got the latest coronavirus numbers from around the world.
+And then view `v19` to see what kinds of variables are available via the API.
 
-Check it out:
+## "Wide" Results
 
-```{r, eval=FALSE}
-coronavirus
-```
+Although one of the chief strengths of tidycensus is that it offers a, well, tidy display of Census data, it also has the ability to view multiple variables spread across columns. This can be useful for creating percentages and comparing multiple variables.
 
-So now we can start using it for data analysis. How about cases in the US?
+
+## Sorting Results
+
+You'll notice that we've used `arrange` to sort the results of tidycensus functions, although that's done after we create a new variable to hold the data. There's another way to use `arrange` that you should know about, one that you can use for exploratory analysis. An example using median household income from 2019:
 
 ```{r}
-coronavirus %>% filter(country == "US")
+md19 <- get_acs(geography = "county",
+              variables = c(medincome = "B19013_001"),
+              state = "MD",
+              year = 2019)
+arrange(md19, desc(estimate))
 ```
 
-How about confirmed cases by country?
-
-```{r}
-coronavirus %>% filter(type == "confirmed") %>% group_by(country) %>% summarize(total=sum(cases)) %>% arrange(desc(total))
-```
-
-Seems a little out of date, but the idea is a good one.
+In this case we don't save the sorted results to a variable, we can just see the output in the console.
 
 <!--chapter:end:16-census.Rmd-->
 

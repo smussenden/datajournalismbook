@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>Chapter 19 Visualizing your data for publication | Data Journalism with R and the Tidyverse</title>
   <meta name="description" content="This is a book built on a very opinionated philosophy for journalism students doing data journalism in R with replicable methods." />
-  <meta name="generator" content="bookdown 0.23 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
 
   <meta property="og:title" content="Chapter 19 Visualizing your data for publication | Data Journalism with R and the Tidyverse" />
   <meta property="og:type" content="book" />
@@ -24,7 +24,7 @@
 <meta name="author" content="Matt Waite (original author); updated by Derek Willis and Sean Mussenden" />
 
 
-<meta name="date" content="2021-08-29" />
+<meta name="date" content="2021-09-07" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -35,6 +35,7 @@
 <link rel="next" href="geographic-data-basics.html"/>
 <script src="libs/header-attrs-2.10/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
@@ -50,12 +51,11 @@
 
 
 
-
 <link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
 <script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
 <script src="libs/htmlwidgets-1.5.3/htmlwidgets.js"></script>
 <link href="libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
-<script src="libs/datatables-binding-0.18/datatables.js"></script>
+<script src="libs/datatables-binding-0.19/datatables.js"></script>
 <link href="libs/dt-core-1.10.20/css/jquery.dataTables.min.css" rel="stylesheet" />
 <link href="libs/dt-core-1.10.20/css/jquery.dataTables.extra.css" rel="stylesheet" />
 <script src="libs/dt-core-1.10.20/js/jquery.dataTables.min.js"></script>
@@ -241,7 +241,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="17" data-path="intro-to-apis-the-census.html"><a href="intro-to-apis-the-census.html"><i class="fa fa-check"></i><b>17</b> Intro to APIs: The Census</a>
 <ul>
 <li class="chapter" data-level="17.1" data-path="intro-to-apis-the-census.html"><a href="intro-to-apis-the-census.html#the-acs"><i class="fa fa-check"></i><b>17.1</b> The ACS</a></li>
-<li class="chapter" data-level="17.2" data-path="intro-to-apis-the-census.html"><a href="intro-to-apis-the-census.html#bonus-api-example-coronavirus"><i class="fa fa-check"></i><b>17.2</b> Bonus API example: Coronavirus</a></li>
+<li class="chapter" data-level="17.2" data-path="intro-to-apis-the-census.html"><a href="intro-to-apis-the-census.html#wide-results"><i class="fa fa-check"></i><b>17.2</b> “Wide” Results</a></li>
+<li class="chapter" data-level="17.3" data-path="intro-to-apis-the-census.html"><a href="intro-to-apis-the-census.html#sorting-results"><i class="fa fa-check"></i><b>17.3</b> Sorting Results</a></li>
 </ul></li>
 <li class="chapter" data-level="18" data-path="visualizing-your-data-for-reporting.html"><a href="visualizing-your-data-for-reporting.html"><i class="fa fa-check"></i><b>18</b> Visualizing your data for reporting</a>
 <ul>
@@ -328,18 +329,16 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>But simple stuff – and even some slightly complicated stuff – can be done with tools made for people who aren’t data viz pros.</p>
 <p>The tool we’re going to use is called <a href="https://www.datawrapper.de/">Datawrapper</a>.</p>
 <p>First, let’s get some data and work with it. Let’s use a cleaned-up version of 2021 PPP loan totals by type of lender. Let’s look at it.</p>
-<div class="sourceCode" id="cb324"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb324-1"><a href="visualizing-your-data-for-publication.html#cb324-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code></pre></div>
-<div class="sourceCode" id="cb325"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb325-1"><a href="visualizing-your-data-for-publication.html#cb325-1" aria-hidden="true" tabindex="-1"></a>lender_types <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;data/lender_totals_2021.csv&quot;</span>)</span></code></pre></div>
-<pre><code>## Rows: 12 Columns: 2</code></pre>
-<pre><code>## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (1): type
-## dbl (1): net_dollars</code></pre>
+<div class="sourceCode" id="cb292"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb292-1"><a href="visualizing-your-data-for-publication.html#cb292-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code></pre></div>
+<div class="sourceCode" id="cb293"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb293-1"><a href="visualizing-your-data-for-publication.html#cb293-1" aria-hidden="true" tabindex="-1"></a>lender_types <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;data/lender_totals_2021.csv&quot;</span>)</span></code></pre></div>
 <pre><code>## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<div class="sourceCode" id="cb329"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb329-1"><a href="visualizing-your-data-for-publication.html#cb329-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(lender_types)</span></code></pre></div>
-<pre><code>## # A tibble: 6 × 2
+## ── Column specification ────────────────────────────────────────────────────────
+## cols(
+##   type = col_character(),
+##   net_dollars = col_double()
+## )</code></pre>
+<div class="sourceCode" id="cb295"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb295-1"><a href="visualizing-your-data-for-publication.html#cb295-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(lender_types)</span></code></pre></div>
+<pre><code>## # A tibble: 6 x 2
 ##   type                                  net_dollars
 ##   &lt;chr&gt;                                       &lt;dbl&gt;
 ## 1 Banks and S&amp;Ls ($10B+)               118331350203
@@ -353,19 +352,19 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>Making charts in Datawrapper is preposterously simple, which is the point. There are dozens of chart types, and dozens of options. To get from a csv to a chart to publication is very, very easy.</p>
 <p>First, go to <a href="https://www.datawrapper.de/">datawrapper.de</a> and sign up for an account. It’s free.</p>
 <p>Once logged in, you’ll click on New Chart.</p>
-<p><img src="images/ppp_datawrapper1.png" /><!-- --></p>
+<p><img src="images/ppp_datawrapper1.png" width="677" /></p>
 <p>The first thing we’ll do is upload our CSV that we created before. Click on XLS/CSV and upload the file.</p>
-<p><img src="images/datawrapper2.png" /><!-- --></p>
+<p><img src="images/datawrapper2.png" width="1013" /></p>
 <p>Next up is to check and see what Datawrappper did with our data when we uploaded it. As you can see from the text on the left, if it’s blue, it’s a number. If it’s green, it’s a date. If it’s black, it’s text. Red means there’s a problem. This data is very clean, so it imports cleanly. Click on the “Proceed” button.</p>
-<p><img src="images/ppp_datawrapper3.png" /><!-- -->
+<p><img src="images/ppp_datawrapper3.png" width="1193" />
 Now we make a chart. Bar chart comes up by default, which is good, because with totals, that’s what we have.</p>
 <p>Click on Refine. The first option we want to change is the Number Format, because we have currency figures to display and we want to make it as easy as possible for readers to understand what we’re displaying. Datawrapper has an excellent reference for its <a href="https://academy.datawrapper.de/article/207-custom-number-formats-that-you-can-display-in-datawrapper">custom formats</a> that you can consult. Let’s choose <code>$0.[00]a</code>, which adds a dollar sign and abbreviates larger amounts:</p>
-<p><img src="images/ppp_datawrapper4.png" /><!-- --></p>
+<p><img src="images/ppp_datawrapper4.png" width="550" /></p>
 <p>Now we need to annotate our charts. Every chart needs a title, a source line and a credit line. Most need chatter (called description here). Click on the “Annotate” tab to get started.</p>
 <p>Really think about the title and description: the title is like a headline and the description is provides some additional context. Another way to think about it: the title is the most important lesson from the graphic, and the description could be the next most important lesson or could provide more context to the title.</p>
-<p><img src="images/ppp_datawrapper5.png" /><!-- --></p>
+<p><img src="images/ppp_datawrapper5.png" width="1134" /></p>
 <p>To publish, we click the “Publish &amp; Embed” tab. Some publication systems allow for the embedding of HTML into a post or a story. Some don’t. The only way to know is to ask someone at your publication. Every publication system on the planet, though, can publish an image. So there’s always a way to export your chart as a PNG file, which you can upload like any photo.</p>
-<p><img src="images/ppp_datawrapper7.png" /><!-- --></p>
+<p><img src="images/ppp_datawrapper7.png" width="752" /></p>
 
 </div>
 </div>
@@ -379,7 +378,6 @@ Now we make a chart. Bar chart comes up by default, which is good, because with 
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
-<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
 <script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
@@ -420,7 +418,7 @@ gitbook.start({
 },
 "download": ["datajournalism.pdf", "datajournalism.epub"],
 "search": {
-"engine": "lunr",
+"engine": "fuse",
 "options": null
 },
 "toc": {

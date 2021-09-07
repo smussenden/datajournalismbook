@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>Chapter 10 Data Cleaning Part I: Data smells | Data Journalism with R and the Tidyverse</title>
   <meta name="description" content="This is a book built on a very opinionated philosophy for journalism students doing data journalism in R with replicable methods." />
-  <meta name="generator" content="bookdown 0.23 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
 
   <meta property="og:title" content="Chapter 10 Data Cleaning Part I: Data smells | Data Journalism with R and the Tidyverse" />
   <meta property="og:type" content="book" />
@@ -24,7 +24,7 @@
 <meta name="author" content="Matt Waite (original author); updated by Derek Willis and Sean Mussenden" />
 
 
-<meta name="date" content="2021-08-29" />
+<meta name="date" content="2021-09-07" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -35,6 +35,7 @@
 <link rel="next" href="data-cleaning-part-ii-janitor.html"/>
 <script src="libs/header-attrs-2.10/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
@@ -50,12 +51,11 @@
 
 
 
-
 <link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
 <script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
 <script src="libs/htmlwidgets-1.5.3/htmlwidgets.js"></script>
 <link href="libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
-<script src="libs/datatables-binding-0.18/datatables.js"></script>
+<script src="libs/datatables-binding-0.19/datatables.js"></script>
 <link href="libs/dt-core-1.10.20/css/jquery.dataTables.min.css" rel="stylesheet" />
 <link href="libs/dt-core-1.10.20/css/jquery.dataTables.extra.css" rel="stylesheet" />
 <script src="libs/dt-core-1.10.20/js/jquery.dataTables.min.js"></script>
@@ -241,7 +241,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="17" data-path="intro-to-apis-the-census.html"><a href="intro-to-apis-the-census.html"><i class="fa fa-check"></i><b>17</b> Intro to APIs: The Census</a>
 <ul>
 <li class="chapter" data-level="17.1" data-path="intro-to-apis-the-census.html"><a href="intro-to-apis-the-census.html#the-acs"><i class="fa fa-check"></i><b>17.1</b> The ACS</a></li>
-<li class="chapter" data-level="17.2" data-path="intro-to-apis-the-census.html"><a href="intro-to-apis-the-census.html#bonus-api-example-coronavirus"><i class="fa fa-check"></i><b>17.2</b> Bonus API example: Coronavirus</a></li>
+<li class="chapter" data-level="17.2" data-path="intro-to-apis-the-census.html"><a href="intro-to-apis-the-census.html#wide-results"><i class="fa fa-check"></i><b>17.2</b> “Wide” Results</a></li>
+<li class="chapter" data-level="17.3" data-path="intro-to-apis-the-census.html"><a href="intro-to-apis-the-census.html#sorting-results"><i class="fa fa-check"></i><b>17.3</b> Sorting Results</a></li>
 </ul></li>
 <li class="chapter" data-level="18" data-path="visualizing-your-data-for-reporting.html"><a href="visualizing-your-data-for-reporting.html"><i class="fa fa-check"></i><b>18</b> Visualizing your data for reporting</a>
 <ul>
@@ -352,55 +353,106 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>Let’s load the tidyverse, then the Maryland slice of PPP loan data we’ve used previously.</p>
 <p>This time, we’re going to load the data in a CSV format, which stands for comma separated values and is essentially a fancy structured text file. Each column in the csv is separated – “delimited” – by a comma from the next column. The file has a “.gz” extension on the end because it’s zipped up to keep the file sizes smaller.</p>
 <p>We’re also going to introduce a new argument to our function that reads in the data, read_csv(), called “guess_max.” As R reads in the csv file, it will attempt to make some calls on what “data type” to assign to each field: number, character, date, and so on. The “guess_max” argument says: look at the values in the whatever number of rows we specify before deciding which data type to assign. In this case, we’ll pick 10.</p>
-<div class="sourceCode" id="cb86"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb86-1"><a href="data-cleaning-part-i-data-smells.html#cb86-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove scientific notation</span></span>
-<span id="cb86-2"><a href="data-cleaning-part-i-data-smells.html#cb86-2" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">scipen=</span><span class="dv">999</span>)</span>
-<span id="cb86-3"><a href="data-cleaning-part-i-data-smells.html#cb86-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the tidyverse</span></span>
-<span id="cb86-4"><a href="data-cleaning-part-i-data-smells.html#cb86-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb86-5"><a href="data-cleaning-part-i-data-smells.html#cb86-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the data</span></span>
-<span id="cb86-6"><a href="data-cleaning-part-i-data-smells.html#cb86-6" aria-hidden="true" tabindex="-1"></a>ppp_maryland_loans <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;data/ppp_loan_data/processed/md/ppp_loans_md.csv.gz&quot;</span>, <span class="at">guess_max=</span><span class="dv">10</span>)</span></code></pre></div>
-<pre><code>## Warning: One or more parsing issues, see `problems()` for details</code></pre>
-<pre><code>## Rows: 195865 Columns: 63</code></pre>
-<pre><code>## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr  (30): name, slug, state, address, city, zip, business_type, race, gende...
-## dbl  (16): id, amount, naics_code, jobs_retained, loan_number, sba_office_co...
-## lgl  (15): non_profit, loan_range_sort_key, previous_loan_range, previous_na...
-## date  (2): date_approved, forgiveness_date</code></pre>
+<div class="sourceCode" id="cb85"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb85-1"><a href="data-cleaning-part-i-data-smells.html#cb85-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove scientific notation</span></span>
+<span id="cb85-2"><a href="data-cleaning-part-i-data-smells.html#cb85-2" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">scipen=</span><span class="dv">999</span>)</span>
+<span id="cb85-3"><a href="data-cleaning-part-i-data-smells.html#cb85-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the tidyverse</span></span>
+<span id="cb85-4"><a href="data-cleaning-part-i-data-smells.html#cb85-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb85-5"><a href="data-cleaning-part-i-data-smells.html#cb85-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the data</span></span>
+<span id="cb85-6"><a href="data-cleaning-part-i-data-smells.html#cb85-6" aria-hidden="true" tabindex="-1"></a>ppp_maryland_loans <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;data/ppp_loan_data/processed/md/ppp_loans_md.csv.gz&quot;</span>, <span class="at">guess_max=</span><span class="dv">10</span>)</span></code></pre></div>
 <pre><code>## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+## ── Column specification ────────────────────────────────────────────────────────
+## cols(
+##   .default = col_character(),
+##   id = col_double(),
+##   amount = col_double(),
+##   naics_code = col_double(),
+##   non_profit = col_logical(),
+##   jobs_retained = col_double(),
+##   date_approved = col_date(format = &quot;&quot;),
+##   loan_range_sort_key = col_logical(),
+##   previous_loan_range = col_logical(),
+##   previous_name = col_logical(),
+##   loan_number = col_double(),
+##   sba_office_code = col_double(),
+##   term = col_double(),
+##   sba_guaranty_percentage = col_double(),
+##   initial_approval_amount = col_double(),
+##   current_approval_amount = col_double(),
+##   undisbursed_amount = col_double(),
+##   franchise_name = col_logical(),
+##   servicing_lender_location_id = col_double(),
+##   utilities_proceed = col_double(),
+##   payroll_proceed = col_double()
+##   # ... with 13 more columns
+## )
+## ℹ Use `spec()` for the full column specifications.</code></pre>
+<pre><code>## Warning: 15708 parsing failures.
+## row            col           expected                                                          actual                                                  file
+##  21 franchise_name 1/0/T/F/TRUE/FALSE ZIPS Dry Cleaners                                               &#39;data/ppp_loan_data/processed/md/ppp_loans_md.csv.gz&#39;
+## 126 franchise_name 1/0/T/F/TRUE/FALSE Quiznos                                                         &#39;data/ppp_loan_data/processed/md/ppp_loans_md.csv.gz&#39;
+## 375 franchise_name 1/0/T/F/TRUE/FALSE Nissan North America, Inc. - Dealer Sales and Service Agreement &#39;data/ppp_loan_data/processed/md/ppp_loans_md.csv.gz&#39;
+## 400 franchise_name 1/0/T/F/TRUE/FALSE Hampton Inn &amp; Suites                                            &#39;data/ppp_loan_data/processed/md/ppp_loans_md.csv.gz&#39;
+## 405 franchise_name 1/0/T/F/TRUE/FALSE Express Employment Professional                                 &#39;data/ppp_loan_data/processed/md/ppp_loans_md.csv.gz&#39;
+## ... .............. .................. ............................................................... .....................................................
+## See problems(...) for more details.</code></pre>
 <p>Pay attention to the red warning that signals “one or more parsing issues.” It advises us to run the problems() function to see what went wrong. Let’s do that.</p>
-<div class="sourceCode" id="cb91"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb91-1"><a href="data-cleaning-part-i-data-smells.html#cb91-1" aria-hidden="true" tabindex="-1"></a><span class="fu">problems</span>(ppp_maryland_loans)</span></code></pre></div>
-<pre><code>## # A tibble: 87,927 × 5
-##      row   col expected           actual     file 
-##    &lt;int&gt; &lt;int&gt; &lt;chr&gt;              &lt;chr&gt;      &lt;chr&gt;
-##  1     4    54 1/0/T/F/TRUE/FALSE 2021-05-12 &quot;&quot;   
-##  2     5    48 1/0/T/F/TRUE/FALSE 42062      &quot;&quot;   
-##  3     5    50 1/0/T/F/TRUE/FALSE 5539       &quot;&quot;   
-##  4     5    54 1/0/T/F/TRUE/FALSE 2021-01-22 &quot;&quot;   
-##  5     7    54 1/0/T/F/TRUE/FALSE 2021-05-21 &quot;&quot;   
-##  6    10    54 1/0/T/F/TRUE/FALSE 2021-03-19 &quot;&quot;   
-##  7    12    54 1/0/T/F/TRUE/FALSE 2021-03-17 &quot;&quot;   
-##  8    14    54 1/0/T/F/TRUE/FALSE 2021-04-21 &quot;&quot;   
-##  9    15    54 1/0/T/F/TRUE/FALSE 2021-02-23 &quot;&quot;   
-## 10    18    54 1/0/T/F/TRUE/FALSE 2021-03-23 &quot;&quot;   
-## # … with 87,917 more rows</code></pre>
+<div class="sourceCode" id="cb88"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb88-1"><a href="data-cleaning-part-i-data-smells.html#cb88-1" aria-hidden="true" tabindex="-1"></a><span class="fu">problems</span>(ppp_maryland_loans)</span></code></pre></div>
+<pre><code>## # A tibble: 15,708 x 5
+##      row col       expected    actual                     file                  
+##    &lt;int&gt; &lt;chr&gt;     &lt;chr&gt;       &lt;chr&gt;                      &lt;chr&gt;                 
+##  1    21 franchis… 1/0/T/F/TR… ZIPS Dry Cleaners          &#39;data/ppp_loan_data/p…
+##  2   126 franchis… 1/0/T/F/TR… Quiznos                    &#39;data/ppp_loan_data/p…
+##  3   375 franchis… 1/0/T/F/TR… Nissan North America, Inc… &#39;data/ppp_loan_data/p…
+##  4   400 franchis… 1/0/T/F/TR… Hampton Inn &amp; Suites       &#39;data/ppp_loan_data/p…
+##  5   405 franchis… 1/0/T/F/TR… Express Employment Profes… &#39;data/ppp_loan_data/p…
+##  6   417 franchis… 1/0/T/F/TR… Mason&#39;s Lobster            &#39;data/ppp_loan_data/p…
+##  7   480 franchis… 1/0/T/F/TR… Smoothie King              &#39;data/ppp_loan_data/p…
+##  8   510 franchis… 1/0/T/F/TR… Restore Hyper Wellness + … &#39;data/ppp_loan_data/p…
+##  9   554 franchis… 1/0/T/F/TR… Quiznos                    &#39;data/ppp_loan_data/p…
+## 10   652 franchis… 1/0/T/F/TR… Structural Elements        &#39;data/ppp_loan_data/p…
+## # … with 15,698 more rows</code></pre>
 <p>It produces a table of all the parsing problems. It has 87,927 rows, which means we have that many problems. In almost every case here, the <code>readr</code> library has guessed that a given column was of a “logical” data type – True or False. It did it based on very limited information – only 1,000 rows. So, when it hit a value that looked like a date, or a character string, it didn’t know what to do. So it just didn’t read in that value correctly.</p>
 <p>Why? Look closely. The <code>readr</code> library makes guesses on what data type to assign to each column based on the first 1,000 rows of data.</p>
 <p>The easy way to fix this is to remove the guess_max argument, and let readr do its magic.</p>
-<div class="sourceCode" id="cb93"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb93-1"><a href="data-cleaning-part-i-data-smells.html#cb93-1" aria-hidden="true" tabindex="-1"></a>ppp_maryland_loans <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;data/ppp_loan_data/processed/md/ppp_loans_md.csv.gz&quot;</span>)</span></code></pre></div>
-<pre><code>## Rows: 195865 Columns: 63</code></pre>
-<pre><code>## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr  (32): name, slug, state, address, city, zip, business_type, race, gende...
-## dbl  (21): id, amount, naics_code, jobs_retained, loan_number, sba_office_co...
-## lgl   (7): non_profit, loan_range_sort_key, previous_loan_range, previous_na...
-## date  (3): date_approved, loan_status_date, forgiveness_date</code></pre>
+<div class="sourceCode" id="cb90"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb90-1"><a href="data-cleaning-part-i-data-smells.html#cb90-1" aria-hidden="true" tabindex="-1"></a>ppp_maryland_loans <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;data/ppp_loan_data/processed/md/ppp_loans_md.csv.gz&quot;</span>)</span></code></pre></div>
 <pre><code>## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+## ── Column specification ────────────────────────────────────────────────────────
+## cols(
+##   .default = col_character(),
+##   id = col_double(),
+##   amount = col_double(),
+##   naics_code = col_double(),
+##   non_profit = col_logical(),
+##   jobs_retained = col_double(),
+##   date_approved = col_date(format = &quot;&quot;),
+##   loan_range_sort_key = col_logical(),
+##   previous_loan_range = col_logical(),
+##   previous_name = col_logical(),
+##   loan_number = col_double(),
+##   sba_office_code = col_double(),
+##   term = col_double(),
+##   sba_guaranty_percentage = col_double(),
+##   initial_approval_amount = col_double(),
+##   current_approval_amount = col_double(),
+##   undisbursed_amount = col_double(),
+##   servicing_lender_location_id = col_double(),
+##   utilities_proceed = col_double(),
+##   payroll_proceed = col_double(),
+##   mortgage_interest_proceed = col_double()
+##   # ... with 12 more columns
+## )
+## ℹ Use `spec()` for the full column specifications.</code></pre>
+<pre><code>## Warning: 12802 parsing failures.
+##    row      col           expected                                           actual                                                  file
+## 170056 old_slug 1/0/T/F/TRUE/FALSE aditi-llc-d139eb25916444a03984f38eebda4e63       &#39;data/ppp_loan_data/processed/md/ppp_loans_md.csv.gz&#39;
+## 170057 old_slug 1/0/T/F/TRUE/FALSE jvef-inc-00d405e42fed70949e474a678fb7cefe        &#39;data/ppp_loan_data/processed/md/ppp_loans_md.csv.gz&#39;
+## 170058 old_slug 1/0/T/F/TRUE/FALSE mak-express-inc-9cc921dee107cb65c6728e818fb49c2a &#39;data/ppp_loan_data/processed/md/ppp_loans_md.csv.gz&#39;
+## 170059 old_slug 1/0/T/F/TRUE/FALSE pro-coat-llc-133a6b10843b022d479acb6bce5755c7    &#39;data/ppp_loan_data/processed/md/ppp_loans_md.csv.gz&#39;
+## 170060 old_slug 1/0/T/F/TRUE/FALSE dvcanvass-llc-7b4219ba6ad6aa4b4b8fcb47b8d683c4   &#39;data/ppp_loan_data/processed/md/ppp_loans_md.csv.gz&#39;
+## ...... ........ .................. ................................................ .....................................................
+## See problems(...) for more details.</code></pre>
 <p>This time, we got no parsing failures. And if we examine the data types <code>readr</code> assigned to each column using glimpse(), they generally make sense.</p>
-<div class="sourceCode" id="cb97"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb97-1"><a href="data-cleaning-part-i-data-smells.html#cb97-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(ppp_maryland_loans)</span></code></pre></div>
+<div class="sourceCode" id="cb93"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb93-1"><a href="data-cleaning-part-i-data-smells.html#cb93-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(ppp_maryland_loans)</span></code></pre></div>
 <pre><code>## Rows: 195,865
 ## Columns: 63
 ## $ id                             &lt;dbl&gt; 99443772, 99444241, 99445051, 99445208,…
@@ -458,7 +510,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ## $ originating_lender_state       &lt;chr&gt; &quot;NC&quot;, &quot;DE&quot;, &quot;MD&quot;, &quot;NY&quot;, &quot;VA&quot;, &quot;MD&quot;, &quot;VA…
 ## $ loan_status_date               &lt;date&gt; NA, NA, 2021-05-12, 2021-01-22, NA, 20…
 ## $ originating_lender_location_id &lt;dbl&gt; 9551, 44449, 124055, 46391, 434059, 304…
-## $ old_slug                       &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ old_slug                       &lt;lgl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
 ## $ lmi_indicator                  &lt;chr&gt; &quot;N&quot;, &quot;Y&quot;, &quot;N&quot;, &quot;Y&quot;, &quot;N&quot;, &quot;Y&quot;, &quot;N&quot;, &quot;N&quot;,…
 ## $ unmatched_original             &lt;lgl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
 ## $ unmatched_updated              &lt;lgl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
@@ -469,10 +521,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>Things that should be characters – like state, city, name – are characters (chr). Things that should be numbers (dbl) – like amount – are numbers. Date columns – like date_approved – are stored as dates.</p>
 <p>There are some minor problem. The id column is a good example. It read in as a number (dbl), which makes sense, because it really is just a string of numbers. But we’d never need to do math on these values; it wouldn’t make sense to add two ids together, for example. So it is probably best stored as a character. The opposite would be more problematic. If something that should be stored as a number we want to do math on was stored as a character, we couldn’t actually use it to do math.</p>
 <p>We can fix that pretty easily, by overwriting the column while changing the data type, using mutate()</p>
-<div class="sourceCode" id="cb99"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb99-1"><a href="data-cleaning-part-i-data-smells.html#cb99-1" aria-hidden="true" tabindex="-1"></a>ppp_maryland_loans <span class="ot">&lt;-</span> ppp_maryland_loans <span class="sc">%&gt;%</span></span>
-<span id="cb99-2"><a href="data-cleaning-part-i-data-smells.html#cb99-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">id =</span> <span class="fu">as.character</span>(id))</span></code></pre></div>
+<div class="sourceCode" id="cb95"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb95-1"><a href="data-cleaning-part-i-data-smells.html#cb95-1" aria-hidden="true" tabindex="-1"></a>ppp_maryland_loans <span class="ot">&lt;-</span> ppp_maryland_loans <span class="sc">%&gt;%</span></span>
+<span id="cb95-2"><a href="data-cleaning-part-i-data-smells.html#cb95-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">id =</span> <span class="fu">as.character</span>(id))</span></code></pre></div>
 <p>When we glimpse() the dataframe again, it’s been changed</p>
-<div class="sourceCode" id="cb100"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb100-1"><a href="data-cleaning-part-i-data-smells.html#cb100-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(ppp_maryland_loans)</span></code></pre></div>
+<div class="sourceCode" id="cb96"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb96-1"><a href="data-cleaning-part-i-data-smells.html#cb96-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(ppp_maryland_loans)</span></code></pre></div>
 <pre><code>## Rows: 195,865
 ## Columns: 63
 ## $ id                             &lt;chr&gt; &quot;99443772&quot;, &quot;99444241&quot;, &quot;99445051&quot;, &quot;99…
@@ -530,7 +582,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ## $ originating_lender_state       &lt;chr&gt; &quot;NC&quot;, &quot;DE&quot;, &quot;MD&quot;, &quot;NY&quot;, &quot;VA&quot;, &quot;MD&quot;, &quot;VA…
 ## $ loan_status_date               &lt;date&gt; NA, NA, 2021-05-12, 2021-01-22, NA, 20…
 ## $ originating_lender_location_id &lt;dbl&gt; 9551, 44449, 124055, 46391, 434059, 304…
-## $ old_slug                       &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ old_slug                       &lt;lgl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
 ## $ lmi_indicator                  &lt;chr&gt; &quot;N&quot;, &quot;Y&quot;, &quot;N&quot;, &quot;Y&quot;, &quot;N&quot;, &quot;Y&quot;, &quot;N&quot;, &quot;N&quot;,…
 ## $ unmatched_original             &lt;lgl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
 ## $ unmatched_updated              &lt;lgl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
@@ -545,13 +597,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>We can do that by grouping and counting columns. In addition to identifying the presence of NA values, this method will also give us a sense of the distribution of values in those columns.</p>
 <p>Let’s start with the “franchise” column. The following code groups by the franchise name column, counts the number in each group, and then sorts from highest to lowest.</p>
 <p>There are 192,959 NA values in this column. This makes sense. Not every business will be a franchisee of a larger company like Subway or Dunkin’. In this case, the presence of so many NAs isn’t really concerning.</p>
-<div class="sourceCode" id="cb102"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb102-1"><a href="data-cleaning-part-i-data-smells.html#cb102-1" aria-hidden="true" tabindex="-1"></a>ppp_maryland_loans <span class="sc">%&gt;%</span> </span>
-<span id="cb102-2"><a href="data-cleaning-part-i-data-smells.html#cb102-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(franchise_name) <span class="sc">%&gt;%</span> </span>
-<span id="cb102-3"><a href="data-cleaning-part-i-data-smells.html#cb102-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
-<span id="cb102-4"><a href="data-cleaning-part-i-data-smells.html#cb102-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">count=</span><span class="fu">n</span>()</span>
-<span id="cb102-5"><a href="data-cleaning-part-i-data-smells.html#cb102-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb102-6"><a href="data-cleaning-part-i-data-smells.html#cb102-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(count))</span></code></pre></div>
-<pre><code>## # A tibble: 582 × 2
+<div class="sourceCode" id="cb98"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb98-1"><a href="data-cleaning-part-i-data-smells.html#cb98-1" aria-hidden="true" tabindex="-1"></a>ppp_maryland_loans <span class="sc">%&gt;%</span> </span>
+<span id="cb98-2"><a href="data-cleaning-part-i-data-smells.html#cb98-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(franchise_name) <span class="sc">%&gt;%</span> </span>
+<span id="cb98-3"><a href="data-cleaning-part-i-data-smells.html#cb98-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb98-4"><a href="data-cleaning-part-i-data-smells.html#cb98-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">count=</span><span class="fu">n</span>()</span>
+<span id="cb98-5"><a href="data-cleaning-part-i-data-smells.html#cb98-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb98-6"><a href="data-cleaning-part-i-data-smells.html#cb98-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(count))</span></code></pre></div>
+<pre><code>## # A tibble: 582 x 2
 ##    franchise_name                                        count
 ##    &lt;chr&gt;                                                 &lt;int&gt;
 ##  1 &lt;NA&gt;                                                 192959
@@ -566,13 +618,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ## 10 Popeyes Louisiana Kitchen                                41
 ## # … with 572 more rows</code></pre>
 <p>Now let’s try the “forgiveness_amount” column, which represents the amount of the loan that was forgiven, or not required to be paid back. In this case, there are 135,073 NA values. The rest have different dollar amounts.</p>
-<div class="sourceCode" id="cb104"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb104-1"><a href="data-cleaning-part-i-data-smells.html#cb104-1" aria-hidden="true" tabindex="-1"></a>ppp_maryland_loans <span class="sc">%&gt;%</span> </span>
-<span id="cb104-2"><a href="data-cleaning-part-i-data-smells.html#cb104-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(forgiveness_amount) <span class="sc">%&gt;%</span> </span>
-<span id="cb104-3"><a href="data-cleaning-part-i-data-smells.html#cb104-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
-<span id="cb104-4"><a href="data-cleaning-part-i-data-smells.html#cb104-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">count=</span><span class="fu">n</span>()</span>
-<span id="cb104-5"><a href="data-cleaning-part-i-data-smells.html#cb104-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb104-6"><a href="data-cleaning-part-i-data-smells.html#cb104-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(count))</span></code></pre></div>
-<pre><code>## # A tibble: 58,637 × 2
+<div class="sourceCode" id="cb100"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb100-1"><a href="data-cleaning-part-i-data-smells.html#cb100-1" aria-hidden="true" tabindex="-1"></a>ppp_maryland_loans <span class="sc">%&gt;%</span> </span>
+<span id="cb100-2"><a href="data-cleaning-part-i-data-smells.html#cb100-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(forgiveness_amount) <span class="sc">%&gt;%</span> </span>
+<span id="cb100-3"><a href="data-cleaning-part-i-data-smells.html#cb100-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb100-4"><a href="data-cleaning-part-i-data-smells.html#cb100-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">count=</span><span class="fu">n</span>()</span>
+<span id="cb100-5"><a href="data-cleaning-part-i-data-smells.html#cb100-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb100-6"><a href="data-cleaning-part-i-data-smells.html#cb100-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(count))</span></code></pre></div>
+<pre><code>## # A tibble: 58,637 x 2
 ##    forgiveness_amount  count
 ##                 &lt;dbl&gt;  &lt;int&gt;
 ##  1                NA  135073
@@ -590,27 +642,27 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>Do they represent loans that might have been forgiven, but the data is simply missing the amount of money?</p>
 <p>We could check the documentation, which isn’t particularly helpful. It only says the column represents “forgiveness amount.”</p>
 <p>We could check the “forgiveness_date” column, to see how many NAs it has: 135,703, the same number as the number of NAs in “forgiveness_amount.”</p>
-<div class="sourceCode" id="cb106"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb106-1"><a href="data-cleaning-part-i-data-smells.html#cb106-1" aria-hidden="true" tabindex="-1"></a>ppp_maryland_loans <span class="sc">%&gt;%</span> </span>
-<span id="cb106-2"><a href="data-cleaning-part-i-data-smells.html#cb106-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(forgiveness_date) <span class="sc">%&gt;%</span> </span>
-<span id="cb106-3"><a href="data-cleaning-part-i-data-smells.html#cb106-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
-<span id="cb106-4"><a href="data-cleaning-part-i-data-smells.html#cb106-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">count=</span><span class="fu">n</span>()</span>
-<span id="cb106-5"><a href="data-cleaning-part-i-data-smells.html#cb106-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb106-6"><a href="data-cleaning-part-i-data-smells.html#cb106-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">is.na</span>(forgiveness_date)) <span class="sc">%&gt;%</span></span>
-<span id="cb106-7"><a href="data-cleaning-part-i-data-smells.html#cb106-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(count))</span></code></pre></div>
-<pre><code>## # A tibble: 1 × 2
+<div class="sourceCode" id="cb102"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb102-1"><a href="data-cleaning-part-i-data-smells.html#cb102-1" aria-hidden="true" tabindex="-1"></a>ppp_maryland_loans <span class="sc">%&gt;%</span> </span>
+<span id="cb102-2"><a href="data-cleaning-part-i-data-smells.html#cb102-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(forgiveness_date) <span class="sc">%&gt;%</span> </span>
+<span id="cb102-3"><a href="data-cleaning-part-i-data-smells.html#cb102-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb102-4"><a href="data-cleaning-part-i-data-smells.html#cb102-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">count=</span><span class="fu">n</span>()</span>
+<span id="cb102-5"><a href="data-cleaning-part-i-data-smells.html#cb102-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb102-6"><a href="data-cleaning-part-i-data-smells.html#cb102-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">is.na</span>(forgiveness_date)) <span class="sc">%&gt;%</span></span>
+<span id="cb102-7"><a href="data-cleaning-part-i-data-smells.html#cb102-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(count))</span></code></pre></div>
+<pre><code>## # A tibble: 1 x 2
 ##   forgiveness_date  count
 ##   &lt;date&gt;            &lt;int&gt;
 ## 1 NA               135073</code></pre>
 <p>We can group by forgiveness_amount and forgiveness_date to determine whether one is NA when the other is NA. Because this grouping has 135,073 rows, too, we know this to be the case.</p>
-<div class="sourceCode" id="cb108"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb108-1"><a href="data-cleaning-part-i-data-smells.html#cb108-1" aria-hidden="true" tabindex="-1"></a>ppp_maryland_loans <span class="sc">%&gt;%</span></span>
-<span id="cb108-2"><a href="data-cleaning-part-i-data-smells.html#cb108-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(forgiveness_amount, forgiveness_date) <span class="sc">%&gt;%</span></span>
-<span id="cb108-3"><a href="data-cleaning-part-i-data-smells.html#cb108-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
-<span id="cb108-4"><a href="data-cleaning-part-i-data-smells.html#cb108-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">count=</span><span class="fu">n</span>()</span>
-<span id="cb108-5"><a href="data-cleaning-part-i-data-smells.html#cb108-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb108-6"><a href="data-cleaning-part-i-data-smells.html#cb108-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">is.na</span>(forgiveness_date)) <span class="sc">%&gt;%</span></span>
-<span id="cb108-7"><a href="data-cleaning-part-i-data-smells.html#cb108-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(count))</span></code></pre></div>
+<div class="sourceCode" id="cb104"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb104-1"><a href="data-cleaning-part-i-data-smells.html#cb104-1" aria-hidden="true" tabindex="-1"></a>ppp_maryland_loans <span class="sc">%&gt;%</span></span>
+<span id="cb104-2"><a href="data-cleaning-part-i-data-smells.html#cb104-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(forgiveness_amount, forgiveness_date) <span class="sc">%&gt;%</span></span>
+<span id="cb104-3"><a href="data-cleaning-part-i-data-smells.html#cb104-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb104-4"><a href="data-cleaning-part-i-data-smells.html#cb104-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">count=</span><span class="fu">n</span>()</span>
+<span id="cb104-5"><a href="data-cleaning-part-i-data-smells.html#cb104-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb104-6"><a href="data-cleaning-part-i-data-smells.html#cb104-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">is.na</span>(forgiveness_date)) <span class="sc">%&gt;%</span></span>
+<span id="cb104-7"><a href="data-cleaning-part-i-data-smells.html#cb104-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(count))</span></code></pre></div>
 <pre><code>## `summarise()` has grouped output by &#39;forgiveness_amount&#39;. You can override using the `.groups` argument.</code></pre>
-<pre><code>## # A tibble: 1 × 3
+<pre><code>## # A tibble: 1 x 3
 ## # Groups:   forgiveness_amount [1]
 ##   forgiveness_amount forgiveness_date  count
 ##                &lt;dbl&gt; &lt;date&gt;            &lt;int&gt;
@@ -620,15 +672,15 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="gaps-in-data" class="section level2" number="10.3">
 <h2><span class="header-section-number">10.3</span> Gaps in data</h2>
 <p>Let’s now look at <strong>gaps in data</strong>. It’s been my experience that gaps in data often have to do with time, so let’s first look at “date_approved,” so we can see if there’s any missing months, or huge differences in the number of loans by month. Let’s start with Date. If we’re going to work with dates, we should have <code>lubridate</code> handy for <code>floor_date</code>. The <code>floor_date</code> function will allow us to group by month, instead of a single day.</p>
-<div class="sourceCode" id="cb111"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb111-1"><a href="data-cleaning-part-i-data-smells.html#cb111-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span></code></pre></div>
-<div class="sourceCode" id="cb112"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb112-1"><a href="data-cleaning-part-i-data-smells.html#cb112-1" aria-hidden="true" tabindex="-1"></a>ppp_maryland_loans <span class="sc">%&gt;%</span> </span>
-<span id="cb112-2"><a href="data-cleaning-part-i-data-smells.html#cb112-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">month_year_approved =</span> <span class="fu">floor_date</span>(date_approved, <span class="st">&quot;month&quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb112-3"><a href="data-cleaning-part-i-data-smells.html#cb112-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(month_year_approved) <span class="sc">%&gt;%</span> </span>
-<span id="cb112-4"><a href="data-cleaning-part-i-data-smells.html#cb112-4" aria-hidden="true" tabindex="-1"></a>   <span class="fu">summarise</span>(</span>
-<span id="cb112-5"><a href="data-cleaning-part-i-data-smells.html#cb112-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">count=</span><span class="fu">n</span>()</span>
-<span id="cb112-6"><a href="data-cleaning-part-i-data-smells.html#cb112-6" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb112-7"><a href="data-cleaning-part-i-data-smells.html#cb112-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(month_year_approved)</span></code></pre></div>
-<pre><code>## # A tibble: 11 × 2
+<div class="sourceCode" id="cb107"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb107-1"><a href="data-cleaning-part-i-data-smells.html#cb107-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span></code></pre></div>
+<div class="sourceCode" id="cb108"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb108-1"><a href="data-cleaning-part-i-data-smells.html#cb108-1" aria-hidden="true" tabindex="-1"></a>ppp_maryland_loans <span class="sc">%&gt;%</span> </span>
+<span id="cb108-2"><a href="data-cleaning-part-i-data-smells.html#cb108-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">month_year_approved =</span> <span class="fu">floor_date</span>(date_approved, <span class="st">&quot;month&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb108-3"><a href="data-cleaning-part-i-data-smells.html#cb108-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(month_year_approved) <span class="sc">%&gt;%</span> </span>
+<span id="cb108-4"><a href="data-cleaning-part-i-data-smells.html#cb108-4" aria-hidden="true" tabindex="-1"></a>   <span class="fu">summarise</span>(</span>
+<span id="cb108-5"><a href="data-cleaning-part-i-data-smells.html#cb108-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">count=</span><span class="fu">n</span>()</span>
+<span id="cb108-6"><a href="data-cleaning-part-i-data-smells.html#cb108-6" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb108-7"><a href="data-cleaning-part-i-data-smells.html#cb108-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(month_year_approved)</span></code></pre></div>
+<pre><code>## # A tibble: 11 x 2
 ##    month_year_approved count
 ##    &lt;date&gt;              &lt;int&gt;
 ##  1 2020-04-01          45040
@@ -651,38 +703,53 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h2><span class="header-section-number">10.4</span> Supicious Outliers</h2>
 <p>Any time you are going to focus on a column for analysis, you should check for suspicious values. Are there any unusually large values or unusually small values? Are there any values that should not exist in the data?</p>
 <p>Let’s consider the loan amount column from our Maryland PPP data, and find the largest (max) and smallest (min) amount.</p>
-<div class="sourceCode" id="cb114"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb114-1"><a href="data-cleaning-part-i-data-smells.html#cb114-1" aria-hidden="true" tabindex="-1"></a>ppp_maryland_loans <span class="sc">%&gt;%</span> </span>
-<span id="cb114-2"><a href="data-cleaning-part-i-data-smells.html#cb114-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">max_amount =</span> <span class="fu">max</span>(amount),</span>
-<span id="cb114-3"><a href="data-cleaning-part-i-data-smells.html#cb114-3" aria-hidden="true" tabindex="-1"></a>            <span class="at">min_amount=</span> <span class="fu">min</span>(amount))</span></code></pre></div>
-<pre><code>## # A tibble: 1 × 2
+<div class="sourceCode" id="cb110"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb110-1"><a href="data-cleaning-part-i-data-smells.html#cb110-1" aria-hidden="true" tabindex="-1"></a>ppp_maryland_loans <span class="sc">%&gt;%</span> </span>
+<span id="cb110-2"><a href="data-cleaning-part-i-data-smells.html#cb110-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">max_amount =</span> <span class="fu">max</span>(amount),</span>
+<span id="cb110-3"><a href="data-cleaning-part-i-data-smells.html#cb110-3" aria-hidden="true" tabindex="-1"></a>            <span class="at">min_amount=</span> <span class="fu">min</span>(amount))</span></code></pre></div>
+<pre><code>## # A tibble: 1 x 2
 ##   max_amount min_amount
 ##        &lt;dbl&gt;      &lt;dbl&gt;
 ## 1   10000000          6</code></pre>
 <p>The largest amount is $10 million which is the maximum size of a loan under the program. If the max amount was larger than $10 million, that would be suspicious. Similarly, if the smallest amount was a negative number, that would also raise an eyebrow. What about $6? That does seem a little odd. Why would someone take out a loan for that amount of money?</p>
 <p>Let’s take a look at the full record set for any loan less than $100.</p>
-<div class="sourceCode" id="cb116"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb116-1"><a href="data-cleaning-part-i-data-smells.html#cb116-1" aria-hidden="true" tabindex="-1"></a>ppp_maryland_loans <span class="sc">%&gt;%</span> </span>
-<span id="cb116-2"><a href="data-cleaning-part-i-data-smells.html#cb116-2" aria-hidden="true" tabindex="-1"></a> <span class="fu">filter</span>(amount <span class="sc">&lt;</span> <span class="dv">100</span>)</span></code></pre></div>
-<pre><code>## # A tibble: 2 × 63
-##   id       name  slug  amount state address city  zip   naics_code business_type
-##   &lt;chr&gt;    &lt;chr&gt; &lt;chr&gt;  &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;      &lt;dbl&gt; &lt;chr&gt;        
-## 1 99620428 GETG… getg…      6 MD    7101 R… BALT… 2121…     453220 Limited  Lia…
-## 2 99620427 LEGA… lega…     78 MD    4201 N… BOWIE 2071…         NA Partnership  
+<div class="sourceCode" id="cb112"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb112-1"><a href="data-cleaning-part-i-data-smells.html#cb112-1" aria-hidden="true" tabindex="-1"></a>ppp_maryland_loans <span class="sc">%&gt;%</span> </span>
+<span id="cb112-2"><a href="data-cleaning-part-i-data-smells.html#cb112-2" aria-hidden="true" tabindex="-1"></a> <span class="fu">filter</span>(amount <span class="sc">&lt;</span> <span class="dv">100</span>)</span></code></pre></div>
+<pre><code>## # A tibble: 2 x 63
+##   id     name   slug   amount state address city  zip   naics_code business_type
+##   &lt;chr&gt;  &lt;chr&gt;  &lt;chr&gt;   &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;      &lt;dbl&gt; &lt;chr&gt;        
+## 1 99620… GETGF… getgf…      6 MD    7101 R… BALT… 2121…     453220 Limited  Lia…
+## 2 99620… LEGAC… legac…     78 MD    4201 N… BOWIE 2071…         NA Partnership  
 ## # … with 53 more variables: race &lt;chr&gt;, gender &lt;chr&gt;, veteran &lt;chr&gt;,
 ## #   non_profit &lt;lgl&gt;, jobs_retained &lt;dbl&gt;, date_approved &lt;date&gt;, lender &lt;chr&gt;,
 ## #   congressional_district &lt;chr&gt;, loan_range_sort_key &lt;lgl&gt;,
 ## #   previous_loan_range &lt;lgl&gt;, previous_name &lt;lgl&gt;, loan_number &lt;dbl&gt;,
 ## #   sba_office_code &lt;dbl&gt;, processing_method &lt;chr&gt;, loan_status &lt;chr&gt;,
 ## #   term &lt;dbl&gt;, sba_guaranty_percentage &lt;dbl&gt;, initial_approval_amount &lt;dbl&gt;,
-## #   current_approval_amount &lt;dbl&gt;, undisbursed_amount &lt;dbl&gt;, …</code></pre>
+## #   current_approval_amount &lt;dbl&gt;, undisbursed_amount &lt;dbl&gt;,
+## #   franchise_name &lt;chr&gt;, servicing_lender_location_id &lt;dbl&gt;,
+## #   servicing_lender_name &lt;chr&gt;, servicing_lender_address &lt;chr&gt;,
+## #   servicing_lender_city &lt;chr&gt;, servicing_lender_state &lt;chr&gt;,
+## #   servicing_lender_zip &lt;chr&gt;, rural_urban_indicator &lt;chr&gt;,
+## #   hubzone_indicator &lt;chr&gt;, business_age_description &lt;chr&gt;,
+## #   project_city &lt;chr&gt;, project_county_name &lt;chr&gt;, project_state &lt;chr&gt;,
+## #   project_zip &lt;chr&gt;, utilities_proceed &lt;dbl&gt;, payroll_proceed &lt;dbl&gt;,
+## #   mortgage_interest_proceed &lt;dbl&gt;, rent_proceed &lt;dbl&gt;,
+## #   refinance_eidl_proceed &lt;dbl&gt;, health_care_proceed &lt;dbl&gt;,
+## #   debt_interest_proceed &lt;dbl&gt;, originating_lender_city &lt;chr&gt;,
+## #   originating_lender_state &lt;chr&gt;, loan_status_date &lt;date&gt;,
+## #   originating_lender_location_id &lt;dbl&gt;, old_slug &lt;lgl&gt;, lmi_indicator &lt;chr&gt;,
+## #   unmatched_original &lt;lgl&gt;, unmatched_updated &lt;lgl&gt;,
+## #   previous_jobs_reported &lt;lgl&gt;, ethnicity &lt;chr&gt;, forgiveness_amount &lt;dbl&gt;,
+## #   forgiveness_date &lt;date&gt;</code></pre>
 <p>We have two businesses, “GETGFTD LLC” and “LEGACY SPINE AND PAIN LLC” that both got very small loans of $6 and $78. Scan through the columns. Let’s check for internal consistency. There are other columns in the data that have related information: initial_approval_amount, current_approval_amount and payroll_proceed. Let’s select just those columns</p>
-<div class="sourceCode" id="cb118"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb118-1"><a href="data-cleaning-part-i-data-smells.html#cb118-1" aria-hidden="true" tabindex="-1"></a>ppp_maryland_loans <span class="sc">%&gt;%</span> </span>
-<span id="cb118-2"><a href="data-cleaning-part-i-data-smells.html#cb118-2" aria-hidden="true" tabindex="-1"></a> <span class="fu">filter</span>(amount <span class="sc">&lt;</span> <span class="dv">100</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb118-3"><a href="data-cleaning-part-i-data-smells.html#cb118-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(name, amount, initial_approval_amount, current_approval_amount, payroll_proceed)</span></code></pre></div>
-<pre><code>## # A tibble: 2 × 5
-##   name                      amount initial_approva… current_approva… payroll_proceed
-##   &lt;chr&gt;                      &lt;dbl&gt;            &lt;dbl&gt;            &lt;dbl&gt;           &lt;dbl&gt;
-## 1 GETGFTD LLC                    6                6                6               6
-## 2 LEGACY SPINE AND PAIN LLC     78               78               78              78</code></pre>
+<div class="sourceCode" id="cb114"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb114-1"><a href="data-cleaning-part-i-data-smells.html#cb114-1" aria-hidden="true" tabindex="-1"></a>ppp_maryland_loans <span class="sc">%&gt;%</span> </span>
+<span id="cb114-2"><a href="data-cleaning-part-i-data-smells.html#cb114-2" aria-hidden="true" tabindex="-1"></a> <span class="fu">filter</span>(amount <span class="sc">&lt;</span> <span class="dv">100</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb114-3"><a href="data-cleaning-part-i-data-smells.html#cb114-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(name, amount, initial_approval_amount, current_approval_amount, payroll_proceed)</span></code></pre></div>
+<pre><code>## # A tibble: 2 x 5
+##   name            amount initial_approval_a… current_approval_a… payroll_proceed
+##   &lt;chr&gt;            &lt;dbl&gt;               &lt;dbl&gt;               &lt;dbl&gt;           &lt;dbl&gt;
+## 1 GETGFTD LLC          6                   6                   6               6
+## 2 LEGACY SPINE A…     78                  78                  78              78</code></pre>
 <p>Those are all the same value, so at least this number is internally consistent. But is it correct? Did someone mistype it when entering the data?</p>
 <p>A call to the bank – Bank of America in both cases – or the companies could help resolve this mystery. Or a call to the SBA – the owner of the data – to ask about small values generally may help us understand if small values like this are suspicious or not.</p>
 
@@ -698,7 +765,6 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
-<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
 <script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
@@ -739,7 +805,7 @@ gitbook.start({
 },
 "download": ["datajournalism.pdf", "datajournalism.epub"],
 "search": {
-"engine": "lunr",
+"engine": "fuse",
 "options": null
 },
 "toc": {
