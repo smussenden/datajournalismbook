@@ -46,7 +46,7 @@ west_virginia_ppp <- read_rds("lab_02.rds")
 
 ## Answer questions
 
-**Q1** Create a new column that divides the loan amounts into multiple options: under_10k, 10k_50k, 50k_100k, 100k_500k, 500k_1m, 1m_plus. How many loans are in each group?
+**Q1** Create a new column that divides the loan amounts into multiple options: under_10k, 10k_50k, 50k_100k, 100k_500k, 500k_1m, 1m_plus. How many loans are in each group? You will need to use `case_when` to make this work and there's an example of this in the book chapter on mutate.
 **A1** [write your answer here]
 
 ```{r}
