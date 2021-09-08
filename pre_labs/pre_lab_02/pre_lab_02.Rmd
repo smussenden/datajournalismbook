@@ -28,7 +28,7 @@ library(lubridate)
 **Task** Load the PPP loan dataset by running the following codeblock.
 
 ```{r}
-maryland_ppp <- read_csv('ppp_applications_md.csv')
+maryland_ppp <- read_csv('data/ppp_applications_md.csv')
 ```
 
 ### Task 3: Glimpse data
@@ -162,7 +162,7 @@ What is the number of applications that meet that criteria? Put your answer in t
 
 ```{r}
 # using read.csv
-maryland_ppp <- read.csv('ppp_applications_md.csv')
+maryland_ppp <- read.csv('data/ppp_applications_md.csv')
 glimpse(maryland_ppp)
 ```
 What is the datatype for `date_approved` (it's just to the right of the column name)? Put your answer in the space below.
@@ -185,7 +185,7 @@ What is the datatype for `date_approved` (it's just to the right of the column n
 **Task** Run the following code to load the application data, then use glimpse() to see the data type for `date_approved`.
 ```{r}
 # using read_csv
-maryland_ppp <- read_csv("ppp_applications_md.csv")
+maryland_ppp <- read_csv("data/ppp_applications_md.csv")
 glimpse(maryland_ppp)
 ```
 What is the datatype for `date_approved` (it's just to the right of the column name)? Put your answer in the space below.
