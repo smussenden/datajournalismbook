@@ -24,7 +24,7 @@
 <meta name="author" content="Matt Waite (original author); updated by Derek Willis and Sean Mussenden" />
 
 
-<meta name="date" content="2021-09-07" />
+<meta name="date" content="2021-09-08" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -329,15 +329,15 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>But simple stuff – and even some slightly complicated stuff – can be done with tools made for people who aren’t data viz pros.</p>
 <p>The tool we’re going to use is called <a href="https://www.datawrapper.de/">Datawrapper</a>.</p>
 <p>First, let’s get some data and work with it. Let’s use a cleaned-up version of 2021 PPP loan totals by type of lender. Let’s look at it.</p>
-<div class="sourceCode" id="cb292"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb292-1"><a href="visualizing-your-data-for-publication.html#cb292-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code></pre></div>
-<div class="sourceCode" id="cb293"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb293-1"><a href="visualizing-your-data-for-publication.html#cb293-1" aria-hidden="true" tabindex="-1"></a>lender_types <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;data/lender_totals_2021.csv&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb294"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb294-1"><a href="visualizing-your-data-for-publication.html#cb294-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code></pre></div>
+<div class="sourceCode" id="cb295"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb295-1"><a href="visualizing-your-data-for-publication.html#cb295-1" aria-hidden="true" tabindex="-1"></a>lender_types <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;data/lender_totals_2021.csv&quot;</span>)</span></code></pre></div>
 <pre><code>## 
 ## ── Column specification ────────────────────────────────────────────────────────
 ## cols(
 ##   type = col_character(),
 ##   net_dollars = col_double()
 ## )</code></pre>
-<div class="sourceCode" id="cb295"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb295-1"><a href="visualizing-your-data-for-publication.html#cb295-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(lender_types)</span></code></pre></div>
+<div class="sourceCode" id="cb297"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb297-1"><a href="visualizing-your-data-for-publication.html#cb297-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(lender_types)</span></code></pre></div>
 <pre><code>## # A tibble: 6 x 2
 ##   type                                  net_dollars
 ##   &lt;chr&gt;                                       &lt;dbl&gt;

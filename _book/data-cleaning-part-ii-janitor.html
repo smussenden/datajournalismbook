@@ -24,7 +24,7 @@
 <meta name="author" content="Matt Waite (original author); updated by Derek Willis and Sean Mussenden" />
 
 
-<meta name="date" content="2021-09-07" />
+<meta name="date" content="2021-09-08" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -456,7 +456,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <div id="duplicates" class="section level2" number="11.3">
 <h2><span class="header-section-number">11.3</span> Duplicates</h2>
-<p>One of the most difficult problems to fix in data is duplicate records in the data. They can creepin with bad joins, bad data entry practices, mistakes – all kinds of reasons. A duplicated record isn’t always there because of an error, but you need to know if it’s there before making that determination.</p>
+<p>One of the most difficult problems to fix in data is duplicate records in the data. They can creep in with bad joins, bad data entry practices, mistakes – all kinds of reasons. A duplicated record isn’t always there because of an error, but you need to know if it’s there before making that determination.</p>
 <p>So the question is, do we have any records repeated?</p>
 <p>Here we’ll use a function called <code>get_dupes</code> from the janitor library to check for fully repeated records in our cleaned data set.</p>
 <div class="sourceCode" id="cb136"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb136-1"><a href="data-cleaning-part-ii-janitor.html#cb136-1" aria-hidden="true" tabindex="-1"></a>cleaned_arnold_md_loans <span class="sc">%&gt;%</span> </span>
@@ -561,9 +561,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ## 5 99535547 SPARKS ELECTRICAL SERVIC…  19335 1238 Birchcrest C… Arno… MD    21012</code></pre>
 <p>This is a little complex, so let’s break it down.</p>
 <p>What the code above says, in English, is this: Look at all the values in the city column. If the value is “Anold,” then (that’s what the “~” means, then) replace it with the word “Arnold.” If it’s anything other than that (that’s what “TRUE” means, otherwise), then keep the existing value in that column.</p>
-<p>We can fix “Arnld” by adding a line to that same function.</p>
+<p>We could fix “Arnld” by adding another line inside that function, that looks identical: <code>city == "Arnld" ~ "Arnold"</code>. Like so.</p>
 <div class="sourceCode" id="cb147"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb147-1"><a href="data-cleaning-part-ii-janitor.html#cb147-1" aria-hidden="true" tabindex="-1"></a><span class="co"># cleaning function</span></span>
-<span id="cb147-2"><a href="data-cleaning-part-ii-janitor.html#cb147-2" aria-hidden="true" tabindex="-1"></a>cleaned_arnold_md_loans <span class="ot">&lt;-</span> arnold_md_loans <span class="sc">%&gt;%</span></span>
+<span id="cb147-2"><a href="data-cleaning-part-ii-janitor.html#cb147-2" aria-hidden="true" tabindex="-1"></a>cleaned_arnold_md_loans_ <span class="ot">&lt;-</span> arnold_md_loans <span class="sc">%&gt;%</span></span>
 <span id="cb147-3"><a href="data-cleaning-part-ii-janitor.html#cb147-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">clean_names</span>() <span class="sc">%&gt;%</span></span>
 <span id="cb147-4"><a href="data-cleaning-part-ii-janitor.html#cb147-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">id =</span> x1_id) <span class="sc">%&gt;%</span></span>
 <span id="cb147-5"><a href="data-cleaning-part-ii-janitor.html#cb147-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">amount =</span> <span class="fu">as.numeric</span>(amount)) <span class="sc">%&gt;%</span></span>
@@ -578,7 +578,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb147-14"><a href="data-cleaning-part-ii-janitor.html#cb147-14" aria-hidden="true" tabindex="-1"></a>  </span>
 <span id="cb147-15"><a href="data-cleaning-part-ii-janitor.html#cb147-15" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb147-16"><a href="data-cleaning-part-ii-janitor.html#cb147-16" aria-hidden="true" tabindex="-1"></a><span class="co"># display the cleaned dataset</span></span>
-<span id="cb147-17"><a href="data-cleaning-part-ii-janitor.html#cb147-17" aria-hidden="true" tabindex="-1"></a>cleaned_arnold_md_loans</span></code></pre></div>
+<span id="cb147-17"><a href="data-cleaning-part-ii-janitor.html#cb147-17" aria-hidden="true" tabindex="-1"></a>cleaned_arnold_md_loans_</span></code></pre></div>
 <pre><code>## # A tibble: 5 x 7
 ##         id name                      amount street_address     city  state zip  
 ##      &lt;dbl&gt; &lt;chr&gt;                      &lt;dbl&gt; &lt;chr&gt;              &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;
@@ -587,6 +587,34 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ## 3 99479443 VINEVE LLC                 39700 1506 Ritchie Hgwy  Arno… MD    21012
 ## 4 99490480 ARNOLD CHIROPRACTIC CENT…  28422 1507 ritchie hwy   Arno… MD    21012
 ## 5 99535547 SPARKS ELECTRICAL SERVIC…  19335 1238 Birchcrest C… Arno… MD    21012</code></pre>
+<p>Instead of specifying the exact value, we can also solve the problem by using something more generalizable, using a function called str_detect(), which allows us to search parts of words.</p>
+<p>The second line of our case_when() function below now says, in English: look in the city column. If you find that one of the values starts with “Arnl” (the “^” symbol means “starts with”), then (the tilde ~ means then) change it to “Arnold.”</p>
+<div class="sourceCode" id="cb149"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb149-1"><a href="data-cleaning-part-ii-janitor.html#cb149-1" aria-hidden="true" tabindex="-1"></a><span class="co"># cleaning function</span></span>
+<span id="cb149-2"><a href="data-cleaning-part-ii-janitor.html#cb149-2" aria-hidden="true" tabindex="-1"></a>cleaned_arnold_md_loans <span class="ot">&lt;-</span> arnold_md_loans <span class="sc">%&gt;%</span></span>
+<span id="cb149-3"><a href="data-cleaning-part-ii-janitor.html#cb149-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">clean_names</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb149-4"><a href="data-cleaning-part-ii-janitor.html#cb149-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">id =</span> x1_id) <span class="sc">%&gt;%</span></span>
+<span id="cb149-5"><a href="data-cleaning-part-ii-janitor.html#cb149-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">amount =</span> <span class="fu">as.numeric</span>(amount)) <span class="sc">%&gt;%</span></span>
+<span id="cb149-6"><a href="data-cleaning-part-ii-janitor.html#cb149-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb149-7"><a href="data-cleaning-part-ii-janitor.html#cb149-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">zip =</span> <span class="fu">str_sub</span>(zip, <span class="at">start=</span>1L, <span class="at">end=</span>5L)) <span class="sc">%&gt;%</span></span>
+<span id="cb149-8"><a href="data-cleaning-part-ii-janitor.html#cb149-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">city =</span> <span class="fu">str_to_title</span>(city)) <span class="sc">%&gt;%</span></span>
+<span id="cb149-9"><a href="data-cleaning-part-ii-janitor.html#cb149-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">city =</span> <span class="fu">case_when</span>(</span>
+<span id="cb149-10"><a href="data-cleaning-part-ii-janitor.html#cb149-10" aria-hidden="true" tabindex="-1"></a>    city <span class="sc">==</span> <span class="st">&quot;Anold&quot;</span> <span class="sc">~</span> <span class="st">&quot;Arnold&quot;</span>,</span>
+<span id="cb149-11"><a href="data-cleaning-part-ii-janitor.html#cb149-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">str_detect</span>(city,<span class="st">&quot;^Arnl&quot;</span>) <span class="sc">~</span> <span class="st">&quot;Arnold&quot;</span>,</span>
+<span id="cb149-12"><a href="data-cleaning-part-ii-janitor.html#cb149-12" aria-hidden="true" tabindex="-1"></a>    <span class="cn">TRUE</span> <span class="sc">~</span> city</span>
+<span id="cb149-13"><a href="data-cleaning-part-ii-janitor.html#cb149-13" aria-hidden="true" tabindex="-1"></a>  ))</span>
+<span id="cb149-14"><a href="data-cleaning-part-ii-janitor.html#cb149-14" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb149-15"><a href="data-cleaning-part-ii-janitor.html#cb149-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb149-16"><a href="data-cleaning-part-ii-janitor.html#cb149-16" aria-hidden="true" tabindex="-1"></a><span class="co"># display the cleaned dataset</span></span>
+<span id="cb149-17"><a href="data-cleaning-part-ii-janitor.html#cb149-17" aria-hidden="true" tabindex="-1"></a>cleaned_arnold_md_loans</span></code></pre></div>
+<pre><code>## # A tibble: 5 x 7
+##         id name                      amount street_address     city  state zip  
+##      &lt;dbl&gt; &lt;chr&gt;                      &lt;dbl&gt; &lt;chr&gt;              &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;
+## 1 93761495 STUART JONES LLC          693361 700 Mill Creek Rd  Arno… MD    21012
+## 2 93762575 CHAPELWOOD ENTERPRISES, … 559000 1511 RITCHIE HWY   Arno… MD    21012
+## 3 99479443 VINEVE LLC                 39700 1506 Ritchie Hgwy  Arno… MD    21012
+## 4 99490480 ARNOLD CHIROPRACTIC CENT…  28422 1507 ritchie hwy   Arno… MD    21012
+## 5 99535547 SPARKS ELECTRICAL SERVIC…  19335 1238 Birchcrest C… Arno… MD    21012</code></pre>
+<p>That only changed one value “Arnld.” Imagine that there were other rows with values like “Arnlid,”“Arnl” or “Arnlod.” By using str_detect(city,“^Arnl”), we pick up any values that start with “Arnl,” so it would change all four of these. If we used city == “Arnld,” it would only pick up one.</p>
 <p>Lastly, there’s the issue with inconsistent spelling of Ritchie Hwy in the street address column. Do we need to clean this?</p>
 <p>Remember the motivating question that’s driving us to do this cleaning: What’s the total amount of loans (at least in this tiny slice of data) for Arnold, MD in ZIP code 21012?</p>
 <p>We don’t need the street_address field to answer that question. So we’re not going to bother cleaning it.</p>
