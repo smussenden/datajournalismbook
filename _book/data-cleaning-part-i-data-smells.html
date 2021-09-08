@@ -24,7 +24,7 @@
 <meta name="author" content="Matt Waite (original author); updated by Derek Willis and Sean Mussenden" />
 
 
-<meta name="date" content="2021-09-07" />
+<meta name="date" content="2021-09-08" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -350,15 +350,16 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h2><span class="header-section-number">10.1</span> Wrong Type</h2>
 <p>First, let’s look at <strong>Wrong Type Of Data</strong>.</p>
 <p>We can sniff that out by looking at the output of <code>readr</code>.</p>
-<p>Let’s load the tidyverse, then the Maryland slice of PPP loan data we’ve used previously.</p>
-<p>This time, we’re going to load the data in a CSV format, which stands for comma separated values and is essentially a fancy structured text file. Each column in the csv is separated – “delimited” – by a comma from the next column. The file has a “.gz” extension on the end because it’s zipped up to keep the file sizes smaller.</p>
-<p>We’re also going to introduce a new argument to our function that reads in the data, read_csv(), called “guess_max.” As R reads in the csv file, it will attempt to make some calls on what “data type” to assign to each field: number, character, date, and so on. The “guess_max” argument says: look at the values in the whatever number of rows we specify before deciding which data type to assign. In this case, we’ll pick 10.</p>
+<p>Let’s load the tidyverse.</p>
 <div class="sourceCode" id="cb85"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb85-1"><a href="data-cleaning-part-i-data-smells.html#cb85-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove scientific notation</span></span>
 <span id="cb85-2"><a href="data-cleaning-part-i-data-smells.html#cb85-2" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">scipen=</span><span class="dv">999</span>)</span>
 <span id="cb85-3"><a href="data-cleaning-part-i-data-smells.html#cb85-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the tidyverse</span></span>
-<span id="cb85-4"><a href="data-cleaning-part-i-data-smells.html#cb85-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb85-5"><a href="data-cleaning-part-i-data-smells.html#cb85-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the data</span></span>
-<span id="cb85-6"><a href="data-cleaning-part-i-data-smells.html#cb85-6" aria-hidden="true" tabindex="-1"></a>ppp_maryland_loans <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;data/ppp_loan_data/processed/md/ppp_loans_md.csv.gz&quot;</span>, <span class="at">guess_max=</span><span class="dv">10</span>)</span></code></pre></div>
+<span id="cb85-4"><a href="data-cleaning-part-i-data-smells.html#cb85-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code></pre></div>
+<p>Then let’s load the Maryland slice of PPP loan data we’ve used previously.</p>
+<p>This time, we’re going to load the data in a CSV format, which stands for comma separated values and is essentially a fancy structured text file. Each column in the csv is separated – “delimited” – by a comma from the next column. The file has a “.gz” extension on the end because it’s zipped up to keep the file sizes smaller.</p>
+<p>We’re also going to introduce a new argument to our function that reads in the data, read_csv(), called “guess_max.” As R reads in the csv file, it will attempt to make some calls on what “data type” to assign to each field: number, character, date, and so on. The “guess_max” argument says: look at the values in the whatever number of rows we specify before deciding which data type to assign. In this case, we’ll pick 10.</p>
+<div class="sourceCode" id="cb86"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb86-1"><a href="data-cleaning-part-i-data-smells.html#cb86-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the data</span></span>
+<span id="cb86-2"><a href="data-cleaning-part-i-data-smells.html#cb86-2" aria-hidden="true" tabindex="-1"></a>ppp_maryland_loans <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;data/ppp_loan_data/processed/md/ppp_loans_md.csv.zip&quot;</span>, <span class="at">guess_max=</span><span class="dv">10</span>)</span></code></pre></div>
 <pre><code>## 
 ## ── Column specification ────────────────────────────────────────────────────────
 ## cols(
@@ -387,16 +388,16 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ## )
 ## ℹ Use `spec()` for the full column specifications.</code></pre>
 <pre><code>## Warning: 15708 parsing failures.
-## row            col           expected                                                          actual                                                  file
-##  21 franchise_name 1/0/T/F/TRUE/FALSE ZIPS Dry Cleaners                                               &#39;data/ppp_loan_data/processed/md/ppp_loans_md.csv.gz&#39;
-## 126 franchise_name 1/0/T/F/TRUE/FALSE Quiznos                                                         &#39;data/ppp_loan_data/processed/md/ppp_loans_md.csv.gz&#39;
-## 375 franchise_name 1/0/T/F/TRUE/FALSE Nissan North America, Inc. - Dealer Sales and Service Agreement &#39;data/ppp_loan_data/processed/md/ppp_loans_md.csv.gz&#39;
-## 400 franchise_name 1/0/T/F/TRUE/FALSE Hampton Inn &amp; Suites                                            &#39;data/ppp_loan_data/processed/md/ppp_loans_md.csv.gz&#39;
-## 405 franchise_name 1/0/T/F/TRUE/FALSE Express Employment Professional                                 &#39;data/ppp_loan_data/processed/md/ppp_loans_md.csv.gz&#39;
-## ... .............. .................. ............................................................... .....................................................
+## row            col           expected                                                          actual                                                   file
+##  21 franchise_name 1/0/T/F/TRUE/FALSE ZIPS Dry Cleaners                                               &#39;data/ppp_loan_data/processed/md/ppp_loans_md.csv.zip&#39;
+## 126 franchise_name 1/0/T/F/TRUE/FALSE Quiznos                                                         &#39;data/ppp_loan_data/processed/md/ppp_loans_md.csv.zip&#39;
+## 375 franchise_name 1/0/T/F/TRUE/FALSE Nissan North America, Inc. - Dealer Sales and Service Agreement &#39;data/ppp_loan_data/processed/md/ppp_loans_md.csv.zip&#39;
+## 400 franchise_name 1/0/T/F/TRUE/FALSE Hampton Inn &amp; Suites                                            &#39;data/ppp_loan_data/processed/md/ppp_loans_md.csv.zip&#39;
+## 405 franchise_name 1/0/T/F/TRUE/FALSE Express Employment Professional                                 &#39;data/ppp_loan_data/processed/md/ppp_loans_md.csv.zip&#39;
+## ... .............. .................. ............................................................... ......................................................
 ## See problems(...) for more details.</code></pre>
 <p>Pay attention to the red warning that signals “one or more parsing issues.” It advises us to run the problems() function to see what went wrong. Let’s do that.</p>
-<div class="sourceCode" id="cb88"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb88-1"><a href="data-cleaning-part-i-data-smells.html#cb88-1" aria-hidden="true" tabindex="-1"></a><span class="fu">problems</span>(ppp_maryland_loans)</span></code></pre></div>
+<div class="sourceCode" id="cb89"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb89-1"><a href="data-cleaning-part-i-data-smells.html#cb89-1" aria-hidden="true" tabindex="-1"></a><span class="fu">problems</span>(ppp_maryland_loans)</span></code></pre></div>
 <pre><code>## # A tibble: 15,708 x 5
 ##      row col       expected    actual                     file                  
 ##    &lt;int&gt; &lt;chr&gt;     &lt;chr&gt;       &lt;chr&gt;                      &lt;chr&gt;                 
@@ -411,10 +412,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ##  9   554 franchis… 1/0/T/F/TR… Quiznos                    &#39;data/ppp_loan_data/p…
 ## 10   652 franchis… 1/0/T/F/TR… Structural Elements        &#39;data/ppp_loan_data/p…
 ## # … with 15,698 more rows</code></pre>
-<p>It produces a table of all the parsing problems. It has 87,927 rows, which means we have that many problems. In almost every case here, the <code>readr</code> library has guessed that a given column was of a “logical” data type – True or False. It did it based on very limited information – only 1,000 rows. So, when it hit a value that looked like a date, or a character string, it didn’t know what to do. So it just didn’t read in that value correctly.</p>
-<p>Why? Look closely. The <code>readr</code> library makes guesses on what data type to assign to each column based on the first 1,000 rows of data.</p>
-<p>The easy way to fix this is to remove the guess_max argument, and let readr do its magic.</p>
-<div class="sourceCode" id="cb90"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb90-1"><a href="data-cleaning-part-i-data-smells.html#cb90-1" aria-hidden="true" tabindex="-1"></a>ppp_maryland_loans <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;data/ppp_loan_data/processed/md/ppp_loans_md.csv.gz&quot;</span>)</span></code></pre></div>
+<p>It produces a table of all the parsing problems. It has 15,708 rows, which means we have that many problems. In almost every case here, the <code>readr</code> library has guessed that a given column was of a “logical” data type – True or False. It did it based on very limited information – only 1,000 rows. So, when it hit a value that looked like a date, or a character string, it didn’t know what to do. So it just didn’t read in that value correctly.</p>
+<p>The easy way to fix this is to set the guess_max argument higher. It will take a little longer to load, but we’ll use every single row in the data set to guess the column type – 195,865</p>
+<div class="sourceCode" id="cb91"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb91-1"><a href="data-cleaning-part-i-data-smells.html#cb91-1" aria-hidden="true" tabindex="-1"></a>ppp_maryland_loans <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;data/ppp_loan_data/processed/md/ppp_loans_md.csv.zip&quot;</span>, <span class="at">guess_max=</span><span class="dv">195865</span>)</span></code></pre></div>
 <pre><code>## 
 ## ── Column specification ────────────────────────────────────────────────────────
 ## cols(
@@ -439,18 +439,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ##   utilities_proceed = col_double(),
 ##   payroll_proceed = col_double(),
 ##   mortgage_interest_proceed = col_double()
-##   # ... with 12 more columns
+##   # ... with 11 more columns
 ## )
 ## ℹ Use `spec()` for the full column specifications.</code></pre>
-<pre><code>## Warning: 12802 parsing failures.
-##    row      col           expected                                           actual                                                  file
-## 170056 old_slug 1/0/T/F/TRUE/FALSE aditi-llc-d139eb25916444a03984f38eebda4e63       &#39;data/ppp_loan_data/processed/md/ppp_loans_md.csv.gz&#39;
-## 170057 old_slug 1/0/T/F/TRUE/FALSE jvef-inc-00d405e42fed70949e474a678fb7cefe        &#39;data/ppp_loan_data/processed/md/ppp_loans_md.csv.gz&#39;
-## 170058 old_slug 1/0/T/F/TRUE/FALSE mak-express-inc-9cc921dee107cb65c6728e818fb49c2a &#39;data/ppp_loan_data/processed/md/ppp_loans_md.csv.gz&#39;
-## 170059 old_slug 1/0/T/F/TRUE/FALSE pro-coat-llc-133a6b10843b022d479acb6bce5755c7    &#39;data/ppp_loan_data/processed/md/ppp_loans_md.csv.gz&#39;
-## 170060 old_slug 1/0/T/F/TRUE/FALSE dvcanvass-llc-7b4219ba6ad6aa4b4b8fcb47b8d683c4   &#39;data/ppp_loan_data/processed/md/ppp_loans_md.csv.gz&#39;
-## ...... ........ .................. ................................................ .....................................................
-## See problems(...) for more details.</code></pre>
 <p>This time, we got no parsing failures. And if we examine the data types <code>readr</code> assigned to each column using glimpse(), they generally make sense.</p>
 <div class="sourceCode" id="cb93"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb93-1"><a href="data-cleaning-part-i-data-smells.html#cb93-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(ppp_maryland_loans)</span></code></pre></div>
 <pre><code>## Rows: 195,865
@@ -510,7 +501,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ## $ originating_lender_state       &lt;chr&gt; &quot;NC&quot;, &quot;DE&quot;, &quot;MD&quot;, &quot;NY&quot;, &quot;VA&quot;, &quot;MD&quot;, &quot;VA…
 ## $ loan_status_date               &lt;date&gt; NA, NA, 2021-05-12, 2021-01-22, NA, 20…
 ## $ originating_lender_location_id &lt;dbl&gt; 9551, 44449, 124055, 46391, 434059, 304…
-## $ old_slug                       &lt;lgl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ old_slug                       &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
 ## $ lmi_indicator                  &lt;chr&gt; &quot;N&quot;, &quot;Y&quot;, &quot;N&quot;, &quot;Y&quot;, &quot;N&quot;, &quot;Y&quot;, &quot;N&quot;, &quot;N&quot;,…
 ## $ unmatched_original             &lt;lgl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
 ## $ unmatched_updated              &lt;lgl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
@@ -582,7 +573,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ## $ originating_lender_state       &lt;chr&gt; &quot;NC&quot;, &quot;DE&quot;, &quot;MD&quot;, &quot;NY&quot;, &quot;VA&quot;, &quot;MD&quot;, &quot;VA…
 ## $ loan_status_date               &lt;date&gt; NA, NA, 2021-05-12, 2021-01-22, NA, 20…
 ## $ originating_lender_location_id &lt;dbl&gt; 9551, 44449, 124055, 46391, 434059, 304…
-## $ old_slug                       &lt;lgl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ old_slug                       &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
 ## $ lmi_indicator                  &lt;chr&gt; &quot;N&quot;, &quot;Y&quot;, &quot;N&quot;, &quot;Y&quot;, &quot;N&quot;, &quot;Y&quot;, &quot;N&quot;, &quot;N&quot;,…
 ## $ unmatched_original             &lt;lgl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
 ## $ unmatched_updated              &lt;lgl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
@@ -671,8 +662,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <div id="gaps-in-data" class="section level2" number="10.3">
 <h2><span class="header-section-number">10.3</span> Gaps in data</h2>
-<p>Let’s now look at <strong>gaps in data</strong>. It’s been my experience that gaps in data often have to do with time, so let’s first look at “date_approved,” so we can see if there’s any missing months, or huge differences in the number of loans by month. Let’s start with Date. If we’re going to work with dates, we should have <code>lubridate</code> handy for <code>floor_date</code>. The <code>floor_date</code> function will allow us to group by month, instead of a single day.</p>
+<p>Let’s now look at <strong>gaps in data</strong>. It’s been my experience that gaps in data often have to do with time, so let’s first look at “date_approved,” so we can see if there’s any missing months, or huge differences in the number of loans by month. Let’s start with Date. If we’re going to work with dates, we should have <code>lubridate</code> handy for <code>floor_date</code>.</p>
 <div class="sourceCode" id="cb107"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb107-1"><a href="data-cleaning-part-i-data-smells.html#cb107-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span></code></pre></div>
+<p>The <code>floor_date</code> function will allow us to group by month, instead of a single day.</p>
 <div class="sourceCode" id="cb108"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb108-1"><a href="data-cleaning-part-i-data-smells.html#cb108-1" aria-hidden="true" tabindex="-1"></a>ppp_maryland_loans <span class="sc">%&gt;%</span> </span>
 <span id="cb108-2"><a href="data-cleaning-part-i-data-smells.html#cb108-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">month_year_approved =</span> <span class="fu">floor_date</span>(date_approved, <span class="st">&quot;month&quot;</span>)) <span class="sc">%&gt;%</span></span>
 <span id="cb108-3"><a href="data-cleaning-part-i-data-smells.html#cb108-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(month_year_approved) <span class="sc">%&gt;%</span> </span>
@@ -737,7 +729,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ## #   refinance_eidl_proceed &lt;dbl&gt;, health_care_proceed &lt;dbl&gt;,
 ## #   debt_interest_proceed &lt;dbl&gt;, originating_lender_city &lt;chr&gt;,
 ## #   originating_lender_state &lt;chr&gt;, loan_status_date &lt;date&gt;,
-## #   originating_lender_location_id &lt;dbl&gt;, old_slug &lt;lgl&gt;, lmi_indicator &lt;chr&gt;,
+## #   originating_lender_location_id &lt;dbl&gt;, old_slug &lt;chr&gt;, lmi_indicator &lt;chr&gt;,
 ## #   unmatched_original &lt;lgl&gt;, unmatched_updated &lt;lgl&gt;,
 ## #   previous_jobs_reported &lt;lgl&gt;, ethnicity &lt;chr&gt;, forgiveness_amount &lt;dbl&gt;,
 ## #   forgiveness_date &lt;date&gt;</code></pre>

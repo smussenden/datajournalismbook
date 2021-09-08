@@ -1026,11 +1026,7 @@ First, let's look at **Wrong Type Of Data**.
 
 We can sniff that out by looking at the output of `readr`. 
 
-Let's load the tidyverse, then the Maryland slice of PPP loan data we've used previously. 
-
-This time, we're going to load the data in a CSV format, which stands for comma separated values and is essentially a fancy structured text file. Each column in the csv is separated -- "delimited" -- by a comma from the next column. The file has a ".gz" extension on the end because it's zipped up to keep the file sizes smaller.
-
-We're also going to introduce a new argument to our function that reads in the data, read_csv(), called "guess_max". As R reads in the csv file, it will attempt to make some calls on what "data type" to assign to each field: number, character, date, and so on. The "guess_max" argument says: look at the values in the whatever number of rows we specify before deciding which data type to assign. In this case, we'll pick 10. 
+Let's load the tidyverse.  
 
 ```{r}
 
@@ -1038,10 +1034,21 @@ We're also going to introduce a new argument to our function that reads in the d
 options(scipen=999)
 # Load the tidyverse
 library(tidyverse)
-# Load the data
-ppp_maryland_loans <- read_csv("data/ppp_loan_data/processed/md/ppp_loans_md.csv.gz", guess_max=10)
 
 ```
+
+Then let's load the Maryland slice of PPP loan data we've used previously. 
+
+This time, we're going to load the data in a CSV format, which stands for comma separated values and is essentially a fancy structured text file. Each column in the csv is separated -- "delimited" -- by a comma from the next column. The file has a ".gz" extension on the end because it's zipped up to keep the file sizes smaller.
+
+We're also going to introduce a new argument to our function that reads in the data, read_csv(), called "guess_max". As R reads in the csv file, it will attempt to make some calls on what "data type" to assign to each field: number, character, date, and so on. The "guess_max" argument says: look at the values in the whatever number of rows we specify before deciding which data type to assign. In this case, we'll pick 10. 
+
+```{r}
+# Load the data
+ppp_maryland_loans <- read_csv("data/ppp_loan_data/processed/md/ppp_loans_md.csv.zip", guess_max=10)
+
+```
+
 Pay attention to the red warning that signals "one or more parsing issues." It advises us to run the problems() function to see what went wrong.  Let's do that. 
 
 ```{r}
@@ -1050,14 +1057,12 @@ problems(ppp_maryland_loans)
 
 ```
 
-It produces a table of all the parsing problems. It has 87,927 rows, which means we have that many problems.  In almost every case here, the `readr` library has guessed that a given column was of a "logical" data type -- True or False. It did it based on very limited information -- only 1,000 rows.  So, when it hit a value that looked like a date, or a character string, it didn't know what to do.  So it just didn't read in that value correctly. 
+It produces a table of all the parsing problems. It has 15,708 rows, which means we have that many problems.  In almost every case here, the `readr` library has guessed that a given column was of a "logical" data type -- True or False. It did it based on very limited information -- only 1,000 rows.  So, when it hit a value that looked like a date, or a character string, it didn't know what to do.  So it just didn't read in that value correctly. 
 
-Why? Look closely. The `readr` library makes guesses on what data type to assign to each column based on the first 1,000 rows of data.  
-
-The easy way to fix this is to remove the guess_max argument, and let readr do its magic. 
+The easy way to fix this is to set the guess_max argument higher. It will take a little longer to load, but we'll use every single row in the data set to guess the column type -- 195,865 
 
 ```{r}
-ppp_maryland_loans <- read_csv("data/ppp_loan_data/processed/md/ppp_loans_md.csv.gz")
+ppp_maryland_loans <- read_csv("data/ppp_loan_data/processed/md/ppp_loans_md.csv.zip", guess_max=195865)
 ```
 This time, we got no parsing failures.  And if we examine the data types `readr` assigned to each column using glimpse(), they generally make sense. 
 
@@ -1151,12 +1156,13 @@ Before we decide to base a publishable finding on this column, we should call th
 
 ## Gaps in data
 
-Let's now look at **gaps in data**. It's been my experience that gaps in data often have to do with time, so let's first look at "date_approved", so we can see if there's any missing months, or huge differences in the number of loans by month. Let's start with Date. If we're going to work with dates, we should have `lubridate` handy for `floor_date`. The `floor_date` function will allow us to group by month, instead of a single day. 
+Let's now look at **gaps in data**. It's been my experience that gaps in data often have to do with time, so let's first look at "date_approved", so we can see if there's any missing months, or huge differences in the number of loans by month. Let's start with Date. If we're going to work with dates, we should have `lubridate` handy for `floor_date`. 
 
 ```{r}
 library(lubridate)
 ```
 
+The `floor_date` function will allow us to group by month, instead of a single day. 
 
 ```{r}
 ppp_maryland_loans %>% 
@@ -1339,7 +1345,7 @@ total_arnold_md_loans
 ```
 ## Duplicates
 
-One of the most difficult problems to fix in data is duplicate records in the data. They can creepin with bad joins, bad data entry practices, mistakes -- all kinds of reasons. A duplicated record isn't always there because of an error, but you need to know if it's there before making that determination.
+One of the most difficult problems to fix in data is duplicate records in the data. They can creep in with bad joins, bad data entry practices, mistakes -- all kinds of reasons. A duplicated record isn't always there because of an error, but you need to know if it's there before making that determination.
 
 So the question is, do we have any records repeated? 
 
@@ -1437,11 +1443,11 @@ This is a little complex, so let's break it down.
 
 What the code above says, in English, is this:  Look at all the values in the city column. If the value is "Anold", then (that's what the "~" means, then) replace it with the word "Arnold". If it's anything other than that (that's what "TRUE" means, otherwise), then keep the existing value in that column. 
 
-We can fix "Arnld" by adding a line to that same function. 
+We could fix "Arnld" by adding another line inside that function, that looks identical:  ```city == "Arnld" ~ "Arnold"```. Like so.  
 
 ```{r}
 # cleaning function
-cleaned_arnold_md_loans <- arnold_md_loans %>%
+cleaned_arnold_md_loans_ <- arnold_md_loans %>%
   clean_names() %>%
   rename(id = x1_id) %>%
   mutate(amount = as.numeric(amount)) %>%
@@ -1456,9 +1462,36 @@ cleaned_arnold_md_loans <- arnold_md_loans %>%
   
 
 # display the cleaned dataset
+cleaned_arnold_md_loans_
+
+```
+
+Instead of specifying the exact value, we can also solve the problem by using something more generalizable, using a function called str_detect(), which allows us to search parts of words. 
+
+The second line of our case_when() function below now says, in English: look in the city column. If you find that one of the values starts with "Arnl"  (the "^" symbol means "starts with"), then (the tilde ~ means then) change it to "Arnold".  
+
+```{r}
+# cleaning function
+cleaned_arnold_md_loans <- arnold_md_loans %>%
+  clean_names() %>%
+  rename(id = x1_id) %>%
+  mutate(amount = as.numeric(amount)) %>%
+  distinct() %>%
+  mutate(zip = str_sub(zip, start=1L, end=5L)) %>%
+  mutate(city = str_to_title(city)) %>%
+  mutate(city = case_when(
+    city == "Anold" ~ "Arnold",
+    str_detect(city,"^Arnl") ~ "Arnold",
+    TRUE ~ city
+  ))
+  
+
+# display the cleaned dataset
 cleaned_arnold_md_loans
 
 ```
+
+That only changed one value "Arnld".  Imagine that there were other rows with values like "Arnlid","Arnl" or "Arnlod".  By using str_detect(city,"^Arnl"), we pick up any values that start with "Arnl", so it would change all four of these. If we used city == "Arnld", it would only pick up one.  
 
 Lastly, there's the issue with inconsistent spelling of Ritchie Hwy in the street address column.  Do we need to clean this? 
 

@@ -24,7 +24,7 @@
 <meta name="author" content="Matt Waite (original author); updated by Derek Willis and Sean Mussenden" />
 
 
-<meta name="date" content="2021-09-07" />
+<meta name="date" content="2021-09-08" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -330,10 +330,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>The New York Times is making the data behind <a href="https://www.nytimes.com/interactive/2020/us/coronavirus-us-cases.html">their interactive trackers</a> <a href="https://github.com/nytimes/covid-19-data">available to others for free</a>.</p>
 <p>So we have a constantly updating data stream on Github, so that means we can make this work.</p>
 <p>Let’s get our libraries first:</p>
-<div class="sourceCode" id="cb403"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb403-1"><a href="automating-geographic-analysis.html#cb403-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb403-2"><a href="automating-geographic-analysis.html#cb403-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)</span></code></pre></div>
+<div class="sourceCode" id="cb405"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb405-1"><a href="automating-geographic-analysis.html#cb405-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb405-2"><a href="automating-geographic-analysis.html#cb405-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)</span></code></pre></div>
 <p>We can use <code>read_csv</code> to read a URL if that URL is to a csv file. And Github just happens to provide a direct link to the CSV of county COVID-19 reports. Here’s what that looks like:</p>
-<div class="sourceCode" id="cb404"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb404-1"><a href="automating-geographic-analysis.html#cb404-1" aria-hidden="true" tabindex="-1"></a>covid <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb406"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb406-1"><a href="automating-geographic-analysis.html#cb406-1" aria-hidden="true" tabindex="-1"></a>covid <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv&quot;</span>)</span></code></pre></div>
 <pre><code>## 
 ## ── Column specification ────────────────────────────────────────────────────────
 ## cols(
@@ -345,7 +345,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ##   deaths = col_double()
 ## )</code></pre>
 <p>Let’s look at what the New York Times is providing us:</p>
-<div class="sourceCode" id="cb406"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb406-1"><a href="automating-geographic-analysis.html#cb406-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(covid)</span></code></pre></div>
+<div class="sourceCode" id="cb408"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb408-1"><a href="automating-geographic-analysis.html#cb408-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(covid)</span></code></pre></div>
 <pre><code>## # A tibble: 6 x 6
 ##   date       county    state      fips  cases deaths
 ##   &lt;date&gt;     &lt;chr&gt;     &lt;chr&gt;      &lt;chr&gt; &lt;dbl&gt;  &lt;dbl&gt;
@@ -357,24 +357,24 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ## 6 2020-01-25 Orange    California 06059     1      0</code></pre>
 <p>If you look, we have a county and a date – how many cases are reported in that county on that day. That means we can do some interesting progression charts.</p>
 <p>Let’s filter out Nebraska first.</p>
-<div class="sourceCode" id="cb408"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb408-1"><a href="automating-geographic-analysis.html#cb408-1" aria-hidden="true" tabindex="-1"></a>nebraska <span class="ot">&lt;-</span> covid <span class="sc">%&gt;%</span> <span class="fu">filter</span>(state <span class="sc">==</span> <span class="st">&quot;Nebraska&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb410"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb410-1"><a href="automating-geographic-analysis.html#cb410-1" aria-hidden="true" tabindex="-1"></a>nebraska <span class="ot">&lt;-</span> covid <span class="sc">%&gt;%</span> <span class="fu">filter</span>(state <span class="sc">==</span> <span class="st">&quot;Nebraska&quot;</span>)</span></code></pre></div>
 <p>And we can create line chart like this:</p>
-<div class="sourceCode" id="cb409"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb409-1"><a href="automating-geographic-analysis.html#cb409-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> <span class="fu">geom_line</span>(<span class="at">data=</span>nebraska, <span class="fu">aes</span>(<span class="at">x=</span>date, <span class="at">y=</span>cases, <span class="at">group=</span>county, <span class="at">color=</span>county))</span></code></pre></div>
-<p><img src="datajournalism_files/figure-html/unnamed-chunk-253-1.png" width="672" /></p>
+<div class="sourceCode" id="cb411"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb411-1"><a href="automating-geographic-analysis.html#cb411-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> <span class="fu">geom_line</span>(<span class="at">data=</span>nebraska, <span class="fu">aes</span>(<span class="at">x=</span>date, <span class="at">y=</span>cases, <span class="at">group=</span>county, <span class="at">color=</span>county))</span></code></pre></div>
+<p><img src="datajournalism_files/figure-html/unnamed-chunk-255-1.png" width="672" /></p>
 <p>The little county on the bottom that curves sharply up? That’s my home county, Washington County. One day of this writing, they added 10 cases in one day in one nursing home. Grim stuff.</p>
 <p>The curve you see for Douglas County is a classic exponential curve. Because the number of cases here are small, we can get away with it for a little while. But when looking at much larger places, you’d use a log scale. <a href="https://www.ft.com/video/9a72a9d4-8db1-4615-8333-4b73ae3ddff8">YOU REALLY SHOULD WATCH THIS</a>. You’ve no doubt seen the Financial Times coronavirus trajectory tracker. Hear why they are using a log scale. And here’s what our chart looks like with it. Note the y-axis scale.</p>
-<div class="sourceCode" id="cb410"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb410-1"><a href="automating-geographic-analysis.html#cb410-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> <span class="fu">geom_line</span>(<span class="at">data=</span>nebraska, <span class="fu">aes</span>(<span class="at">x=</span>date, <span class="at">y=</span>cases, <span class="at">group=</span>county, <span class="at">color=</span>county)) <span class="sc">+</span> <span class="fu">scale_y_continuous</span>(<span class="at">trans=</span><span class="st">&quot;log10&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb412"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb412-1"><a href="automating-geographic-analysis.html#cb412-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> <span class="fu">geom_line</span>(<span class="at">data=</span>nebraska, <span class="fu">aes</span>(<span class="at">x=</span>date, <span class="at">y=</span>cases, <span class="at">group=</span>county, <span class="at">color=</span>county)) <span class="sc">+</span> <span class="fu">scale_y_continuous</span>(<span class="at">trans=</span><span class="st">&quot;log10&quot;</span>)</span></code></pre></div>
 <pre><code>## Warning: Transformation introduced infinite values in continuous y-axis</code></pre>
-<p><img src="datajournalism_files/figure-html/unnamed-chunk-254-1.png" width="672" /></p>
+<p><img src="datajournalism_files/figure-html/unnamed-chunk-256-1.png" width="672" /></p>
 <div id="mapping-continuously" class="section level2" number="23.1">
 <h2><span class="header-section-number">23.1</span> Mapping continuously</h2>
 <p>But for a map, we can’t have multiple days. We need a single day. Ideally, it would be the most recent date. We can get it using the <code>max</code> function.</p>
-<div class="sourceCode" id="cb412"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb412-1"><a href="automating-geographic-analysis.html#cb412-1" aria-hidden="true" tabindex="-1"></a>current <span class="ot">&lt;-</span> nebraska <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(<span class="fu">max</span>(date))</span></code></pre></div>
+<div class="sourceCode" id="cb414"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb414-1"><a href="automating-geographic-analysis.html#cb414-1" aria-hidden="true" tabindex="-1"></a>current <span class="ot">&lt;-</span> nebraska <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(<span class="fu">max</span>(date))</span></code></pre></div>
 <p>That will give us the most recent date in Nebraska in a variable called <code>current</code>. And now we can filter the most recent data for Nebraska, regardless of when this runs.</p>
 <p>I’m adding one piece to the end to make joining this to a map easier and just renaming fips to GEOID, because they are identical in both datasets and can be used for joining.</p>
-<div class="sourceCode" id="cb413"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb413-1"><a href="automating-geographic-analysis.html#cb413-1" aria-hidden="true" tabindex="-1"></a>nebraskacurrent <span class="ot">&lt;-</span> nebraska <span class="sc">%&gt;%</span> <span class="fu">filter</span>(date <span class="sc">==</span> current[[<span class="dv">1</span>]]) <span class="sc">%&gt;%</span> <span class="fu">rename</span>(<span class="at">GEOID =</span> fips)</span></code></pre></div>
+<div class="sourceCode" id="cb415"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb415-1"><a href="automating-geographic-analysis.html#cb415-1" aria-hidden="true" tabindex="-1"></a>nebraskacurrent <span class="ot">&lt;-</span> nebraska <span class="sc">%&gt;%</span> <span class="fu">filter</span>(date <span class="sc">==</span> current[[<span class="dv">1</span>]]) <span class="sc">%&gt;%</span> <span class="fu">rename</span>(<span class="at">GEOID =</span> fips)</span></code></pre></div>
 <p>Now we can read in our counties map layer.</p>
-<div class="sourceCode" id="cb414"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb414-1"><a href="automating-geographic-analysis.html#cb414-1" aria-hidden="true" tabindex="-1"></a>counties <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="st">&quot;data/cb_2018_us_county_5m/cb_2018_us_county_5m.shp&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb416"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb416-1"><a href="automating-geographic-analysis.html#cb416-1" aria-hidden="true" tabindex="-1"></a>counties <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="st">&quot;data/cb_2018_us_county_5m/cb_2018_us_county_5m.shp&quot;</span>)</span></code></pre></div>
 <pre><code>## Reading layer `cb_2018_us_county_5m&#39; from data source 
 ##   `/Users/smussend/Desktop/git_repos/classes/datajournalismbook/data/cb_2018_us_county_5m/cb_2018_us_county_5m.shp&#39; 
 ##   using driver `ESRI Shapefile&#39;
@@ -384,17 +384,17 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ## Bounding box:  xmin: -179.1473 ymin: -14.55255 xmax: 179.7785 ymax: 71.35256
 ## Geodetic CRS:  NAD83</code></pre>
 <p>And join the two together.</p>
-<div class="sourceCode" id="cb416"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb416-1"><a href="automating-geographic-analysis.html#cb416-1" aria-hidden="true" tabindex="-1"></a>counties <span class="ot">&lt;-</span> counties <span class="sc">%&gt;%</span> <span class="fu">left_join</span>(nebraskacurrent)</span></code></pre></div>
+<div class="sourceCode" id="cb418"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb418-1"><a href="automating-geographic-analysis.html#cb418-1" aria-hidden="true" tabindex="-1"></a>counties <span class="ot">&lt;-</span> counties <span class="sc">%&gt;%</span> <span class="fu">left_join</span>(nebraskacurrent)</span></code></pre></div>
 <pre><code>## Joining, by = &quot;GEOID&quot;</code></pre>
 <p>Since we have every county in the United States in our counties map layer, we can filter just Nebraska like this:</p>
-<div class="sourceCode" id="cb418"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb418-1"><a href="automating-geographic-analysis.html#cb418-1" aria-hidden="true" tabindex="-1"></a>necounties <span class="ot">&lt;-</span> counties <span class="sc">%&gt;%</span> <span class="fu">filter</span>(STATEFP <span class="sc">==</span> <span class="dv">31</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb420"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb420-1"><a href="automating-geographic-analysis.html#cb420-1" aria-hidden="true" tabindex="-1"></a>necounties <span class="ot">&lt;-</span> counties <span class="sc">%&gt;%</span> <span class="fu">filter</span>(STATEFP <span class="sc">==</span> <span class="dv">31</span>)</span></code></pre></div>
 <p>So now, we have a geographic dataframe that has both the county shapes and the number of cases in the most recent data update. We just need to see it now:</p>
-<div class="sourceCode" id="cb419"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb419-1"><a href="automating-geographic-analysis.html#cb419-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> </span>
-<span id="cb419-2"><a href="automating-geographic-analysis.html#cb419-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data=</span>necounties, <span class="fu">aes</span>(<span class="at">fill=</span>cases)) <span class="sc">+</span> </span>
-<span id="cb419-3"><a href="automating-geographic-analysis.html#cb419-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_c</span>(<span class="at">option =</span> <span class="st">&quot;plasma&quot;</span>, <span class="at">trans =</span> <span class="st">&quot;sqrt&quot;</span>) <span class="sc">+</span> </span>
-<span id="cb419-4"><a href="automating-geographic-analysis.html#cb419-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>() <span class="sc">+</span> </span>
-<span id="cb419-5"><a href="automating-geographic-analysis.html#cb419-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="fu">paste</span>(<span class="st">&quot;COVID-19 cases as of &quot;</span>, current[[<span class="dv">1</span>]], <span class="at">sep=</span><span class="st">&quot;&quot;</span>))</span></code></pre></div>
-<p><img src="datajournalism_files/figure-html/unnamed-chunk-260-1.png" width="672" /></p>
+<div class="sourceCode" id="cb421"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb421-1"><a href="automating-geographic-analysis.html#cb421-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> </span>
+<span id="cb421-2"><a href="automating-geographic-analysis.html#cb421-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data=</span>necounties, <span class="fu">aes</span>(<span class="at">fill=</span>cases)) <span class="sc">+</span> </span>
+<span id="cb421-3"><a href="automating-geographic-analysis.html#cb421-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_c</span>(<span class="at">option =</span> <span class="st">&quot;plasma&quot;</span>, <span class="at">trans =</span> <span class="st">&quot;sqrt&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb421-4"><a href="automating-geographic-analysis.html#cb421-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>() <span class="sc">+</span> </span>
+<span id="cb421-5"><a href="automating-geographic-analysis.html#cb421-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="fu">paste</span>(<span class="st">&quot;COVID-19 cases as of &quot;</span>, current[[<span class="dv">1</span>]], <span class="at">sep=</span><span class="st">&quot;&quot;</span>))</span></code></pre></div>
+<p><img src="datajournalism_files/figure-html/unnamed-chunk-262-1.png" width="672" /></p>
 <p>As it stands, we can run this every day and get an up-to-date map.</p>
 
 </div>

@@ -125,7 +125,7 @@ total_arnold_md_loans
 ```
 ## Duplicates
 
-One of the most difficult problems to fix in data is duplicate records in the data. They can creepin with bad joins, bad data entry practices, mistakes -- all kinds of reasons. A duplicated record isn't always there because of an error, but you need to know if it's there before making that determination.
+One of the most difficult problems to fix in data is duplicate records in the data. They can creep in with bad joins, bad data entry practices, mistakes -- all kinds of reasons. A duplicated record isn't always there because of an error, but you need to know if it's there before making that determination.
 
 So the question is, do we have any records repeated? 
 
@@ -223,11 +223,11 @@ This is a little complex, so let's break it down.
 
 What the code above says, in English, is this:  Look at all the values in the city column. If the value is "Anold", then (that's what the "~" means, then) replace it with the word "Arnold". If it's anything other than that (that's what "TRUE" means, otherwise), then keep the existing value in that column. 
 
-We can fix "Arnld" by adding a line to that same function. 
+We could fix "Arnld" by adding another line inside that function, that looks identical:  ```city == "Arnld" ~ "Arnold"```. Like so.  
 
 ```{r}
 # cleaning function
-cleaned_arnold_md_loans <- arnold_md_loans %>%
+cleaned_arnold_md_loans_ <- arnold_md_loans %>%
   clean_names() %>%
   rename(id = x1_id) %>%
   mutate(amount = as.numeric(amount)) %>%
@@ -242,9 +242,36 @@ cleaned_arnold_md_loans <- arnold_md_loans %>%
   
 
 # display the cleaned dataset
+cleaned_arnold_md_loans_
+
+```
+
+Instead of specifying the exact value, we can also solve the problem by using something more generalizable, using a function called str_detect(), which allows us to search parts of words. 
+
+The second line of our case_when() function below now says, in English: look in the city column. If you find that one of the values starts with "Arnl"  (the "^" symbol means "starts with"), then (the tilde ~ means then) change it to "Arnold".  
+
+```{r}
+# cleaning function
+cleaned_arnold_md_loans <- arnold_md_loans %>%
+  clean_names() %>%
+  rename(id = x1_id) %>%
+  mutate(amount = as.numeric(amount)) %>%
+  distinct() %>%
+  mutate(zip = str_sub(zip, start=1L, end=5L)) %>%
+  mutate(city = str_to_title(city)) %>%
+  mutate(city = case_when(
+    city == "Anold" ~ "Arnold",
+    str_detect(city,"^Arnl") ~ "Arnold",
+    TRUE ~ city
+  ))
+  
+
+# display the cleaned dataset
 cleaned_arnold_md_loans
 
 ```
+
+That only changed one value "Arnld".  Imagine that there were other rows with values like "Arnlid","Arnl" or "Arnlod".  By using str_detect(city,"^Arnl"), we pick up any values that start with "Arnl", so it would change all four of these. If we used city == "Arnld", it would only pick up one.  
 
 Lastly, there's the issue with inconsistent spelling of Ritchie Hwy in the street address column.  Do we need to clean this? 
 
