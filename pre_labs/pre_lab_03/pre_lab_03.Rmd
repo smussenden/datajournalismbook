@@ -39,13 +39,13 @@ library(tidyverse)
 **Answer**
 
 ```{r}
-ppp_maryland_loans <- read_csv("ppp_loans_md.zip", guess_max=10)
+ppp_maryland_loans <- read_csv("ppp_loans_md.csv.zip", guess_max=10)
 
 ```
 
 ### Task 3: Check for problems on load
 **Task** Check for problems that occurred when loading the ppp loan data for Maryland by running the following code.  How many problems were there, as shown by the number of rows in the output table showing errors? Answer below.
-**Answer** 
+**Answer**
 
 ```{r}
 
@@ -58,7 +58,7 @@ problems(ppp_maryland_loans)
 **Answer**
 
 ```{r}
-ppp_maryland_loans <- read_csv("/ppp_loans_md.csv.zip", guess_max=195865)
+ppp_maryland_loans <- read_csv("ppp_loans_md.csv.zip", guess_max=195865)
 ```
 
 ### Task 5: Examine the data with glimpse
@@ -77,50 +77,50 @@ ppp_maryland_loans <- ppp_maryland_loans %>%
 glimpse(ppp_maryland_loans)
 ```
 
-### Task 7: Examine the franchise column for missing values. 
+### Task 7: Examine the franchise column for missing values.
 **Task** Run the following codeblock to group by franchise_name, count the numer of loans, then sort from highest to lowest on count. How many loans are there where franchise_name is NA? How many loans are there where the franchise_name is "Subway"? Answer below.
-**Answer**: 
+**Answer**:
 
 ```{r}
 
-ppp_maryland_loans %>% 
-  group_by(franchise_name) %>% 
+ppp_maryland_loans %>%
+  group_by(franchise_name) %>%
   summarise(
     count=n()
   ) %>%
   arrange(desc(count))
 ```
-### Task 8: Examine the forgiveness_amount column for missing values. 
+### Task 8: Examine the forgiveness_amount column for missing values.
 **Task** Run the following codeblock to group by forgiveness_amount, count the numer of loans, then sort from highest to lowest on count. How many loans are there where forgiveness_amount is NA? Answer below.
-**Answer**: 
+**Answer**:
 
 ```{r}
 
-ppp_maryland_loans %>% 
-  group_by(forgiveness_amount) %>% 
+ppp_maryland_loans %>%
+  group_by(forgiveness_amount) %>%
   summarise(
     count=n()
   ) %>%
   arrange(desc(count))
 ```
 
-### Task 9: Examine the forgiveness_date column for missing values. 
+### Task 9: Examine the forgiveness_date column for missing values.
 **Task** Run the following codeblock to group by forgiveness_date, count the numer of loans, then sort from highest to lowest on count and filter to only show NA values. How many loans are there where forgiveness_date is NA? Is it the same as the number for forgiveness_amount? Answer below.
-**Answer**: 
+**Answer**:
 
 ```{r}
 
-ppp_maryland_loans %>% 
-  group_by(forgiveness_date) %>% 
+ppp_maryland_loans %>%
+  group_by(forgiveness_date) %>%
   summarise(
     count=n()
   ) %>%
   filter(is.na(forgiveness_date)) %>%
   arrange(desc(count))
 ```
-### Task 10: Examine forgiveness_date and forgiveness_amount together 
-**Task** Run the following codeblock to group by forgiveness_date and forgiveness_amount, count the numer of loans, then sort from highest to lowest on count and filter to only show NA values. How many loans are there where forgiveness_date and forgiveness_amount is NA? Is it the same as the number for forgiveness_amount and forgiveness_amount run separately in the codeblocks above? What can you conclude from Answer below.
-**Answer**: 
+### Task 10: Examine forgiveness_date and forgiveness_amount together
+**Task** Run the following codeblock to group by forgiveness_date and forgiveness_amount, count the number of loans, then sort from highest to lowest on count and filter to only show NA values. How many loans are there where forgiveness_date and forgiveness_amount is NA? Is it the same as the number for forgiveness_amount and forgiveness_amount run separately in the codeblocks above? What can you conclude from Answer below.
+**Answer**:
 ```{r}
 ppp_maryland_loans %>%
   group_by(forgiveness_amount, forgiveness_date) %>%
@@ -132,7 +132,7 @@ ppp_maryland_loans %>%
 
 ```
 ### Task 11: Install lubridate
-**Task** Run the following codeblock to install the lubridate package. 
+**Task** Run the following codeblock to install the lubridate package.
 ```{r}
 install.packages('lubridate')
 ```
@@ -144,13 +144,13 @@ install.packages('lubridate')
 library(lubridate)
 ```
 
-### Task 13: Look for date gaps in data 
+### Task 13: Look for date gaps in data
 **Task** Run the following codeblock to create a new column called "month_year_approved" that extracts the month and year from the "date_approved" column.  Group by the new "month_year_approved" column, count, and sort by "month_year_approved". How many loans are there in the data for October 2020? Answer below.
-**Answer** 
+**Answer**
 ```{r}
-ppp_maryland_loans %>% 
+ppp_maryland_loans %>%
   mutate(month_year_approved = floor_date(date_approved, "month")) %>%
-  group_by(month_year_approved) %>% 
+  group_by(month_year_approved) %>%
    summarise(
     count=n()
   ) %>%
@@ -158,11 +158,11 @@ ppp_maryland_loans %>%
 ```
 
 ### Task 14: Check for suspicious outliers
-**Task** Run the following codeblock to find the largest and smallest loans in the data, by using summarise() without grouping. How much is the largest loan for? How much is the smallest loan for? Are either of these suspicious to you? Why or why not? Answer below. 
+**Task** Run the following codeblock to find the largest and smallest loans in the data, by using summarise() without grouping. How much is the largest loan for? How much is the smallest loan for? Are either of these suspicious to you? Why or why not? Answer below.
 **Answer**
 ```{r}
 
-ppp_maryland_loans %>% 
+ppp_maryland_loans %>%
   summarise(max_amount = max(amount),
             min_amount= min(amount))
 ```
@@ -173,7 +173,7 @@ ppp_maryland_loans %>%
 **Answer**
 ```{r}
 
-ppp_maryland_loans %>% 
+ppp_maryland_loans %>%
  filter(amount < 100)
 ```
 
@@ -183,7 +183,7 @@ ppp_maryland_loans %>%
 
 ```{r}
 
-ppp_maryland_loans %>% 
+ppp_maryland_loans %>%
  filter(amount < 100) %>%
   select(name, amount, initial_approval_amount, current_approval_amount, payroll_proceed)
 ```
@@ -191,7 +191,7 @@ ppp_maryland_loans %>%
 ## Chapter 11
 
 ### Task 1: Install janitor
-**Task** Run the following codeblock to install the janitor package. 
+**Task** Run the following codeblock to install the janitor package.
 ```{r}
 install.packages('janitor')
 ```
@@ -219,7 +219,7 @@ arnold_md_loans <- read_rds("arnold_md_loans.rmd")
 glimpse(arnold_md_loans)
 ```
 
-And let's examine the full data set. 
+And let's examine the full data set.
 
 ### Task 5: Examine the data table
 **Task** Run the following codeblock to examine the data. Name three problems the book chapter says exist in this data set that could prevent us from answering questions?  Answer below
@@ -229,7 +229,7 @@ And let's examine the full data set.
 arnold_md_loans
 ```
 
-### Task 6: Use clean_names() 
+### Task 6: Use clean_names()
 **Task** Run the following codeblock to use the clean_names() function from janitor to standardize column names. How does the function change the name of the column "1_id"? Answer below.
 **Answer**
 
@@ -244,7 +244,7 @@ cleaned_arnold_md_loans
 ```
 
 ### Task 7: Use rename()
-**Task** Run the following codeblock to use the clean_names() function from janitor to standardize column names and then use rename() to change the "x1_id" column. 
+**Task** Run the following codeblock to use the clean_names() function from janitor to standardize column names and then use rename() to change the "x1_id" column.
 
 
 ```{r}
@@ -256,11 +256,11 @@ cleaned_arnold_md_loans <- arnold_md_loans %>%
 # display the cleaned dataset
 cleaned_arnold_md_loans
 
-  
+
 ```
 
 ### Task 8: Try summarizing the amount column
-**Task** Run the following codeblock to attempt to add up the amount of all loans. What does the error say when you run this code? What do you think it means? Answer below. 
+**Task** Run the following codeblock to attempt to add up the amount of all loans. What does the error say when you run this code? What do you think it means? Answer below.
 **Answer**
 
 ```{r}
@@ -271,7 +271,7 @@ total_arnold_md_loans <- cleaned_arnold_md_loans %>%
 # display the cleaned dataset
 total_arnold_md_loans
 
-  
+
 ```
 ### Task 9: Change data type for amount
 **Task** Run the following codeblock to attempt to change the datatype for the amount field to a number. What is the new data type (three letter code) for amount? Answer below.
@@ -283,7 +283,7 @@ cleaned_arnold_md_loans <- arnold_md_loans %>%
   clean_names() %>%
   rename(id = x1_id) %>%
   mutate(amount = as.numeric(amount))
-  
+
 
 # display the cleaned dataset
 cleaned_arnold_md_loans
@@ -300,7 +300,7 @@ total_arnold_md_loans <- cleaned_arnold_md_loans %>%
 # display the cleaned dataset
 total_arnold_md_loans
 
-  
+
 ```
 
 ### Task 11: Check for duplicate rows
@@ -308,7 +308,7 @@ total_arnold_md_loans
 **Answer**
 
 ```{r}
-cleaned_arnold_md_loans %>% 
+cleaned_arnold_md_loans %>%
   get_dupes()
 ```
 
@@ -322,7 +322,7 @@ cleaned_arnold_md_loans <- arnold_md_loans %>%
   rename(id = x1_id) %>%
   mutate(amount = as.numeric(amount)) %>%
   distinct()
-  
+
 
 # display the cleaned dataset
 cleaned_arnold_md_loans
@@ -330,7 +330,7 @@ cleaned_arnold_md_loans
 ```
 
 ### Task 13: Clean up ZIP code
-**Task** Run the following codeblock to use str_sub() to convert the ZIP codes that have nine digits to five digits, standardizing the field. 
+**Task** Run the following codeblock to use str_sub() to convert the ZIP codes that have nine digits to five digits, standardizing the field.
 **Answer**
 
 ```{r}
@@ -341,7 +341,7 @@ cleaned_arnold_md_loans <- arnold_md_loans %>%
   mutate(amount = as.numeric(amount)) %>%
   distinct() %>%
   mutate(zip = str_sub(zip, start=1L, end=5L))
-  
+
 
 # display the cleaned dataset
 cleaned_arnold_md_loans
@@ -360,7 +360,7 @@ cleaned_arnold_md_loans <- arnold_md_loans %>%
   distinct() %>%
   mutate(zip = str_sub(zip, start=1L, end=5L)) %>%
   mutate(city = str_to_title(city))
-  
+
 
 # display the cleaned dataset
 cleaned_arnold_md_loans
@@ -385,7 +385,7 @@ cleaned_arnold_md_loans <- arnold_md_loans %>%
     city == "Anold" ~ "Arnold",
     TRUE ~ city
   ))
-  
+
 
 # display the cleaned dataset
 cleaned_arnold_md_loans
@@ -409,7 +409,7 @@ cleaned_arnold_md_loans <- arnold_md_loans %>%
     str_detect(city,"^Arnl") ~ "Arnold",
     TRUE ~ city
   ))
-  
+
 
 # display the cleaned dataset
 cleaned_arnold_md_loans
