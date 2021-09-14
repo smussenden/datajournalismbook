@@ -78,7 +78,7 @@ glimpse(ppp_maryland_loans)
 ```
 
 ### Task 7: Examine the franchise column for missing values.
-**Task** Run the following codeblock to group by franchise_name, count the numer of loans, then sort from highest to lowest on count. How many loans are there where franchise_name is NA? How many loans are there where the franchise_name is "Subway"? Answer below.
+**Task** Run the following codeblock to group by franchise_name, count the number of loans, then sort from highest to lowest on count. How many loans are there where franchise_name is NA? How many loans are there where the franchise_name is "Subway"? Answer below.
 **Answer**:
 
 ```{r}
@@ -91,7 +91,7 @@ ppp_maryland_loans %>%
   arrange(desc(count))
 ```
 ### Task 8: Examine the forgiveness_amount column for missing values.
-**Task** Run the following codeblock to group by forgiveness_amount, count the numer of loans, then sort from highest to lowest on count. How many loans are there where forgiveness_amount is NA? Answer below.
+**Task** Run the following codeblock to group by forgiveness_amount, count the number of loans, then sort from highest to lowest on count. How many loans are there where forgiveness_amount is NA? Answer below.
 **Answer**:
 
 ```{r}
@@ -105,7 +105,7 @@ ppp_maryland_loans %>%
 ```
 
 ### Task 9: Examine the forgiveness_date column for missing values.
-**Task** Run the following codeblock to group by forgiveness_date, count the numer of loans, then sort from highest to lowest on count and filter to only show NA values. How many loans are there where forgiveness_date is NA? Is it the same as the number for forgiveness_amount? Answer below.
+**Task** Run the following codeblock to group by forgiveness_date, count the number of loans, then sort from highest to lowest on count and filter to only show NA values. How many loans are there where forgiveness_date is NA? Is it the same as the number for forgiveness_amount? Answer below.
 **Answer**:
 
 ```{r}
