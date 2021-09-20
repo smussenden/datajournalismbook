@@ -26,15 +26,15 @@ library(lubridate)
 Let's say that we have county population estimates for three different years - [2010](https://umd.box.com/s/vsuyt7v1gtb2u0aerliv5eixfmzfgt17), [2015](https://umd.box.com/s/2qijnwfygsrfin9d2o1krhzw5o8vza30) and [2020](https://umd.box.com/s/uqkeaabkvs4ge0l10j3w3sa76q3z1v16) - in three different files. They have the same record layout and the same number of counties.
 
 ```{r}
-popestimate_2010 <- read_csv("popestimate_2010.csv")
+popestimate_2010 <- read_csv("data/popestimate_2010.csv")
 ```
 
 ```{r}
-popestimate_2015 <- read_csv("popestimate_2015.csv")
+popestimate_2015 <- read_csv("data/popestimate_2015.csv")
 ```
 
 ```{r}
-popestimate_2020 <- read_csv("popestimate_2020.csv")
+popestimate_2020 <- read_csv("data/popestimate_2020.csv")
 ```
 
 ```{r}
@@ -49,7 +49,7 @@ maryland_ppp <- read_rds("pre_lab_04.rds")
 ```
 
 ```{r}
-naics_codes <- read_csv('naics_codes.csv')
+naics_codes <- read_csv('data/naics_codes.csv')
 ```
 
 ```{r}
@@ -69,7 +69,7 @@ maryland_ppp_with_naics <- maryland_ppp %>% left_join(naics_codes)
 
 ```{r}
 # zcta data
-maryland_zcta <- read_csv('maryland_zcta.csv')
+maryland_zcta <- read_csv('data/maryland_zcta.csv')
 ```
 
 ```{r}
