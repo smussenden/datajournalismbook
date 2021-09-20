@@ -33,12 +33,12 @@ library(tidyverse)
 
 ## Load Data
 
-Let's keep working with [Maryland loan applications](https://umd.box.com/s/czolak14n8ts55aqnt7rrqfb6cb8blr1) contained in the PPP data.
+Let's keep working with Maryland loan applications contained in the PPP data.
 
 **Task** Download the file from the above link and run the codeblock below to load the data.
 
 ```{r}
-maryland_ppp <- read_csv('ppp_applications_md.csv')
+maryland_ppp <- read_csv('lab_04.rds')
 ```
 
 To answer the questions below, you'll need to join both the NAICS code data and the ZCTA demographic data from the book chapter. There's a particular set of steps you'll need to perform to make that work properly.
@@ -48,7 +48,7 @@ First, let's load [the NAICS code data we have](https://umd.box.com/s/thou3merdz
 **Task** Download the file from the above link and run the codeblock below to load the data.
 
 ```{r}
-naics_codes <- read_csv('naics_codes.csv')
+naics_codes <- read_csv('data/naics_codes.csv')
 ```
 
 Next join the two and then create a 5-character `zip5` column that we can use to join to the ZCTA data:
@@ -60,12 +60,12 @@ maryland_ppp_with_naics <- maryland_ppp %>% left_join(naics_codes)
 maryland_ppp_with_naics <- maryland_ppp_with_naics %>% mutate(zip5 = str_sub(zip, 1, 5))
 ```
 
-Let's add the [Zip Code Tabulation Area dataset](https://umd.box.com/s/2xsq2rpkmg4ct3a77vt8j5bu4vu1z0tf). Remember that we'll need to make the `ZCTA5N` column a character column, not a numeric one:
+Let's add the Zip Code Tabulation Area dataset. Remember that we'll need to make the `ZCTA5N` column a character column, not a numeric one:
 
-**Task** Download the file from the above link and run the codeblock below to load the data.
+**Task** Run the codeblock below to load the data.
 
 ```{r}
-maryland_zcta <- read_csv('maryland_zcta.csv')
+maryland_zcta <- read_csv('data/maryland_zcta.csv')
 maryland_zcta <- maryland_zcta %>% mutate(across(ZCTA5N, as.character))
 ```
 
