@@ -13,7 +13,9 @@ knitr::opts_chunk$set(echo = TRUE)
 1. Review of fifth lab questions/problems.
 2. Demonstration of PDF parsing with Tabula
 
-## Load Libraries
+### Task 1: Load libraries and settings
+**Task** Run the following code in the gray-colored codeblock below to load the tidyverse library and the tidycensus library (remove the comment in front of install.packages if you need to install the latter)  
+
 ```{r}
 # turn off sci notation
 options(scipen=999)
@@ -29,42 +31,50 @@ We're going to use a library called `tidycensus` which makes calls to the Census
 
 To use the API, you need to [an API key from the Census Bureau](https://api.census.gov/data/key_signup.html). It takes a few minutes and you need to activate your key via email. Once you have your key, you need to set that for this session. Just FYI: Your key is your key. Do not share it.
 
+### Task 2: Sign up for an API Key and set it
+**Task** Replace YOUR KEY HERE in the codeblock below with your Census API Key.
+
 ```{r echo=FALSE}
 census_api_key("YOUR KEY HERE")
 ```
 
 So to give you some idea of how complicated the data is, let's pull up just one file from the decennial Census. We'll use Summary File 1, or SF1. That has the major population and housing stuff.
 
+### Task 3: Examining Census data
+**Task** Run the following codeblock and look at the resulting variable.
+
 ```{r}
 sf1 <- load_variables(2010, "sf1", cache = TRUE)
+View(sf1)
 ```
 
 Note: There are thousands of variables in SF1. That's not a typo. Open it in your environment by double clicking. As you scroll down, you'll get an idea of what you've got to choose from.
 
 If you think that's crazy, try the SF3 file from 2000.
 
+**Task** Run the following codeblock and look at the resulting variable.
+
 ```{r}
 sf3 <- load_variables(2000, "sf3", cache = TRUE)
 ```
 
+### Task 4: Calculate the fastest-growing state
+
 So let's try to answer a question using the Census. What is the fastest growing state since 2000?
 
-To answer this, we need to pull the total population by state in each of the decennial census. Here's 2000.
+To answer this, we need to pull the total population by state in each of the decennial census.
+
+**Task** Run the following codeblock and examine the 2010 results
 
 ```{r}
-p00 <- get_decennial(geography = "state", variables = "P001001", year = 2000)
-```
-
-Now 2010.
-
-```{r}
-p10 <- get_decennial(geography = "state", variables = "P001001", year = 2010)
+p2000 <- get_decennial(geography = "state", variables = "P001001", year = 2000)
+p2010 <- get_decennial(geography = "state", variables = "P001001", year = 2010)
 ```
 
 Let's take a peek at 2010.
 
 ```{r}
-p10
+p2010
 ```
 
 As you can see, we have a GEOID, NAME, then variable and value. Variable and value are going to be the same. Because those are named the same thing, to merge them together, we need to rename them.
