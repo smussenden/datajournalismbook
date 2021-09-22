@@ -1,0 +1,422 @@
+---
+title: "lab_04"
+author: "derek willis"
+date: "8/24/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Motivating line of reporting 
+
+You are a reporter for West Virginia news organization, and you are interested in finding a story about how PPP loans affected an important industry in West Virginia's second largest county.  
+
+
+You set out to answer this question: In the city that had that had the most total approved loans in West Virginia's second largest county, what industry (by NAICS code) had most total approved loans? What can we conclude from this?
+
+
+## Load libraries and establish settings
+```{r}
+# Turn off scientific notation
+options(scipen=999)
+
+# Load the tidyverse. If you have not installed the tidyverse already, remove the # from the next line and run it first.  
+# install.packages('tidyverse')
+library(tidyverse)
+```
+
+## Load Data
+
+You'll need to load three data sets for this:
+
+* The West Virginia slice of the PPP loan data (lab_05.rds).
+* A "lookup table" that allows you to translate NAICS (industry) numeric codes to industry titles (naics_codes.csv).
+* A table of West Virginia population by county.
+
+All three data sets are in the data folder.  Write code to load them in the codeblock below.
+
+```{r}
+# Load the WV PPP loan data table
+west_virginia_ppp <- read_rds('data/lab_05.rds')
+
+# Load the NAICS lookup table
+naics_codes <- read_csv('data/naics_codes.csv')
+
+# Load the West Virginia population by county table
+wv_population_county <- get_acs(geography="county", variables=c("B01001_001"),geometry = FALSE, year=2019) %>%
+  clean_names() %>%
+  filter(str_detect(name,"West Virginia")) %>%
+  mutate(county = str_remove(name," County, West Virginia")) %>%
+  select(county,population_2019 = estimate)
+
+```
+
+## Answer questions
+
+Q1. Start with the subset of PPP loans in West Virginia's second largest county. Which city in that county had the highest number of loans? In that city, which industry title had more loans than any other industry title? 
+
+Requirement: to answer this question, you MUST export a dataframe from R Studio at some point in the process (not necessarily at the beginning), load it into Open Refine, clean the city column, export it from Open Refine, and reimport it back into R Studio.
+
+Hint: there are a lot of steps to this question, involving three different tables. You may find it helpful to write out in English what you plan to do step-by-step before you start writing code. This is called writing "psuedocode".  
+
+A1. Martinsburg in Berekley County, full-service restaurants.
+
+```{r}
+#####
+### Identify West Virginia's second largest county
+#####
+
+## Sort population table
+wv_population_county_sorted <- wv_population_county %>%
+  arrange(desc(population_2019))
+
+## Display it.  Berkeley County is #2 with 115K people.
+wv_population_county_sorted
+
+#####
+### Create a table of Berkeley County loans
+#####
+
+berkeley_ppp <- west_virginia_ppp %>%
+  filter(project_county_name == "BERKELEY")
+
+#####
+### Identify city in Berkeley County that got the most loans.
+#####
+
+## Group by city and county
+berkeley_top_city <- berkeley_ppp %>%
+  group_by(city) %>%
+  summarise(
+    count=n()
+  )
+
+## Display to notice city field needs cleaning in order to group properly. 
+berkeley_top_city
+
+## Export Berkeley loan data to Open Refine
+write_csv(berkeley_ppp,"data/berkeley_ppp.csv")
+
+## Open Refine Cleaning Steps
+# Launch Open Refine
+# Choose file berkeley_ppp.csv
+# Hit next to upload data
+# Click create project
+# Make copy of city column called city_clean.  Click dropdown arrow next to city > edit column > add column based on this column. When window pops up, type city_clean in "New column name" field and click OK button.
+# Click dropdown arrow next to city_clean > Facet > Text facet
+# On left sidebar click "cluster"
+# Use various cleaning functions until city inconsistency grouping problems are resolved.
+# Click "export" > comma separated value > 
+# Move to proper_folder
+
+## Reimport cleaned Open Refine data, do some further cleaning if desired to fix capitalization.
+
+berkeley_ppp <- read_csv("data/berkeley_ppp.csv") %>%
+  mutate(city_clean = str_to_title(city_clean))
+
+## Group by cleaned city column and count loans, sort descending
+berkeley_ppp_cities <- berkeley_ppp %>%
+  group_by(city_clean) %>%
+  summarise(
+    count=n()
+  ) %>%
+  arrange(desc(count))
+
+## Display it. Martinsburg with 1166 approved loans.
+wv_population_county_sorted
+
+#####
+### Create a Martinsburg only table
+#####
+
+martinsburg_ppp <- berkeley_ppp %>%
+  filter(city_clean == "Martinsburg")
+
+#####
+### Look at top industries in Martinsburg
+#####
+
+# Join to naics lookup table, group by industry title, count sort descending
+martinsburg_ppp_industries <- martinsburg_ppp %>%
+  left_join(naics_codes) %>%
+  group_by(title) %>%
+  summarise(
+    count=n()
+  ) %>%
+  arrange(desc(count))
+
+# Display it. 
+martinsburg_ppp_industries
+```
+Q2. What are your two best hypotheses, which you'd need to confirm with reporting and further analysis, that explain why that industry is at the top of the list?
+A2. Here are four, though you may think of others.   
+
+* Full-service restaurants may just be more common than other types of businesses in Martinsburg. If businesses in all industries were equally likely to apply for a loan -- which may not be a safe assumption to make -- then it would make sense that more restaurants had loans.
+* Restaurants may have been more likely than businesses in other industries to apply for multiple loans with different lenders, leading to multiple records in the PPP data. For example, SISSY'S FAMILY RESTAURANT LLC, MOTHER SHUCKERS CRAB SHACK, LAS TRANCAS OF MARTINSBURG INC. and several others have two loans of differing amounts on different dates at the same address. 
+* Sit-down restaurants were particularly vulnerable during the pandemic, especially the early months, as public health measures in many states limited or prevent in-restaurant dining. The economic hit may have driven restaurant owners to seek help with more urgency than in other industries. 
+* The position of restaurants at the top may just be an artifact of using fine-grained NAICS data (see below).
+
+
+Q2. In response to the previous question, you identified the industry that had more loans than any other industry in the city with the most loans in West Virginia's second largest county. Examine the final table you produced. Are there any potential issues that could affect the answer?
+A2. Two issues come to mind. 
+
+First, there are 14 NA values. The NA values are there because of an issue that arose on joining the Martinsburg PPP table to the NAICS lookup table. In the Martinsburg PPP table, seven loans had a NA value for NAICS code. Seven others had a 999990 value, and one had 333298.  Neither of those values exist in the NAICS lookup table. That's enough missing values to affect the conclusion, so we should work to reconcile those.
+
+Second, the NAICS industry code categories we're using here are very fine-grained.  If our question is which is the largest industry in town, do we need to do some additional refining to lump like industries together? For example, these are all separate categories related to shipping:
+
+* General Freight Trucking, Long-Distance, Less Than Truckload
+* Freight Transportation Arrangement
+* Specialized Freight (except Used Goods) Trucking, Long-Distance
+* General Freight Trucking, Local
+* Specialized Freight (except Used Goods) Trucking, Local
+* General Freight Trucking, Long-Distance, Truckload
+
+NAICS codes have a special format. The digits are ordered from the broadest category on the left to the narrowest sub category on the right. Two-digit codes are the broadest, six-digit codes are the most specific. Here's an example:
+
+* 72	Accommodation and Food Services	
+* 7225	Restaurants and Other Eating Places
+* 722511	Full-Service Restaurants	369,862
+* 722513	Limited-Service Restaurants	285,678
+* 722514	Cafeterias, Grill Buffets, and Buffets	
+* 722515	Snack and Nonalcoholic Beverage Bars	
+
+Q3. Start with a table of loans to all businesses in the city and industry that answered question 2.  
+* What is the name of the business that got the highest approved loan amount? 
+* How much was it for?
+* When was it approved?
+* How many jobs does the data say were retained?
+* How many locations does this business have? 
+* Did one of its locations close during the pandemic, either before or after it got the loan?
+
+Hint: you will not find the answers to the last two questions in the data.  You will need to do some web research. start by googling and hitting the wv corp lookup.  wayback machine, yelp, facebook, 
+
+```{r}
+martinsburg_ppp_restaurants <- martinsburg_ppp %>%
+  left_join(naics_codes) %>%
+  filter(str_detect(title,"Full-Service Restaurants")) %>%
+  arrange(desc(amount))
+
+
+```
+
+Start with the table produced in Q1 the one that filtered the West Virginia PPP data to only include the approved loans for businesses in the city that answered the question.  Start with the subset of PPP loans in West Virginia's second largest county. Which city in that county had the highest number of loans? In that city, which industry title had more loans than any other industry title? 
+```{r}
+
+
+```
+
+
+
+```{r}
+census_api_key("549950d36c22ff16455fe196bbbd01d63cfbe6cf")
+library(tidycensus)
+library(janitor)
+library(refinr)
+# Define API Key
+
+
+# Load wv data
+west_virginia_ppp <- read_rds('data/lab_05.rds')
+
+# Get west virginia population and the second largest county
+wv_population_county <- get_acs(geography="county", variables=c("B01001_001"),geometry = FALSE, year=2019) %>%
+  clean_names() %>%
+  filter(str_detect(name,"West Virginia")) %>%
+  mutate(county = str_remove(name," County, West Virginia")) %>%
+  select(county,population_2019 = estimate)
+  
+wv_second_largest_county <- wv_population_county %>%
+  slice(2)
+
+# Filtering join to isolate loans
+wv_second_largest_loans <- west_virginia_ppp %>%
+  mutate(project_county_name = str_to_title(project_county_name)) %>%
+  inner_join(wv_second_largest_county, by=c("project_county_name" = "county"))
+
+# Load NAICS 
+
+# Clean cities
+# Make them do this in open refine
+# For now let's just do here
+wv_second_largest_loans_clean <- wv_second_largest_loans %>%
+  mutate(city = tolower(city)) %>%
+  mutate(city = case_when(
+    city == "bunkerhill" ~ "bunker hill",
+    city == "falling water" ~ "falling waters",
+    city == "hegdesville" ~ "hedgesville",
+    city == "maritnsburg" ~ "martinsburg",
+    TRUE ~ city
+  ))
+
+# Group and count cities in WV second largest county
+berkeley_city_count <- wv_second_largest_loans_clean %>%
+  group_by(city) %>%
+  count() %>%
+  arrange(desc(n)) %>%
+  head(1)
+
+# create dataframe of loans for Martinsburg
+martinsburg_loans <- wv_second_largest_loans_clean %>%
+  inner_join(berkeley_city_count, by="city")
+
+# Join to naics codes
+naics_codes <- read_csv('data/naics_codes.csv')
+martinsburg_loans_naics <- martinsburg_loans %>%
+  inner_join(naics_codes)
+  
+# Group by title
+martinsburg_industries <- martinsburg_loans_naics %>%
+  group_by(title) %>%
+  summarise(
+    total_loans = n(),
+    sum = sum(current_approval_amount)
+  ) %>%
+  arrange(desc(total_loans))
+
+```
+
+What restaurant got the largest loan
+Restaurant appears to have closed between june 2019 and april 2019
+https://web.archive.org/web/20190115061057/http://www.kitziesrestaurant.com/
+https://web.archive.org/web/20190401000000*/http://www.kitziesrestaurant.com/
+Last yelp review in 2019
+https://www.yelp.com/biz/kitzies-inwood-inwood
+
+```{r}
+full_serve_restaurants <- martinsburg_industries %>%
+  head(1)
+
+# filtering join
+martinsburg_resturant_list <- martinsburg_loans_naics %>%
+  inner_join(full_serve_restaurants, by="title")
+```
+https://web.archive.org/web/20180323174833/http://www.kitziesrestaurant.com/index.php
+
+naics_codes <- read_csv('data/naics_codes.csv')
+
+```{r}
+
+```
+west_virginia_county_pop <- 
+wv_ppp_with_naics <- west_virginia_ppp %>% 
+  left_join(naics_codes) %>%
+  select(id:naics_code,title,everything()) %>%
+  mutate(zip5 = str_sub(zip, 1, 5))
+
+```
+
+What percentage of loans in CITY went to businesses in X category
+
+Next join the two and then create a 5-character `zip5` column that we can use to join to the ZCTA data:
+
+```{r}
+maryland_ppp_with_naics <- maryland_ppp %>% left_join(naics_codes)
+maryland_ppp_with_naics <- maryland_ppp_with_naics %>% mutate(zip5 = str_sub(zip, 1, 5))
+```
+
+Let's add the [Zip Code Tabulation Area dataset](https://umd.box.com/s/2xsq2rpkmg4ct3a77vt8j5bu4vu1z0tf). Remember that we'll need to make the `ZCTA5N` column a character column, not a numeric one:
+
+```{r}
+maryland_zcta <- read_csv('maryland_zcta.csv')
+maryland_zcta <- maryland_zcta %>% mutate(across(ZCTA5N, as.character))
+```
+
+Now we can join the PPP data to the ZCTA data:
+
+```{r}
+maryland_ppp_with_naics_and_demographics <- maryland_ppp_with_naics %>% left_join(maryland_zcta, by=c("zip5"="ZCTA5N"))
+```
+
+## Answer questions
+
+Q1. What are the top industries (using the NAICS title) for PPP applications in Maryland?
+A1. Taxi services, with 7,363 applications, followed by beauty salons and restaurants.
+
+```{r}
+maryland_ppp_with_naics_and_demographics %>%
+  group_by(title) %>%
+  summarise(
+    count=n()
+  ) %>%
+  arrange(desc(count))
+```
+
+Q2. What are the top industries (using the NAICS title) for PPP applications in Maryland with amounts of more than $150,000?
+A2. Restaurants, with 1,488 applications, followed by physicians and plumbing/HVAC contractors.
+
+```{r}
+maryland_ppp_with_naics_and_demographics %>%
+  filter(amount > 150000) %>%
+  group_by(title) %>%
+  summarise(
+    count=n()
+  ) %>%
+  arrange(desc(count))
+```
+
+Q3. Which Maryland zip code with at least 20 percent non-Hispanic Asian population had the largest sum of PPP loans? Also show the number (count) of loans.
+A3. 20850 (Rockville) was by far the leader, with $474,525,058 in loans.
+
+```{r}
+maryland_ppp_with_naics_and_demographics %>%
+  filter(PNHA >= 20) %>%
+  group_by(zip5) %>%
+  summarize(
+    sum = sum(amount),
+    count = n()
+  ) %>%
+  arrange(desc(sum))
+```
+
+Q4. Which Maryland zip code had the largest sum of loans where the reported race of the applicant was "Asian", and what is the percentage of non-Hispanic Asian population in that zip code? Also show the number (count) of loans.
+A4: 20850, which has $28,994,798 in loans to applicants listing "Asian" and 23.5 percent of its population is Asian.
+
+```{r}
+maryland_ppp_with_naics_and_demographics %>%
+  filter(race == 'Asian') %>%
+  group_by(zip5, PNHA) %>%
+  summarize(
+    sum = sum(amount),
+    count = n()
+  ) %>%
+  arrange(desc(sum))
+```
+
+Q5. What might explain why 20850 has a significant Asian population (23.5%) and only 240 of the 3,186 loans (7.5%) are to Asian applicants?
+A5: A major factor likely is that the `race` column in the PPP data is rarely filled out, which means there could be many more loans to Asian applicants that are not easily identified in the data, especially when applicants often use business names, not individual names. There also could be additional reasons, such as a lack of formal banking relationships or issues with outreach that may have resulted in fewer applications. This is one reason it's useful to combine the PPP data with demographic data.
+
+Q6. Are there Maryland zip codes that have loans with Asian applicants but do not appear to have Asian population in the ZCTA data? What's going on here?
+A6. Yes! There are three zip codes, with 21031 having 6 loans worth $6.8 million in total. Let's look at that zip code using [the handy Census Reporter site](https://censusreporter.org/profiles/86000US21031-21031/). This zip code appears to have _no population at all_, which at first seems weird, but remember that population is based on where people _live_. A quick check of Google Maps shows [21031 to be a commercial area](https://www.google.com/maps/place/Hunt+Valley,+MD+21031/@39.4849896,-76.6652558,3300m/data=!3m2!1e3!4b1!4m5!3m4!1s0x89c81265c9fb1935:0x8d4cd6bbb903a99a!8m2!3d39.4894521!4d-76.6614853). The lesson here is that while population data can be very useful, it has its limitations in that it represents people, not businesses.
+
+```{r}
+maryland_ppp_with_naics_and_demographics %>%
+  filter(race == 'Asian' & PNHA == 0) %>%
+  group_by(zip5, PNHA) %>%
+  summarize(
+    sum = sum(amount),
+    count = n()
+  ) %>%
+  arrange(desc(sum))
+```
+
+Q7. How many industries have exactly one loan in the data (hint: you can filter _after_ using `summarise` to create a count). From a newsworthiness standpoint, which of these is most worthy of further exploration, and why?
+A7. There are 44.
+
+```{r}
+lone_loans <- maryland_ppp_with_naics_and_demographics %>%
+  group_by(naics_code, title) %>%
+  summarize(
+    count = n()
+  ) %>%
+  filter(count==1)
+```
+
+My favorites:
+
+```{r}
+View(maryland_ppp %>% filter(naics_code==921140))
+View(maryland_ppp %>% filter(naics_code==521110))
+View(maryland_ppp %>% filter(naics_code==221113))
+```
