@@ -142,7 +142,7 @@ lone_loans <- maryland_ppp_with_naics_and_demographics %>%
 My favorites:
 
 ```{r}
-View(maryland_ppp %>% filter(naics_code==921140))
-View(maryland_ppp %>% filter(naics_code==521110))
-View(maryland_ppp %>% filter(naics_code==221113))
+View(maryland_ppp_with_naics_and_demographics %>% filter(naics_code==921140))
+View(maryland_ppp_with_naics_and_demographics %>% filter(naics_code==521110))
+View(maryland_ppp_with_naics_and_demographics %>% filter(naics_code==221113))
 ```
