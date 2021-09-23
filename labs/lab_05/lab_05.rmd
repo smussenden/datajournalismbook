@@ -1,0 +1,80 @@
+---
+title: "lab_05"
+author: "Sean Mussenden"
+date: "8/24/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction 
+
+You are a reporter for West Virginia news organization, and you are interested in finding a story about how PPP loans affected an important industry in West Virginia's second largest county. You want to get a sense of how businesses in that industry fared after getting PPP loans.  But you aren't totally sure what industry to explore.  The questions on this lab are designed to help you identify an industry to examine, identify potential characters for a story and do follow-up research and reporting. 
+
+## Load libraries and establish settings
+
+You'll need to load two packages for this: the tidyverse and janitor.
+
+```{r}
+# Turn off scientific notation
+options(scipen=999)
+
+# Load the tidyverse and janitor
+```
+
+## Load Data
+
+You'll need to load three data sets for this:
+
+* The West Virginia slice of the PPP loan data (lab_05.rds).
+* A "lookup table" that allows you to translate NAICS (industry) numeric codes to industry titles (naics_codes.csv).
+* A table of West Virginia population by county (American Community Survey, 2019 5-year averages) (wv_population_county.csv).
+
+All three data sets are in the data folder.  Write code to load them in the codeblock below.
+
+```{r}
+# Load the WV PPP loan data table
+
+# Load the NAICS lookup table
+
+# Load the West Virginia population by county table
+
+```
+
+## Answer questions
+
+**Q1.** Start with the subset of PPP loans in West Virginia's second largest county. And then answer the following questions:
+
+* Which city in that county had the highest number of loans? 
+* In that city that answered the last question, which industry title had more loans than any other industry title? 
+
+Requirement for this lab: you MUST export a dataframe of PPP loans from R Studio at some point in the process (not necessarily at the beginning!), load it into Open Refine, clean the city column, export it from Open Refine, and reimport into R Studio.
+
+Guidance: there are a lot of steps you'll need to take to answer this question, involving joins with three different tables. You may find it helpful to write out in English what you plan to do step-by-step before you start writing code. This is called writing "psuedocode."  
+**A1.**
+
+**Q2.** What are your two best hypotheses, which you'd need to confirm with reporting and further analysis, that explain why that industry is at the top of the list?
+**A2.** 
+
+**Q3.** Start with a table of loans to all businesses in the city and industry that answered question 1.  
+* What is the name of the business that got the highest approved loan amount? 
+* How much was it for?
+* When was it approved?
+* How many jobs does the data say were retained?
+* Is there a difference between the business' name in the PPP data and the name it's customers know it by? If so, what is that name?
+* How many locations does this business have? 
+* Did one of its locations close during the pandemic, either before or after it got the loan?
+
+Hint: you will not find the answers to the last three questions in the data.  You could call them directly to get that information, but I don't want you to do that for this assignment.  Instead, do some web research. I would start by Googling the company name from the data and looking at the page that comes up for the business from at http://apps.sos.wv.gov/. Using information I find there about the company, I would use information I found on that page and use Google, the [Wayback machine](https://archive.org/web/) (which lets you look at older versions of a company's website), Yelp, and Facebook. 
+**A3.** 
+
+```{r}
+
+```
+
+**Q4.** Pick out five businesses on the list created in the table that you used to answer the question above.  How many of these businesses you selected have locations that closed down during the pandemic?  If the trends you saw in these five held true across all 50 businesses on this list, what might you conclude about businesses in this industry that got PPP loans in this city?  Write up a paragraph that could serve as the foundation for further reporting. 
+**A5.** 
+
+-30-
