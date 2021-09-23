@@ -17,6 +17,8 @@ You are a reporter for West Virginia news organization, and you are interested i
 
 You'll need to load two packages for this: the tidyverse and janitor.
 
+**Task** load these two packages
+
 ```{r}
 # Turn off scientific notation
 options(scipen=999)
@@ -33,6 +35,8 @@ You'll need to load three data sets for this:
 * A table of West Virginia population by county (American Community Survey, 2019 5-year averages) (wv_population_county.csv).
 
 All three data sets are in the data folder.  Write code to load them in the codeblock below.
+
+**Task** Read the files in and assign them to appropriate variable names.
 
 ```{r}
 # Load the WV PPP loan data table
@@ -52,7 +56,7 @@ All three data sets are in the data folder.  Write code to load them in the code
 
 Requirement for this lab: you MUST export a dataframe of PPP loans from R Studio at some point in the process (not necessarily at the beginning!), load it into Open Refine, clean the city column, export it from Open Refine, and reimport into R Studio.
 
-Guidance: there are a lot of steps you'll need to take to answer this question, involving joins with three different tables. You may find it helpful to write out in English what you plan to do step-by-step before you start writing code. This is called writing "psuedocode."  
+Guidance: there are a lot of steps to answer this question. You may find it helpful to write out in English what you plan to do step-by-step before you start writing code. This is called writing "psuedocode."  
 **A1.**
 
 **Q2.** What are your two best hypotheses, which you'd need to confirm with reporting and further analysis, that explain why that industry is at the top of the list?

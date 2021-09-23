@@ -9,13 +9,24 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Introduction 
+## About this lab
 
-You are a reporter for West Virginia news organization, and you are interested in finding a story about how PPP loans affected an important industry in West Virginia's second largest county. You want to get a sense of how businesses in that industry fared after getting PPP loans.  But you aren't totally sure what industry to explore.  The questions on this lab are designed to help you identify an industry to examine, identify potential characters for a story and do follow-up research and reporting. 
+Imagine: You are a reporter for West Virginia news organization, and you are interested in finding a story about how PPP loans affected an important industry in West Virginia's second largest county. You want to get a sense of how businesses in that industry fared after getting PPP loans.  But you aren't totally sure what industry to explore.  The questions on this lab are designed to help you identify an industry to examine, identify potential trends, identify potential characters for a story and come up with a roadmap for follow-up research and reporting.
+
+To complete this lab, you need to:
+* run existing code as directed (look for **Task**).
+* modify existing code as directed (look for **Task**).
+* write code in empty codeblocks provided to answer questions included (look for **Q**).
+* write out the answer in the form of a complete sentence in the space given (look for **A**).
+
+When you are finished, commit changes and push to your personal GitHub repo, then submit the URL to this document on ELMS.
 
 ## Load libraries and establish settings
 
 You'll need to load two packages for this: the tidyverse and janitor
+
+**Task** load these two packages
+
 ```{r}
 # Turn off scientific notation
 options(scipen=999)
@@ -39,6 +50,8 @@ You'll need to load three data sets for this:
 
 All three data sets are in the data folder.  Write code to load them in the codeblock below.
 
+**Task** Read the files in and assign them to appropriate variable names.
+
 ```{r}
 # Load the WV PPP loan data table
 west_virginia_ppp <- read_rds('data/lab_05.rds')
@@ -60,7 +73,7 @@ Q1. Start with the subset of PPP loans in West Virginia's second largest county.
 
 Requirement for this lab: you MUST export a dataframe of PPP loans from R Studio at some point in the process (not necessarily at the beginning!), load it into Open Refine, clean the city column, export it from Open Refine, and reimport into R Studio.
 
-Guidance: there are a lot of steps you'll need to take to answer this question, involving joins with three different tables. You may find it helpful to write out in English what you plan to do step-by-step before you start writing code. This is called writing "psuedocode."  
+Guidance: there are a lot of steps you'll need to take to answer this question. You may find it helpful to write out in English what you plan to do step-by-step before you start writing code. This is called writing "psuedocode."  
 
 A1. Martinsburg, the biggest in Berekley County, West Virginia, had more loans than any other city in that county.  The "full-service restaurants" industry had more approved loans than any other industry, just ahead of real estate agents and child care providers. 
 ```{r}
