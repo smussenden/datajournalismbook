@@ -24,7 +24,7 @@
 <meta name="author" content="Matt Waite (original author); updated by Derek Willis and Sean Mussenden" />
 
 
-<meta name="date" content="2021-09-21" />
+<meta name="date" content="2021-09-24" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -53,6 +53,14 @@
 
 <link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
 <script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
+<script src="libs/htmlwidgets-1.5.3/htmlwidgets.js"></script>
+<link href="libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
+<script src="libs/datatables-binding-0.19/datatables.js"></script>
+<link href="libs/dt-core-1.10.20/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="libs/dt-core-1.10.20/css/jquery.dataTables.extra.css" rel="stylesheet" />
+<script src="libs/dt-core-1.10.20/js/jquery.dataTables.min.js"></script>
+<link href="libs/crosstalk-1.1.1/css/crosstalk.css" rel="stylesheet" />
+<script src="libs/crosstalk-1.1.1/js/crosstalk.min.js"></script>
 <!-- Global site tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-160712129-1"></script>
 <script>
@@ -331,33 +339,20 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>What is Open Refine?</p>
 <p>Open Refine is a software program that has tools – algorithms – that find small differences in text and helps you fix them quickly. How Open Refine finds those small differences is through something called clustering. The algorithms behind clustering are not exclusive to Open Refine, so they can be used elsewhere.</p>
 <p>Enter <code>refinr</code>, a package that contains the same clustering algorithms as Open Refine but all within R. Go ahead and install it if you haven’t already by opening the console and running <code>install.packages("refinr")</code>. Then we can load libraries as we do.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="data-cleaning-part-iii-open-refine.html#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code></pre></div>
-<pre><code>## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──</code></pre>
-<pre><code>## ✓ ggplot2 3.3.3     ✓ purrr   0.3.4
-## ✓ tibble  3.1.1     ✓ dplyr   1.0.5
-## ✓ tidyr   1.1.3     ✓ stringr 1.4.0
-## ✓ readr   1.4.0     ✓ forcats 0.5.1</code></pre>
-<pre><code>## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-## x dplyr::filter() masks stats::filter()
-## x dplyr::lag()    masks stats::lag()</code></pre>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="data-cleaning-part-iii-open-refine.html#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(refinr)</span>
-<span id="cb5-2"><a href="data-cleaning-part-iii-open-refine.html#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(janitor)</span></code></pre></div>
-<pre><code>## 
-## Attaching package: &#39;janitor&#39;</code></pre>
-<pre><code>## The following objects are masked from &#39;package:stats&#39;:
-## 
-##     chisq.test, fisher.test</code></pre>
+<div class="sourceCode" id="cb151"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb151-1"><a href="data-cleaning-part-iii-open-refine.html#cb151-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb151-2"><a href="data-cleaning-part-iii-open-refine.html#cb151-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(refinr)</span>
+<span id="cb151-3"><a href="data-cleaning-part-iii-open-refine.html#cb151-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(janitor)</span></code></pre></div>
 <p>Let’s load our full Maryland PPP loans data.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="data-cleaning-part-iii-open-refine.html#cb8-1" aria-hidden="true" tabindex="-1"></a>md_loans <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="st">&quot;data/ppp_loan_data/processed/md/ppp_loans_md.rmd&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb152"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb152-1"><a href="data-cleaning-part-iii-open-refine.html#cb152-1" aria-hidden="true" tabindex="-1"></a>md_loans <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="st">&quot;data/ppp_loans_md.rmd&quot;</span>)</span></code></pre></div>
 <p>Now let’s try and group and count the number of loans by city. To make it a bit more managable, let’s use another string function from <code>stringr</code> and filter for cities that start with the uppercase “A” or lowercase “a” using the function <code>str_detect()</code> with a regular expression.</p>
 <p>The filter function in the codeblock below says: look in the city column, and pluck out any value that starts with (the “^” symbol means “starts with”) a lowercase “a” OR (the vertical “|,” called a pipe, means OR) an uppercase “A.”</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="data-cleaning-part-iii-open-refine.html#cb9-1" aria-hidden="true" tabindex="-1"></a>md_loans <span class="sc">%&gt;%</span></span>
-<span id="cb9-2"><a href="data-cleaning-part-iii-open-refine.html#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(city) <span class="sc">%&gt;%</span></span>
-<span id="cb9-3"><a href="data-cleaning-part-iii-open-refine.html#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
-<span id="cb9-4"><a href="data-cleaning-part-iii-open-refine.html#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">count=</span><span class="fu">n</span>()</span>
-<span id="cb9-5"><a href="data-cleaning-part-iii-open-refine.html#cb9-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb9-6"><a href="data-cleaning-part-iii-open-refine.html#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">str_detect</span>(city, <span class="st">&quot;^a|^A&quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb9-7"><a href="data-cleaning-part-iii-open-refine.html#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(city)</span></code></pre></div>
+<div class="sourceCode" id="cb153"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb153-1"><a href="data-cleaning-part-iii-open-refine.html#cb153-1" aria-hidden="true" tabindex="-1"></a>md_loans <span class="sc">%&gt;%</span></span>
+<span id="cb153-2"><a href="data-cleaning-part-iii-open-refine.html#cb153-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(city) <span class="sc">%&gt;%</span></span>
+<span id="cb153-3"><a href="data-cleaning-part-iii-open-refine.html#cb153-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb153-4"><a href="data-cleaning-part-iii-open-refine.html#cb153-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">count=</span><span class="fu">n</span>()</span>
+<span id="cb153-5"><a href="data-cleaning-part-iii-open-refine.html#cb153-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb153-6"><a href="data-cleaning-part-iii-open-refine.html#cb153-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">str_detect</span>(city, <span class="st">&quot;^a|^A&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb153-7"><a href="data-cleaning-part-iii-open-refine.html#cb153-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(city)</span></code></pre></div>
 <pre><code>## # A tibble: 62 x 2
 ##    city                    count
 ##    &lt;chr&gt;                   &lt;int&gt;
@@ -372,16 +367,16 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ##  9 Abereen                     1
 ## 10 abigdon                     2
 ## # … with 52 more rows</code></pre>
-<p>There are lots of problems in this data that will prevent proper grouping and summarizing.</p>
-<p>By using the OpenRefine package for R, <code>refinr</code>, our hope is that it can identify and standardize the data.</p>
+<p>There are lots of problems in this data that will prevent proper grouping and summarizing. We’ve learned several functions to do this manually.</p>
+<p>By using the Open Refine package for R, <code>refinr</code>, our hope is that it can identify and standardize the data with a little more ease.</p>
 <p>The first merging technique that’s part of the <code>refinr</code> package we’ll try is the <code>key_collision_merge</code>.</p>
 <p>The key collision merge function takes each string and extracts the key parts of it. It then puts every key in a bin based on the keys matching.</p>
 <p>One rule you should follow when using this is: <strong>do not overwrite your original fields</strong>. Always work on a copy. If you overwrite your original field, how will you know if it did the right thing? How can you compare it to your original data? To follow this, I’m going to mutate a new field called clean_city and put the results of key collision merge there.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="data-cleaning-part-iii-open-refine.html#cb11-1" aria-hidden="true" tabindex="-1"></a>cleaned_md_loans <span class="ot">&lt;-</span> md_loans <span class="sc">%&gt;%</span></span>
-<span id="cb11-2"><a href="data-cleaning-part-iii-open-refine.html#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">city_clean=</span><span class="fu">key_collision_merge</span>(city)) <span class="sc">%&gt;%</span></span>
-<span id="cb11-3"><a href="data-cleaning-part-iii-open-refine.html#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(id<span class="sc">:</span>city, city_clean, <span class="fu">everything</span>())</span>
-<span id="cb11-4"><a href="data-cleaning-part-iii-open-refine.html#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-5"><a href="data-cleaning-part-iii-open-refine.html#cb11-5" aria-hidden="true" tabindex="-1"></a>cleaned_md_loans</span></code></pre></div>
+<div class="sourceCode" id="cb155"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb155-1"><a href="data-cleaning-part-iii-open-refine.html#cb155-1" aria-hidden="true" tabindex="-1"></a>cleaned_md_loans <span class="ot">&lt;-</span> md_loans <span class="sc">%&gt;%</span></span>
+<span id="cb155-2"><a href="data-cleaning-part-iii-open-refine.html#cb155-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">city_clean=</span><span class="fu">key_collision_merge</span>(city)) <span class="sc">%&gt;%</span></span>
+<span id="cb155-3"><a href="data-cleaning-part-iii-open-refine.html#cb155-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(id<span class="sc">:</span>city, city_clean, <span class="fu">everything</span>())</span>
+<span id="cb155-4"><a href="data-cleaning-part-iii-open-refine.html#cb155-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb155-5"><a href="data-cleaning-part-iii-open-refine.html#cb155-5" aria-hidden="true" tabindex="-1"></a>cleaned_md_loans</span></code></pre></div>
 <pre><code>## # A tibble: 195,865 x 64
 ##         id name    slug   amount state address city  city_clean zip   naics_code
 ##      &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;   &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;      &lt;chr&gt;      &lt;dbl&gt;
@@ -419,13 +414,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ## #   previous_jobs_reported &lt;lgl&gt;, ethnicity &lt;chr&gt;, forgiveness_amount &lt;dbl&gt;,
 ## #   forgiveness_date &lt;date&gt;</code></pre>
 <p>To examine changes <code>refinr</code> made, let’s examine the changes it made to cities that start with the letter “A.”</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="data-cleaning-part-iii-open-refine.html#cb13-1" aria-hidden="true" tabindex="-1"></a>cleaned_md_loans <span class="sc">%&gt;%</span></span>
-<span id="cb13-2"><a href="data-cleaning-part-iii-open-refine.html#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(city_clean, city) <span class="sc">%&gt;%</span></span>
-<span id="cb13-3"><a href="data-cleaning-part-iii-open-refine.html#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
-<span id="cb13-4"><a href="data-cleaning-part-iii-open-refine.html#cb13-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">count=</span><span class="fu">n</span>()</span>
-<span id="cb13-5"><a href="data-cleaning-part-iii-open-refine.html#cb13-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb13-6"><a href="data-cleaning-part-iii-open-refine.html#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">str_detect</span>(city, <span class="st">&quot;^a|^A&quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb13-7"><a href="data-cleaning-part-iii-open-refine.html#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(city)</span></code></pre></div>
+<div class="sourceCode" id="cb157"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb157-1"><a href="data-cleaning-part-iii-open-refine.html#cb157-1" aria-hidden="true" tabindex="-1"></a>cleaned_md_loans <span class="sc">%&gt;%</span></span>
+<span id="cb157-2"><a href="data-cleaning-part-iii-open-refine.html#cb157-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(city_clean, city) <span class="sc">%&gt;%</span></span>
+<span id="cb157-3"><a href="data-cleaning-part-iii-open-refine.html#cb157-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb157-4"><a href="data-cleaning-part-iii-open-refine.html#cb157-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">count=</span><span class="fu">n</span>()</span>
+<span id="cb157-5"><a href="data-cleaning-part-iii-open-refine.html#cb157-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb157-6"><a href="data-cleaning-part-iii-open-refine.html#cb157-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">str_detect</span>(city, <span class="st">&quot;^a|^A&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb157-7"><a href="data-cleaning-part-iii-open-refine.html#cb157-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(city)</span></code></pre></div>
 <pre><code>## `summarise()` has grouped output by &#39;city_clean&#39;. You can override using the `.groups` argument.</code></pre>
 <pre><code>## # A tibble: 62 x 3
 ## # Groups:   city_clean [38]
@@ -445,11 +440,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>It got a bunch of things right. It merged three variations of “Aberdeen” – “aberdeen,”“Aberdeen” and “ABERDEEN” – and it didn’t merge it with “Aberdeen Proving Ground,” which are two distinct places. But it wasn’t smart enough to convert “Abereen” to “Aberdeen.”</p>
 <p>It also merged “Annapolis” and “ANNAPOLIS” under “Annapolis,” and was smart enough not to merge it with “Annapolis Junction,” which is not the same city. But it wasn’t smart enough to merge “Annapoils” or “Annalpolis.”</p>
 <p>There’s another merging algorithim that’s part of refinr that works a bit differently, called <code>n_gram_merge()</code>. Let’s try applying that one.</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="data-cleaning-part-iii-open-refine.html#cb16-1" aria-hidden="true" tabindex="-1"></a>cleaned_md_loans <span class="ot">&lt;-</span> md_loans <span class="sc">%&gt;%</span></span>
-<span id="cb16-2"><a href="data-cleaning-part-iii-open-refine.html#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">city_clean=</span><span class="fu">n_gram_merge</span>(city)) <span class="sc">%&gt;%</span></span>
-<span id="cb16-3"><a href="data-cleaning-part-iii-open-refine.html#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(id<span class="sc">:</span>city, city_clean, <span class="fu">everything</span>())</span>
-<span id="cb16-4"><a href="data-cleaning-part-iii-open-refine.html#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-5"><a href="data-cleaning-part-iii-open-refine.html#cb16-5" aria-hidden="true" tabindex="-1"></a>cleaned_md_loans</span></code></pre></div>
+<div class="sourceCode" id="cb160"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb160-1"><a href="data-cleaning-part-iii-open-refine.html#cb160-1" aria-hidden="true" tabindex="-1"></a>cleaned_md_loans <span class="ot">&lt;-</span> md_loans <span class="sc">%&gt;%</span></span>
+<span id="cb160-2"><a href="data-cleaning-part-iii-open-refine.html#cb160-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">city_clean=</span><span class="fu">n_gram_merge</span>(city)) <span class="sc">%&gt;%</span></span>
+<span id="cb160-3"><a href="data-cleaning-part-iii-open-refine.html#cb160-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(id<span class="sc">:</span>city, city_clean, <span class="fu">everything</span>())</span>
+<span id="cb160-4"><a href="data-cleaning-part-iii-open-refine.html#cb160-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb160-5"><a href="data-cleaning-part-iii-open-refine.html#cb160-5" aria-hidden="true" tabindex="-1"></a>cleaned_md_loans</span></code></pre></div>
 <pre><code>## # A tibble: 195,865 x 64
 ##         id name    slug   amount state address city  city_clean zip   naics_code
 ##      &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;   &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;      &lt;chr&gt;      &lt;dbl&gt;
@@ -487,13 +482,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ## #   previous_jobs_reported &lt;lgl&gt;, ethnicity &lt;chr&gt;, forgiveness_amount &lt;dbl&gt;,
 ## #   forgiveness_date &lt;date&gt;</code></pre>
 <p>To examine changes <code>refinr</code> made with this algorithm, let’s again look at cities that start with the letter “A.” Examining Aberdeen and Annapolis, we see there wasn’t a substantial change from the previous method.</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="data-cleaning-part-iii-open-refine.html#cb18-1" aria-hidden="true" tabindex="-1"></a>cleaned_md_loans <span class="sc">%&gt;%</span></span>
-<span id="cb18-2"><a href="data-cleaning-part-iii-open-refine.html#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(city_clean, city) <span class="sc">%&gt;%</span></span>
-<span id="cb18-3"><a href="data-cleaning-part-iii-open-refine.html#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
-<span id="cb18-4"><a href="data-cleaning-part-iii-open-refine.html#cb18-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">count=</span><span class="fu">n</span>()</span>
-<span id="cb18-5"><a href="data-cleaning-part-iii-open-refine.html#cb18-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb18-6"><a href="data-cleaning-part-iii-open-refine.html#cb18-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">str_detect</span>(city, <span class="st">&quot;^a|^A&quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb18-7"><a href="data-cleaning-part-iii-open-refine.html#cb18-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(city)</span></code></pre></div>
+<div class="sourceCode" id="cb162"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb162-1"><a href="data-cleaning-part-iii-open-refine.html#cb162-1" aria-hidden="true" tabindex="-1"></a>cleaned_md_loans <span class="sc">%&gt;%</span></span>
+<span id="cb162-2"><a href="data-cleaning-part-iii-open-refine.html#cb162-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(city_clean, city) <span class="sc">%&gt;%</span></span>
+<span id="cb162-3"><a href="data-cleaning-part-iii-open-refine.html#cb162-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb162-4"><a href="data-cleaning-part-iii-open-refine.html#cb162-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">count=</span><span class="fu">n</span>()</span>
+<span id="cb162-5"><a href="data-cleaning-part-iii-open-refine.html#cb162-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb162-6"><a href="data-cleaning-part-iii-open-refine.html#cb162-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">str_detect</span>(city, <span class="st">&quot;^a|^A&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb162-7"><a href="data-cleaning-part-iii-open-refine.html#cb162-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(city)</span></code></pre></div>
 <pre><code>## `summarise()` has grouped output by &#39;city_clean&#39;. You can override using the `.groups` argument.</code></pre>
 <pre><code>## # A tibble: 62 x 3
 ## # Groups:   city_clean [36]
@@ -510,7 +505,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ##  9 Abereen                 Abereen                     1
 ## 10 Abingdon                abigdon                     2
 ## # … with 52 more rows</code></pre>
-<p>Let’s upload the data to the interactive version of OpenRefine, which really shines at this task.</p>
+<p>That’s how you use the Open Refine r package, refinr.</p>
+<p>Now let’s upload the data to the interactive version of OpenRefine, which really shines at this task.</p>
 </div>
 <div id="manually-cleaning-data-with-open-refine" class="section level2" number="12.2">
 <h2><span class="header-section-number">12.2</span> Manually cleaning data with Open Refine</h2>
@@ -522,6 +518,12 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>After your data is loaded into the app, you’ll get a screen to look over what the data looks like. On the top right corner, you’ll see a button to create the project. Click that.</p>
 <p><img src="images/open2.png" width="983" /></p>
 <p>Open Refine has many, many tools. We’re going to use one piece of it, as a tool for data cleaning. To learn how to use it, we’re going to clean the “city” field.</p>
+<p>First, let’s make a copy of the original city column so that we can preserve the original data while cleaning the new one.</p>
+<p>Click the dropdown arrow next to the city column, choose “edit column” &gt; Add column based on this column.</p>
+<p><img src="images/open2a.png" width="1105" />
+On the window that pops up, type “city_original” in the “new column name” field. Then hit the OK button.</p>
+<p><img src="images/open2b.png" width="755" /></p>
+<p>Now, let’s get to work cleaning the city column.</p>
 <p>Next to the city field name, click the down arrow, then facet, then text facet.</p>
 <p><img src="images/open3.png" width="982" /></p>
 <p>After that, a new box will appear on the left. It tells us how many unique cities there are: 1,977. And, there’s a button on the right of the box that says Cluster.</p>
@@ -539,7 +541,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>When you’re done, click Merge Selected and Re-Cluster.</p>
 <p><img src="images/open8.png" width="1009" /></p>
 <p>If any new clusters come up, evaluate them. Repeat until either no clusters come up or the clusters that do come up are ones you reject.</p>
-<p>Now. Try a new method, maybe the “nearest neighbor levenshtein” method.</p>
+<p>Now. Try a new method, maybe the “nearest neighbor levenshtein” method. Notice that it finds even more variations of Silver Spring, using a slightly different approach.</p>
 <p><img src="images/open9.png" width="1006" /></p>
 <p>Rinse and repeat.</p>
 <p>You’ll keep doing this, and if the dataset is reasonably clean, you’ll find the end.</p>

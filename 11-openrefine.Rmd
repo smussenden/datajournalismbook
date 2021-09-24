@@ -34,13 +34,13 @@ library(janitor)
 
 Let's load our full Maryland PPP loans data.
 
-```{r echo=FALSE}
+```{r eval=FALSE}
 
 md_loans <- read_rds("data/ppp_loans_md.rmd")
 
 ```
 
-```{r eval=FALSE}
+```{r include=FALSE}
 
 md_loans <- read_rds("data/ppp_loan_data/processed/md/ppp_loans_md.rmd")
 
