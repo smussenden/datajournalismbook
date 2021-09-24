@@ -34,8 +34,16 @@ library(janitor)
 
 Let's load our full Maryland PPP loans data.
 
-```{r}
+```{r echo=FALSE}
+
+md_loans <- read_rds("data/ppp_loans_md.rmd")
+
+```
+
+```{r eval=FALSE}
+
 md_loans <- read_rds("data/ppp_loan_data/processed/md/ppp_loans_md.rmd")
+
 ```
 
 Now let's try and group and count the number of loans by city. To make it a bit more managable, let's use another string function from `stringr` and filter for cities that start with the uppercase "A" or lowercase "a" using the function `str_detect()` with a regular expression.  
@@ -52,9 +60,9 @@ md_loans %>%
   arrange(city)
 ```
 
-There are lots of problems in this data that will prevent proper grouping and summarizing.
+There are lots of problems in this data that will prevent proper grouping and summarizing. We've learned several functions to do this manually.
 
-By using the OpenRefine package for R, `refinr`, our hope is that it can identify and standardize the data.
+By using the Open Refine package for R, `refinr`, our hope is that it can identify and standardize the data with a little more ease.
 
 The first merging technique that's part of the `refinr` package we'll try is the `key_collision_merge`.
 
@@ -107,7 +115,9 @@ cleaned_md_loans %>%
   filter(str_detect(city, "^a|^A")) %>%
   arrange(city)
 ```
-Let's upload the data to the interactive version of OpenRefine, which really shines at this task.
+That's how you use the Open Refine r package, refinr.  
+
+Now let's upload the data to the interactive version of OpenRefine, which really shines at this task.
 
 ## Manually cleaning data with Open Refine
 
@@ -130,6 +140,21 @@ knitr::include_graphics(rep("images/open2.png"))
 ```
 
 Open Refine has many, many tools.  We're going to use one piece of it, as a tool for data cleaning. To learn how to use it, we're going to clean the "city" field.  
+
+First, let's make a copy of the original city column so that we can preserve the original data while cleaning the new one. 
+
+Click the dropdown arrow next to the city column, choose "edit column" > Add column based on this column.
+
+```{r, echo=FALSE}
+knitr::include_graphics(rep("images/open2a.png"))
+```
+On the window that pops up, type "city_original" in the "new column name" field. Then hit the OK button. 
+
+```{r, echo=FALSE}
+knitr::include_graphics(rep("images/open2b.png"))
+```
+
+Now, let's get to work cleaning the city column.  
 
 Next to the city field name, click the down arrow, then facet, then text facet.
 
@@ -178,7 +203,7 @@ knitr::include_graphics(rep("images/open8.png"))
 
 If any new clusters come up, evaluate them. Repeat until either no clusters come up or the clusters that do come up are ones you reject.
 
-Now. Try a new method, maybe the "nearest neighbor levenshtein" method. 
+Now. Try a new method, maybe the "nearest neighbor levenshtein" method. Notice that it finds even more variations of Silver Spring, using a slightly different approach.
 
 ```{r, echo=FALSE}
 knitr::include_graphics(rep("images/open9.png"))
