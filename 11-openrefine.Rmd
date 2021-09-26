@@ -34,12 +34,6 @@ library(janitor)
 
 Let's load our full Maryland PPP loans data.
 
-```{r eval=FALSE}
-
-md_loans <- read_rds("data/ppp_loans_md.rmd")
-
-```
-
 ```{r include=FALSE}
 
 md_loans <- read_rds("data/ppp_loan_data/processed/md/ppp_loans_md.rmd")
@@ -127,7 +121,7 @@ For bigger datasets, Open Refine is the way to go. And it has a lot more tools t
 
 After you install it, run it. Open Refine works in the browser, and the app spins up a small web server visible only on your computer to interact with it. A browser will pop up automatically.
 
-You first have to import your data into a project. Click the choose files button and upload a csv of the Maryland loans. 
+You first have to import your data into a project. Click the choose files button and upload a csv of the Maryland loans.
 
 ```{r, echo=FALSE}
 knitr::include_graphics(rep("images/open1.png"))
@@ -141,14 +135,14 @@ knitr::include_graphics(rep("images/open2.png"))
 
 Open Refine has many, many tools.  We're going to use one piece of it, as a tool for data cleaning. To learn how to use it, we're going to clean the "city" field.  
 
-First, let's make a copy of the original city column so that we can preserve the original data while cleaning the new one. 
+First, let's make a copy of the original city column so that we can preserve the original data while cleaning the new one.
 
 Click the dropdown arrow next to the city column, choose "edit column" > Add column based on this column.
 
 ```{r, echo=FALSE}
 knitr::include_graphics(rep("images/open2a.png"))
 ```
-On the window that pops up, type "city_original" in the "new column name" field. Then hit the OK button. 
+On the window that pops up, type "city_original" in the "new column name" field. Then hit the OK button.
 
 ```{r, echo=FALSE}
 knitr::include_graphics(rep("images/open2b.png"))
@@ -162,7 +156,7 @@ Next to the city field name, click the down arrow, then facet, then text facet.
 knitr::include_graphics(rep("images/open3.png"))
 ```
 
-After that, a new box will appear on the left. It tells us how many unique cities there are: 1,977. And, there's a button on the right of the box that says Cluster. 
+After that, a new box will appear on the left. It tells us how many unique cities there are: 1,977. And, there's a button on the right of the box that says Cluster.
 
 ```{r, echo=FALSE}
 knitr::include_graphics(rep("images/open4.png"))
@@ -174,9 +168,9 @@ Click the cluster button.  A new window will pop up, a tool to help us identify 
 knitr::include_graphics(rep("images/open5.png"))
 ```
 
-The default "method" used is a clustering algorithim called "key collision", using the fingerprint function. This is the same method we used with the refinr package above. 
+The default "method" used is a clustering algorithim called "key collision", using the fingerprint function. This is the same method we used with the refinr package above.
 
-At the top, you'll see which method was used, and how many clusters that algorithm identified. There are several different methods, each of which work slightly differently and produce different results. 
+At the top, you'll see which method was used, and how many clusters that algorithm identified. There are several different methods, each of which work slightly differently and produce different results.
 
 
 ```{r, echo=FALSE}
@@ -193,7 +187,7 @@ knitr::include_graphics(rep("images/open7.png"))
 
 Now begins the fun part: You have to look at all 533 clusters found and decide if they are indeed valid. The key collision method is very good, and very conservative. You'll find that most of them are usually valid.
 
-Be careful! If you merge two things that aren't supposed to be together, it will change your data in a way that could lead to inaccurate results. 
+Be careful! If you merge two things that aren't supposed to be together, it will change your data in a way that could lead to inaccurate results.
 
 When you're done, click Merge Selected and Re-Cluster.
 
@@ -209,7 +203,7 @@ Now. Try a new method, maybe the "nearest neighbor levenshtein" method. Notice t
 knitr::include_graphics(rep("images/open9.png"))
 ```
 
-Rinse and repeat. 
+Rinse and repeat.
 
 You'll keep doing this, and if the dataset is reasonably clean, you'll find the end.
 
@@ -219,7 +213,7 @@ When you're finished cleaning, click "Merge Selected & Close".
 knitr::include_graphics(rep("images/open10.png"))
 ```
 
-Then, export the data as a csv so you can load it back into R. 
+Then, export the data as a csv so you can load it back into R.
 
 ```{r, echo=FALSE}
 knitr::include_graphics(rep("images/open11.png"))
