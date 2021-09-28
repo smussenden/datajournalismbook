@@ -59,13 +59,18 @@ speak_spanish_5_17 <- get_acs(geography='county', variables=c(speak_spanish_5_17
 arrange(speak_spanish_5_17, desc(estimate))
 ```
 
-**Q5** Which Maryland jurisdiction has the greatest percentage of its households without internet access? Hint: the total households variable is `DP02_0001`. For this question, you'll need to load households data and no internet data into separate dataframes, rename the `variable` columns in each to `households` and `no_internet`, respectively, drop the variable column in each using select and then join them based on GEOID and NAME.
+**Q5** Which Maryland jurisdiction has the largest percentage of its households without internet access? Hint: the total households variable is `DP02_0001`. For this question, you'll need to load households data and no internet data into separate dataframes, rename the `variable` columns in each to `households` and `no_internet`, respectively, remove the variable columns in each using select and then join them based on GEOID and NAME. Then you can add a column to calculate the percentage of households without internet.
 **A5** Somerset County, with 22.2 percent
 
 ```{r}
-md_households <- get_acs(geography='county', variables=c(households='DP02_0001'), state='MD') %>% rename('households'='estimate') %>% select(-variable)
-md_no_internet <- get_acs(geography='county', variables=c(no_internet='B28002_013'), state='MD') %>% rename('no_internet'='estimate') %>% select(-variable)
-md_combined <- md_households %>% left_join(md_no_internet, by='GEOID')
+md_households <- get_acs(geography='county', variables=c(households='DP02_0001'), state='MD') %>%
+  rename('households'='estimate') %>%
+  select(-variable)
+md_no_internet <- get_acs(geography='county', variables=c(no_internet='B28002_013'), state='MD') %>%
+  rename('no_internet'='estimate') %>%
+  select(-variable)
+md_combined <- md_households %>%
+  left_join(md_no_internet, by='GEOID')
 md_combined %>%
   mutate(pct_no_internet = (no_internet/households)*100) %>%
   arrange(desc(pct_no_internet))
