@@ -75,3 +75,6 @@ md_combined %>%
   mutate(pct_no_internet = (no_internet/households)*100) %>%
   arrange(desc(pct_no_internet))
 ```
+
+**Q6** Of the Maryland jurisdictions listed in your answer to Q5, which one is the outlier? Write a couple of sentences describing what the others have in common and how you might frame a story pitch based on this data.
+**A6** Baltimore City is the outlier - the others are both smaller in terms of population and more rural. Closing the broadband gap in Maryland will involve solving two different kinds of problems: extending Internet access to less-populated, rural areas of the state and also getting access to many in Baltimore City, where one in five households lack access to the Internet.
