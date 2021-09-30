@@ -14,6 +14,11 @@ knitr::opts_chunk$set(echo = TRUE)
 * A Census API key
 
 ## Load libraries and establish settings
+
+You'll need to load two packages for this: the tidyverse and tidycensus.
+
+**Task** load these two packages
+
 ```{r}
 # Turn off scientific notation
 options(scipen=999)
@@ -23,17 +28,29 @@ library(tidyverse)
 library(tidycensus)
 ```
 
-## Setup Census API Key
+## Setup Census API
 
 You'll need your Census API Key:
+
+**Task** set your API Key
 
 ```{r echo=FALSE}
 census_api_key("YOUR KEY HERE", install=TRUE)
 ```
 
+## Load and view ACS variables
+
+You'll also need to load the list of American Community Survey variables from the 2019 5-year estimates so you can identify the codes you need:
+
+**Task** load the ACS variables and save them to a dataframe
+
+```{r}
+v19 <- load_variables(2019, "acs5", cache=TRUE)
+```
+
 ## Answer questions
 
-**Q1** What is the Maryland jurisdiction with the lowest median age, according to the 2019 5-year estimates? You will need to find the variable for median age first.
+**Q1** What is the Maryland jurisdiction with the lowest median age, according to the ACS 2019 5-year estimates? You will need to find the variable for median age first.
 **A1** Baltimore City, with an estimated median age of 35.4 years and a margin of error of 0.2 years.
 
 ```{r}
@@ -48,19 +65,40 @@ arrange(md_median_age, estimate)
 md_median_age %>% filter(estimate >= 50)
 ```
 
-**Q3** Considering the answers to the first two questions, what kinds of public needs do places with the demographic characteristics of Baltimore City have compared to the counties from Q2? What kinds of programs or services should the latter jurisdictions expect to spend more money on?
-**A3**
+**Q3** Considering the answers to the first two questions, what kinds of public services do places with the demographic characteristics of Baltimore City have compared to the counties from Q2? What kinds of programs or services should the latter jurisdictions expect to spend more money on?
+**A3** Baltimore City not only has infrastructure needs (housing, for example) that some rural jurisdictions may not, but because it has more children, the services it will need more of include schools, libraries and parks. Jurisdictions such as Talbot and Worcester counties, with their older populations, may have greater need of health care facilities, senior centers and transportation.
 
 **Q4** Which two Maryland jurisdictions have the most children between 5 and 17 that speak Spanish at home? Can you tell which one has the most?
 **A4** Prince George's and Montgomery counties, although given the margin of error it's not clear which one has the most.
 
 ```{r}
-speak_spanish_5_17 <- get_acs(geography='county', variables=c(speak_spanish_5_17='B16007_004'), state='MD')
-arrange(speak_spanish_5_17, desc(estimate))
+md_speak_spanish_5_17 <- get_acs(geography='county', variables=c(speak_spanish_5_17='B16007_004'), state='MD') %>%
+  arrange(desc(estimate))
 ```
 
-**Q5** Which Maryland jurisdiction has the largest percentage of its households without internet access? Hint: the total households variable is `DP02_0001`. For this question, you'll need to load households data and no internet data into separate dataframes, rename the `variable` columns in each to `households` and `no_internet`, respectively, remove the variable columns in each using select and then join them based on GEOID and NAME. Then you can add a column to calculate the percentage of households without internet.
-**A5** Somerset County, with 22.2 percent
+**Q5** A better answer to Q4 involves calculating percentages of children between 5 and 17 that speak Spanish at home. Which counties have the highest percentage of 5-17 year-olds that speak Spanish at home? Start with the code you wrote for Q4 and adapt it so that you also load the total population of 5-17 year-olds by county into another dataframe. In each case, rename the `estimate` columns to the name you've given the ACS codes, remove the `variable` columns in each using select and then join them based on GEOID and NAME. Then you can add a column to calculate the percentage of the total 5-17 population that speaks Spanish at home.
+**A5**
+
+```{r}
+speak_spanish_5_17 <- get_acs(geography='county', variables=c(speak_spanish_5_17='B16007_004'), state='MD') %>%
+   rename('speak_spanish_5_17'='estimate') %>%
+   select(-variable)
+md_population_5_17 <- get_acs(geography='county', variables=c(total_pop_5_17='B16007_002'), state='MD') %>%
+   rename('total_pop_5_17'='estimate') %>%
+   select(-variable)
+
+combined_5_17 <- speak_spanish_5_17 %>%
+  inner_join(md_population_5_17, by=c('GEOID', 'NAME')) %>%
+  mutate(pct_of_total = (speak_spanish_5_17/total_pop_5_17)*100) %>%
+  arrange(desc(pct_of_total))
+```
+
+**Q6** Given the counties with the largest percentage of 5-17 year-olds that speak Spanish at home, what stands out to you? How would you describe the top 5 counties? How would you describe Garrett County's numbers?
+**A6** Caroline County stands out - it has a tiny population compared to Prince George's and Montgomery but as many as 10 percent of its 5-17 year-olds speak Spanish at home. The top 5 are a combination of the largest jurisdictions (except Baltimore city and County) and some very small ones. We may not be able to accurately describe the percentage for Garrett County, given the margin of error for those speaking Spanish at home, but it seems very, very small.
+
+
+**Q7** Which Maryland jurisdiction has the largest percentage of its households without internet access? Hint: the total households variable is `DP02_0001`. For this question, you'll need to load households data and the no internet data into separate dataframes, rename the `variable` columns in each and remove the variable columns in each using select and then join them based on GEOID and NAME. Then you can add a column to calculate the percentage of households without internet.
+**A7** Somerset County, with 22.2 percent
 
 ```{r}
 md_households <- get_acs(geography='county', variables=c(households='DP02_0001'), state='MD') %>%
@@ -70,11 +108,11 @@ md_no_internet <- get_acs(geography='county', variables=c(no_internet='B28002_01
   rename('no_internet'='estimate') %>%
   select(-variable)
 md_combined <- md_households %>%
-  left_join(md_no_internet, by='GEOID')
+  inner_join(md_no_internet, by='GEOID')
 md_combined %>%
   mutate(pct_no_internet = (no_internet/households)*100) %>%
   arrange(desc(pct_no_internet))
 ```
 
-**Q6** Of the Maryland jurisdictions listed in your answer to Q5, which one is the outlier? Write a couple of sentences describing what the others have in common and how you might frame a story pitch based on this data.
-**A6** Baltimore City is the outlier - the others are both smaller in terms of population and more rural. Closing the broadband gap in Maryland will involve solving two different kinds of problems: extending Internet access to less-populated, rural areas of the state and also getting access to many in Baltimore City, where one in five households lack access to the Internet.
+**Q8** Of the Maryland jurisdictions listed in your answer to Q5, which one is the outlier? Write a couple of sentences describing why you chose that jurisdiction and how you might frame a story pitch based on this data.
+**A8** Baltimore City is the outlier - the others are both smaller in terms of population and more rural. Closing the broadband gap in Maryland will involve solving two different kinds of problems: extending Internet access to less-populated, rural areas of the state and also getting access to many in Baltimore City, where one in five households lack access to the Internet.
