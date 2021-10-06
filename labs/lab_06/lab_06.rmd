@@ -58,7 +58,7 @@ Let's load it into R, and in doing so we'll skip the first two rows and add our 
 
 Add a column for the type of migration ("international") and populate it:
 
-**Task** Write the code to add a `migration_type` column to the data and populate it with the value of "international"
+**Task** Write the code to add a `migration_type` column to the data and give it the value of "international"
 
 ```{r}
 # Write the code to add the column here
@@ -66,7 +66,7 @@ Add a column for the type of migration ("international") and populate it:
 
 ## Answer questions
 
-**Q1** Which region and county/city below the state level accounted for the largest percentage of international migration overall?  You'll need to add and populate columns representing percent of total using `mutate`.
+**Q1** Which region and county/city _below_ the state level accounted for the largest percentage of international migration for the entire time period? You'll need to add and populate a column representing percent of total using `mutate`.
 **A1** [write your answer here]
 
 ```{r}
@@ -77,7 +77,7 @@ Add a column for the type of migration ("international") and populate it:
 **Q2** Write a sentence or two that describes the data you produced in A1. Try to convey the most important idea.
 **A2** [write your answer here]
 
-**Q3** Which region & jurisdiction had the biggest percentage change for international migration between July 2018 and July 2017? The formula for percentage change is easy to remember: (New-Old)/Old.
+**Q3** Which region & jurisdiction had the largest percentage change (either negative or positive) for international migration between July 2018 and July 2017? The formula for percentage change is easy to remember: (New-Old)/Old.
 **A3** [write your answer here]
 
 ```{r}
@@ -85,7 +85,7 @@ Add a column for the type of migration ("international") and populate it:
 
 ```
 
-**Q4** What's your best guess as to why these declines occurred, and in those area in particular?
+**Q4** What's your best guess as to why these changes occurred, and in those places in particular?
 **A4** [write your answer here]
 
 
