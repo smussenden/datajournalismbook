@@ -1,101 +1,643 @@
 # Advanced rvest
 
-Continuing a discussion from the last chapter, this is an example of when it goes from Easy to Moderately Difficult. 
+In the last chapter, we demonstrated a fairly straightforward example of web scraping to grab a list of NAICS industry sector codes from the BLS website.  We're going to graduate to a more challenging example, one that will help us gather information about the number of employees in each industry sector when that information is contained on multiple pages, one page per sector, and merge them into a single data frame. 
 
-In the last exercise, we scraped bills out of one day of floor activity in the Nebraska Legislature. What if we wanted all of them? Let's say we wanted to keep a running scoreboard of who has introduced the most bills that have seen the floor? 
+This is challenging stuff, so don't feel dissuaded if it all doesn't click the first time through.  Web scraping is something that gets easier with lots of practice. 
 
-Here's how to use some programming knowledge with R to grab all days and merge them together. First we start with libraries, as we always do. 
+
+First we start with libraries, as we always do. 
 
 ```{r}
 library(tidyverse)
 library(rvest)
+library(janitor)
 ```
 
-Now we'll start the trickery. So we need to know what days the legislature is in session. Fortunately, the legislature tells us that in a drop down menu. Inspect [the dropdown menu of this page](https://nebraskalegislature.gov/calendar/dayview.php?day=2020-02-03). See the list?
+Now, let's run the code we wrote in the last chapter, to get a tidy list of NAICS sector codes and names from [https://www.bls.gov/ces/naics/]("https://www.bls.gov/ces/naics/").
+
+
+```{r}
+# Define url of page we want to scrape
+
+naics_url <- "https://www.bls.gov/ces/naics/"
+
+# Read in all html from table, store all tables on page as nested list of dataframes.
+naics_industry  <- url %>%
+  read_html() %>%
+  html_table()
+
+# Just keep the second dataframe in our list, standardize column headers, remove last row
+
+naics_industry <- naics_industry[[2]] %>%
+  clean_names() %>%
+  slice(-21)
+
+# show the dataframe
+naics_industry
+
+```
+
+We'll use this table to help us get to our end goal: a single dataframe with the number of employees in each industry sector. 
+
+It will look like this when we're done.  
+
+```{r}
+IMAGE
+```
+
+Unfortunately, that information doesn't exist in a single tidy table on a single page we can scrape all at once.  We're going to have to scrape it from lots of different pages, and build it ourselves. 
+
+Let's next take a look at the web page that has detailed employment information for one of our sectors, 22, Mining, Quarrying, and Oil and Gas Extraction.  We can find it here: [https://www.bls.gov/iag/tgs/iag22.htm](https://www.bls.gov/iag/tgs/iag22.htm). 
+
+A few scrolls down the page, there's a table that has employee statistics.  The table is called "Employment and Unemployment". There's a row in the tabled for "Employment, all employees (seasonally adjusted)".  And in that row, there's a value for the number of employees -- in thousands -- in May 2021.  The table shows that for the mining sector, it was 539.3  -- or 593,300 -- in May 2021.  That's the value we want to ingest in R.  
+
+We don't just want it for mining.  We want it for all sectors!  But we'll start by writing code just to get it from this one sector page, then modify that code to get it from every sector's page
+
 
 ```{r, echo=FALSE}
 knitr::include_graphics(rep("images/advrvest1.png"))
 ```
-
-If it's HTML in the page, we can grab it, so let's do that. We start with the URL to any day, really.
-
-```{r}
-url <- "https://nebraskalegislature.gov/calendar/dayview.php?day=2020-02-03"
-```
-
-I'm going to create a thing called a calendar and store the list of option values in there. So when I'm done, I'll have a list of dates. 
+First, let's define the URL of the page we want to get the information from. 
 
 ```{r}
-calendar <- url %>%
-  read_html() %>%
-  html_nodes(xpath = '//*[@id="leg_day"]') %>%
-  html_nodes("option") %>%
-  html_attrs()
+
+# Define url of the page we want to get
+url <- "https://www.bls.gov/iag/tgs/iag22.htm"
+
 ```
 
+Next, let's read in the html of that page, and store it as an object called employment_info.
 
 ```{r}
-calendar[1][1]
+
+# Define url of the page we want to get
+url <- "https://www.bls.gov/iag/tgs/iag22.htm"
+
+# Get employment html
+employment_info <- url %>%
+  read_html()  
+
+# Display it so we can see what it looks like
+employment_info
+
 ```
 
-Now this part gets tough, but if you follow, it's logical. It's step by step, really.
+Now, let's set to picking out the information we need from the raw html. We can use the web inspector in our web browser (Chrome) to figure out where the table is located. Go to the web page and right click on the word "Data Series" in the table, then pick "inspect" to pull up the menu.
 
-First, I noticed at the top of the agenda pages is a link to the daily agenda in csv format. Convenient, that.
+Notice two things.  First, all of this information is contained in a proper html <table>.  And that table has an id property of "iag22emp1".
 
 ```{r, echo=FALSE}
 knitr::include_graphics(rep("images/advrvest2.png"))
 ```
+Recall that in the last chapter, when we used the html_table() function, it pulled in every single table on the page, six in total.  
 
-If you look at that url, it looks like this:
+Here, we can use that id property to pick out just the table we want, and leave all the others behind. We do that with a new function from rvest html_element() and a method called [xpath](https://en.wikipedia.org/wiki/XPath), which is a query language that helps us write programs that target specific parts of web pages.  
 
-```
-https://nebraskalegislature.gov/calendar/agenda.php?day=2020-01-14&print=csv
-```
-
-If we can change the date in that url to each day of the session, we'd get a csv file for each day of the session that we can merge together. 
-
-Let's break down the steps to do that. 
-
-1. I need a place to store this. A lazy way? Just import a day, filter everything out of it, and I've got an empty table I can `rbind` stuff into.
-2. I need to set up a loop. For each day in the calendar, do some stuff.
-3. I need to clean out the word selected (an HTML thing) from one of the dates.
-4. I need to just scrape days that have business pending on the floor. So I can skip the first few days and I can skip any days into the future. 
-5. I need to take my date from calendar and add them to the url. Then I need to take that agenda url and add the csv parts. 
-6. Then I can use read_csv like we have been to read the CSV url directly. 
-7. Then I just rbind my new csv to the one I created. 
-8. This isn't going to work perfectly every time, so I'm going to add some `tryCatch` statements that say try this, and if it doesn't work, do nothing. 
-9. Then, because I'm a decent fellow, I'm going to pause my query for three seconds to give their servers a break.
-
-Let's run it.
+The syntax is a little unwieldy, I know, but essentially what the function says is "find the html element that has an id of iag22emp1, and get rid of all other elements". 
 
 ```{r}
-allbills <- read_csv("https://nebraskalegislature.gov/calendar/agenda.php?day=2020-01-14&print=csv", col_types = cols()) %>% mutate(Date = as.Date("2020-01-01"))%>% filter(`Section Header` == "Blah")
 
-for (i in calendar){
-  date <- i[1]
-  checkdate <- as.Date(date)
+# Define url of the page we want to get
+url <- "https://www.bls.gov/iag/tgs/iag22.htm"
+
+# Get employment html page and select only the table with employment information
+employment_info <- url %>%
+  read_html() %>%
+  html_element(xpath = '//*[@id="iag22emp1"]')
+
+# Display it so we can see what it looks like
+employment_info
+```
+
+From here, we can use the html_tables() function to transform it from messy html code to a proper dataframe
+```{r}
+
+# Define url of the page we want to get
+url <- "https://www.bls.gov/iag/tgs/iag22.htm"
+
+# Get employment html page and select only the table with employment information, then transform it from html to a table.
+employment_info <- url %>%
+  read_html() %>%
+  html_element(xpath = '//*[@id="iag22emp1"]') %>%
+  html_table() 
+
+# Display it so we can see what it looks like
+employment_info
+```
+
+Now we have a proper table.  It has much more information than we need, so let's clean it up to isolate only the "Employment, all employees (seasonally adjusted)" value for May 2021. 
+
+First, let's clean up the column names and use slice() to keep only the second row, and use select() to keep data_series and may2021. 
+
+```{r}
+
+# Define url of the page we want to get
+url <- "https://www.bls.gov/iag/tgs/iag21.htm"
+
+# Get employment html page and select only the table with employment information, then transform it from html to a table.
+employment_info <- url %>%
+  read_html() %>%
+  html_element(xpath = '//*[@id="iag21emp1"]') %>%
+  html_table() 
+
+# Keep only second row with seasonally adjusted, bind back to each_row_df
+employment_info <- employment_info %>%
+  clean_names() %>%
+  slice(2) %>%
+  select(data_series, may2021)
+
+# Display it so we can see what it looks like
+employment_info
+```
+
+Okay, so we've successfully obtained the employment numbers for one of our sectors.  But remember our original charge: to get a table with employment numbers for ALL sectors, not just one. This is a little tricky, because, remember, the information for each sector is on a different page! 
+
+The info for mining is on this page: [https://www.bls.gov/iag/tgs/iag21.htm](https://www.bls.gov/iag/tgs/iag21.htm). 
+
+The info for construction is on this page: [https://www.bls.gov/iag/tgs/iag23.htm](https://www.bls.gov/iag/tgs/iag23.htm). 
+
+We have 20 sectors to get through.  We could get the info we need by copying the above codeblock 20 times, and change the url at the top each time.  But that's not a great approach.  What if we needed to change the code? We'd need to change it 20 times! In programming, there's a principle called "DRY" which stands for "Don't Repeat Yourself".  If you find yourself copying the same code over and over again, with minor changes, it's better to find a way to avoid that. 
+
+## Using for loops
+
+Fortunately, there's a programming paradigm called "iteration" that is helpful here, using something called a "for loop". Essentially every programming language has its own version of a "for loop", and R is no different. A "for loop" says: take a list of things, and do the same thing to each item on that list.   
+
+Let's look at a very simple example to help illustrate the values of for loops. 
+
+We're going to print out 10 industry sectors.  First, let's do it the repetitive way. 
+```{r}
+
+print("Agriculture, Forestry, Fishing and Hunting")
+print("Mining, Quarrying, and Oil and Gas Extraction")
+print("Utilities")
+print("Construction")
+print("Manufacturing")
+print("Wholesale Trade")
+print("Retail Trade")
+print("Transportation and Warehousing")
+print("Information")
+print("Finance and Insurance")
+
+```
+
+We repeated print() 10 times, with minor modifications each time.  Lots of repetition. 
+
+Now let's look at how we might do that a little more efficiently with a "for loop". First let's define a list of sectors.  the c() function tells R that we're making a list
+
+```{r}
+list_of_sectors <- c("Agriculture, Forestry, Fishing and Hunting", "Mining, Quarrying, and Oil and Gas Extraction", "Utilities", "Construction", "Manufacturing",
+"Wholesale Trade", "Retail Trade", "Transportation and Warehousing", "Information", "Finance and Insurance")
   
-  if (checkdate <= Sys.Date() & checkdate > as.Date("2020-01-13")) {
+```
 
-    agendaurl <- paste("https://nebraskalegislature.gov/calendar/agenda.php?day=", i, sep="")
-    csvurl <-paste(agendaurl, "&print=csv", sep="")
-  tryCatch(
-    agenda <- read_csv(csvurl, col_types = cols()) %>% mutate(Date = checkdate), 
-    error = function(e){NA})
-  tryCatch(
-    allbills <- rbind(allbills, agenda), 
-    error = function(e){NA})
-  Sys.sleep(3)
-  }
+And now let's write a for loop to print out sector on that list. 
+
+```{r}
+# Define list of sectors
+list_of_sectors <- c("Agriculture, Forestry, Fishing and Hunting", "Mining, Quarrying, and Oil and Gas Extraction", "Utilities", "Construction", "Manufacturing",
+"Wholesale Trade", "Retail Trade", "Transportation and Warehousing", "Information", "Finance and Insurance")
+
+# For loop. 
+for (sector in list_of_sectors) {
+  print(sector)
+}
+
+  
+```
+
+That's many fewer lines of code.  The information inside the parentheses tells R what list to use. It's important that the thing on the right side of "in" use the exact name of the list we want to loop through -- in this case "list_of_sectors". If we try to feed it something different -- say "sector_list" it won't work, if our actual list is called something else. See here:  
+
+```{r}
+# Define list of sectors
+list_of_sectors <- c("Agriculture, Forestry, Fishing and Hunting", "Mining, Quarrying, and Oil and Gas Extraction", "Utilities", "Construction", "Manufacturing",
+"Wholesale Trade", "Retail Trade", "Transportation and Warehousing", "Information", "Finance and Insurance")
+
+# For loop that refers to a list that doesn't exist!  
+for (sector in sector_list) {
+  print(sector)
+}
+
+  
+```
+
+The name on the left side of "in" -- the word we're assigning to represent each element -- is totally arbitrary.  We could use any character string, even something simple like "x".  What matters is that we use the same character string inside of the curly braces {}, the section of the "for loop" that tells R what to do to each element.    
+
+To illustrate this, note that the code works just fine if we change it to say this:
+
+```{r}
+# Define list of sectors
+list_of_sectors <- c("Agriculture, Forestry, Fishing and Hunting", "Mining, Quarrying, and Oil and Gas Extraction", "Utilities", "Construction", "Manufacturing",
+"Wholesale Trade", "Retail Trade", "Transportation and Warehousing", "Information", "Finance and Insurance")
+
+# For loop with x that stands in for each element in our list, instead of sector 
+for (x in list_of_sectors) {
+  print(x)
+}
+
+  
+```
+
+It does NOT work if we mix them up. It has no idea what we mean by "sector_name", because we haven't defined that anywhere.  
+
+```{r}
+# Define list of sectors
+list_of_sectors <- c("Agriculture, Forestry, Fishing and Hunting", "Mining, Quarrying, and Oil and Gas Extraction", "Utilities", "Construction", "Manufacturing",
+"Wholesale Trade", "Retail Trade", "Transportation and Warehousing", "Information", "Finance and Insurance")
+
+# For loop that includes instructions that refer to a variable that doesn't exist.
+for (x in list_of_sectors) {
+  print(sector_name)
+}
+
+  
+```
+
+Printing out sector names isn't all that useful, it was just a simple way of illustrating the concept.  Now, we'll apply this same method to loop through a list of web pages, extracting the information we need from each. 
+
+We can also write for loops to iterate over a range of numbers, instead of a list of characters.  The syntax is a little different. This says for each number in a range of numbers from 1 to 10, print the number.  
+
+```{r}
+# For loop that includes instructions that refer to a variable that doesn't exist.
+for (number in 1:10) {
+  print(number)
 }
 ```
 
-And after that, I have a dataset of entries of bills on the floor. So if I want to see who has had the most bills on the floor -- including repeats -- I could answer that now. 
+And here's another variation that we'll make use of below.  Instead of giving the for loop an explicit number range, like 1:10, we can tell it to use 1 to "the number of rows in a dataframe" as our list of things to loop through. 
+
+Remember the naics_industry dataframe we loaded first? It has 20 rows. 
 
 ```{r}
-allbills %>% group_by(Introducer) %>% tally(sort=TRUE) %>% na.omit() %>% top_n(5)
+
+naics_industry
+
 ```
 
-Senator Kolterman, collect your prize. 
+We can use that information in our for loop.  The code below says "make a list of numbers that starts at one and ends at the number of rows in the naics_industry dataframe, then print out each of these numbers." The nrow() function counts the number of rows. 
+```{r}
+# For loop that includes instructions that refer to a variable that doesn't exist.
+for (row_number in 1:nrow(naics_industry)) {
+  print(row_number)
+}
+```
+
+## Looping and rvest
+
+First, let's look at the codeblock we wrote earlier to extract the number of employees in the mining sector.
+
+```{r}
+
+# Define url of the page we want to get
+url <- "https://www.bls.gov/iag/tgs/iag21.htm"
+
+# Get employment html page and select only the table with employment information, then transform it from html to a table.
+employment_info <- url %>%
+  read_html() %>%
+  html_element(xpath = '//*[@id="iag21emp1"]') %>%
+  html_table() 
+
+# Keep only second row with seasonally adjusted, bind back to each_row_df
+employment_info <- employment_info %>%
+  clean_names() %>%
+  slice(2) %>%
+  select(data_series, may2021)
+
+# Display it so we can see what it looks like
+employment_info
+```
+We're now going to work on modifying this function so we can use it to extract information from each sector page.  
+
+First, we need to build a list of URLs to loop through. We can do that using the dataframe we made in the last chapter. 
+
+```{r}
+# Define url of page we want to scrape
+
+naics_url <- "https://www.bls.gov/ces/naics/"
+
+# Read in all html from table, store all tables on page as nested list of dataframes.
+naics_industry  <- naics_url %>%
+  read_html() %>%
+  html_table()
+
+# Just keep the second dataframe in our list, standardize column headers, remove last row
+
+naics_industry <- naics_industry[[2]] %>%
+  clean_names() %>%
+  slice(-21)
+
+# show the dataframe
+naics_industry
+
+```
+
+This gives us the sector code and name for each industry. 
+
+Now let's have a look at the URLs for a few of the pages we want to grab data from. 
+
+* Mining, Quarrying, and Oil and Gas Extraction: [https://www.bls.gov/iag/tgs/iag21.htm](https://www.bls.gov/iag/tgs/iag21.htm). 
+* Utilities: [https://www.bls.gov/iag/tgs/iag22.htm](https://www.bls.gov/iag/tgs/iag22.htm).
+* Construction: [https://www.bls.gov/iag/tgs/iag23.htm](https://www.bls.gov/iag/tgs/iag23.htm)
+
+Notice a pattern?
+
+They all start with "https://www.bls.gov/iag/tgs/iag".  Then follows the sector NAICS code.  Then ".htm". 
+
+Because they're all the same, we can use the information in the dataframe we just loaded to make all the URLs we need. We're going to use mutate and paste0() to concatenate (mash together) the things that stay constant in every url -- "https://www.bls.gov/iag/tgs/iag" and ".htm" -- and the things that change, namely the sector number, which is stored in a column in the dataframe called "sector".
+
+```{r}
+
+# Make a column with URL for each sector. 
+naics_industry <- naics_industry %>%
+  mutate(sector_url = paste0("https://www.bls.gov/iag/tgs/iag",sector,".htm"))
+
+```
+
+While we're at it, we're going to use the same method to programatically build the "xpath" for the table for each sector page.  Recall that when we wrote our function that got information from just the mining page, the xpath targeted an element with an ID of "iag21emp1".  Why 21? That's the sector code for mining.  
+
+If we look for that element on other sector pages, we won't find it! That's because it's different for each page. On the Utilities page (sector code 22), the ID for the table we want is "iag22emp1".  On the Construction page (sector code 23), it's "iag23emp1". We can also build this programatically, because it follows a predictable pattern.
+
+```{r}
+
+# Make a column with URL for each sector. 
+naics_industry <- naics_industry %>%
+  mutate(sector_url = paste0("https://www.bls.gov/iag/tgs/iag",sector,".htm")) %>%
+  mutate(sector_xpath_id =paste0("iag",sector,"emp1"))
+
+```
+
+Lastly, we're going to use filter to remove the "Public Administration" sector, because there's no page for it. We'll have to get that information some other way.
+```{r}
+
+# Make a column with URL for each sector. 
+naics_industry <- naics_industry %>%
+  mutate(sector_url = paste0("https://www.bls.gov/iag/tgs/iag",sector,".htm")) %>%
+  mutate(sector_xpath_id =paste0("iag",sector,"emp1")) %>%
+  filter(description != "Public Administration")
+
+```
+
+This dataframe now contains everything we need, so let's move to the next step: constructing a "for loop" to extract the info we need from each page. We're going to build it up step-by-step.  
+
+First, let's construct the basic elements of our for loop. Here we're saying, essentially: "Make a list with the row numbers from 1 to the number of rows in our naics_industry dataframe (which is 19).  Then, take the naics dataframe and keep only the row that matches that row number at that point in the loop (using slice). Save that as an object called "each_row_df" and print that out."
+
+We get 19 dataframes, each with one row, one for each sector. 
+
+```{r}
+
+# For loop, iterating over each row in our naics industry dataframe
+
+for(row_number in 1:nrow(naics_industry)) {
+    
+    # Keep only the row for a given row number, get rid of every other row
+    each_row_df <- naics_industry %>%
+      slice(row_number) %>%
+    
+    # To help us see what's happening as we build this, we're going to print the thing we're creating.  
+    print(each_row_df)
+      
+}
+```
+
+We're almost to the part where we can go out and fetch the html we need. First, let's store as an object called URL the URL of the page for each sector. The syntax with the dollar sign is a little funky, but "each_row_df$sector_url" says "from the each_row_df dataframe, grab the information in the sector_url column." 
+
+We're also going to programatically create the xpath for our employment table by using the information in the sector_xpath_id column. That code also looks a little unwieldly.  Recall that the xpath for the mining industry was `'//*[@id="iag22emp1"]'`.  In the code below, we're building the xpath dynamically by pasting together the parts that stay the same for each xpath -- `'//*[@id="'` and `'"]'` -- and the parts that change for each sector, pulled from the xpath_sector_id column. 
+
+To see how this is working, we're going to edit our print statement at the end a bit, printing the row_number and the dynamically created url and xpath. 
+```{r}
+
+# For loop, iterating over each row in our naics industry dataframe
+
+for(row_number in 1:nrow(naics_industry)) {
+    
+    # Keep only the row for a given row number, get rid of every other row
+    each_row_df <- naics_industry %>%
+      slice(row_number) 
+      
+    # Define url of page to get
+    url <- each_row_df$sector_url
+    
+    # Define id of table to ingest
+    xpath_employment_table <- paste0('//*[@id="',each_row_df$sector_xpath_id,'"]')
+    
+    # To help us see what's happening as we build this, we're going to print the thing we're creating.  
+    print(paste0(row_number," URL: ",url," XPATH:",xpath_employment_table))
+      
+}
+```
+
+Armed with the URL and xpath for each sector, we can now go out and get the employment table for each sector by reading in the html, extracting the element that has our xpath, and then transform the html table code into a proper dataframe. The dataframe is in a nested list, which we'll have to extract in the next step.  It prints out 19 dataframes inside of nested lists with one element. 
+
+```{r}
+
+# For loop, iterating over each row in our naics industry dataframe
+
+for(row_number in 1:nrow(naics_industry)) {
+    
+    # Keep only the row for a given row number, get rid of every other row
+    each_row_df <- naics_industry %>%
+      slice(row_number) 
+      
+    # Define url of page to get
+    url <- each_row_df$sector_url
+    
+    # Define id of table to ingest
+    xpath_employment_table <- paste0('//*[@id="',each_row_df$sector_xpath_id,'"]')
+    
+    # Get employment table from each page by going to each url defined above, reading in the html with read_html(), extracting the table with the id generated by the xpath code using html_elements), and then turning the html into a proper dataframe using html_table(). The dataframe is in a nested list, which we'll have to extract in the next step.
+    employment_info <- url %>%
+      read_html() %>%
+      html_elements(xpath = xpath_employment_table) %>%
+      html_table() 
+    
+    # To help us see what's happening as we build this, we're going to print the thing we're creating.  
+    print(employment_info)
+    
+      
+}
+```
+Now, let's clean up the employment_info table for each sector to get rid of all the information we don't need, by using slice() to keep only the second row. 
+```{r}
+
+# For loop, iterating over each row in our naics industry dataframe
+
+for(row_number in 1:nrow(naics_industry)) {
+    
+    # Keep only the row for a given row number, get rid of every other row
+    each_row_df <- naics_industry %>%
+      slice(row_number) 
+      
+    # Define url of page to get
+    url <- each_row_df$sector_url
+    
+    # Define id of table to ingest
+    xpath_employment_table <- paste0('//*[@id="',each_row_df$sector_xpath_id,'"]')
+    
+    # Get employment table from each page by going to each url defined above, reading in the html with read_html(), extracting the table with the id generated by the xpath code using html_elements), and then turning the html into a proper dataframe using html_table().  The dataframe is in a nested list, which we'll have to extract in the next step.
+    employment_info <- url %>%
+      read_html() %>%
+      html_elements(xpath = xpath_employment_table) %>%
+      html_table() 
+    
+    # Grab the dataframe out of the list (it's the first and only element inside the list); clean up the field names with clean_names(); use slice(2) to keep only the second row; 
+    employment_info <- employment_info[[1]] %>%
+      clean_names() %>%
+      slice(2) 
+    
+    # To help us see what's happening as we build this, we're going to print the thing we're creating.  
+    print(employment_info)
+    
+      
+}
+```
+There's a little more work to be done here.  The employment table, at present, is missing information about what industry sector these employment numbers represent.  We can add that back in by using bind_cols() to reconnect the each_row_df, which contains the sector code and the sector name.   
+```{r}
+
+# For loop, iterating over each row in our naics industry dataframe
+
+for(row_number in 1:nrow(naics_industry)) {
+    
+    # Keep only the row for a given row number, get rid of every other row
+    each_row_df <- naics_industry %>%
+      slice(row_number) 
+      
+    # Define url of page to get
+    url <- each_row_df$sector_url
+    
+    # Define id of table to ingest
+    xpath_employment_table <- paste0('//*[@id="',each_row_df$sector_xpath_id,'"]')
+    
+    # Get employment table from each page by going to each url defined above, reading in the html with read_html(), extracting the table with the id generated by the xpath code using html_elements), and then turning the html into a proper dataframe using html_table().  The dataframe is in a nested list, which we'll have to extract in the next step.
+    employment_info <- url %>%
+      read_html() %>%
+      html_elements(xpath = xpath_employment_table) %>%
+      html_table() 
+    
+    # Grab the dataframe out of the list (it's the first and only element inside the list); clean up the field names with clean_names(); use slice(2) to keep only the second row; use bind_cols() to append the sector code and name to this table.
+    employment_info <- employment_info[[1]] %>%
+      clean_names() %>%
+      slice(2) %>% 
+      bind_cols(each_row_df) 
+    
+    # To help us see what's happening as we build this, we're going to print the thing we're creating.  
+    print(employment_info)
+    
+      
+}
+```
+Then we'll do a little bit of cleaning. Let's use parse_number() to remove the comma from the may2021 number and convert it from a character to number, use rename() to make the may2021 column name a little more descriptive, and then select only the columns we want to keep.   
+
+```{r}
+
+# For loop, iterating over each row in our naics industry dataframe
+for(row_number in 1:nrow(naics_industry)) {
+    
+    # Keep only the row for a given row number, get rid of every other row
+    each_row_df <- naics_industry %>%
+      slice(row_number) 
+      
+    # Define url of page to get
+    url <- each_row_df$sector_url
+    
+    # Define id of table to ingest
+    xpath_employment_table <- paste0('//*[@id="',each_row_df$sector_xpath_id,'"]')
+    
+    # Get employment table from each page by going to each url defined above, reading in the html with read_html(), extracting the table with the id generated by the xpath code using html_elements), and then turning the html into a proper dataframe using html_table().  The dataframe is in a nested list, which we'll have to extract in the next step.
+    employment_info <- url %>%
+      read_html() %>%
+      html_elements(xpath = xpath_employment_table) %>%
+      html_table() 
+    
+    # Grab the dataframe out of the list (it's the first and only element inside the list); clean up the field names with clean_names(); use slice(2) to keep only the second row; use bind_cols() to append the sector code and name to this table; turn may2021 column into a proper number, and rename it.  Then select only three columns we need. 
+    employment_info <- employment_info[[1]] %>%
+      clean_names() %>%
+      slice(2) %>% 
+      bind_cols(each_row_df) %>%
+      mutate(may2021 = parse_number(may2021)) %>%
+      rename(may_2021_employees = may2021) %>%
+      select(sector,description,may_2021_employees) 
+    
+    # To help us see what's happening as we build this, we're going to print the thing we're creating.  
+    print(employment_info)
+    
+    
+}
+
+```
+
+
+We're getting very close to the finished table we showed at the beginning.  
+
+But right now, each bit of sector information is separated between 19 different dataframes.  We want them in one dataframe.  
+
+We can fix this by creating an empty dataframe called "employment_by_sector_all" using tibble(), placing it before our "for loop". And inside our "for loop" at the end, we'll bind each employment_info dataframe to the newly created empty dataframe.  
+
+```{r}
+
+# Create an empty dataframe to hold results 
+employment_by_sector_all <- tibble()
+
+# For loop, iterating over each row in our naics industry dataframe
+for(row_number in 1:nrow(naics_industry)) {
+    
+    # Keep only the row for a given row number, get rid of every other row
+    each_row_df <- naics_industry %>%
+      slice(row_number) 
+      
+    # Define url of page to get
+    url <- each_row_df$sector_url
+    
+    # Define id of table to ingest
+    xpath_employment_table <- paste0('//*[@id="',each_row_df$sector_xpath_id,'"]')
+    
+    # Get employment table from each page by going to each url defined above, reading in the html with read_html(), extracting the table with the id generated by the xpath code using html_elements), and then turning the html into a proper dataframe using html_table().  The dataframe is in a nested list, which we'll have to extract in the next step.
+    employment_info <- url %>%
+      read_html() %>%
+      html_elements(xpath = xpath_employment_table) %>%
+      html_table() 
+    
+    # Grab the dataframe out of the list (it's the first and only element inside the list); clean up the field names with clean_names(); use slice(2) to keep only the second row; use bind_cols() to append the sector code and name to this table; turn may2021 column into a proper number, and rename it.  Then select only three columns we need. 
+    employment_info <- employment_info[[1]] %>%
+      clean_names() %>%
+      slice(2) %>% 
+      bind_cols(each_row_df) %>%
+      mutate(may2021 = parse_number(may2021)) %>%
+      rename(may_2021_employees = may2021) %>%
+      select(sector,description,may_2021_employees) 
+    
+    # Bind each individual employment info table to our employment_by_sector_all dataframe
+    employment_by_sector_all <- employment_by_sector_all %>%
+      bind_rows(employment_info)
+    
+}
+
+# Display the completed dataframe
+employment_by_sector_all
+```
+
+Ta da! A nice tidy dataframe with the number of employees in May 2021 for each sector. It's always a good idea to spot check the results, especially any values that look suspciously high or low. 
+
+The value for "Agriculture, Forestry, Fishing and Hunting" seems suspiciously low, compared with the other values.  
+
+Let's figure out why.  
+
+Here's the table on the mining sector page: [https://www.bls.gov/iag/tgs/iag21.htm](https://www.bls.gov/iag/tgs/iag21.htm)
+
+```{r, echo=FALSE}
+knitr::include_graphics(rep("images/advrvest3.png"))
+```
+And here's the table for the agriculture sector. 
+
+```{r, echo=FALSE}
+knitr::include_graphics(rep("images/advrvest4.png"))
+```
+Unlike mining -- and every other sector page (I checked each page) -- in the second row of this table, it has the unemployment rate, and completely lacks information on the number of employees.  
+
+We would need to do additional research to track down a valid number if we plan on using this table, but for now we're going to replace it with an NA.
+
+```{r}
+employment_by_sector_all <- employment_by_sector_all %>%
+  mutate(may_2021_employees = na_if(may_2021_employees,8.4))
+
+```
 
 A note about advanced scraping -- every site is different. Every time you want to scrape a site, you'll be puzzling over different problems. But the steps remain the same: find a pattern, exploit it, clean the data on the fly and put it into a place to store it. 
