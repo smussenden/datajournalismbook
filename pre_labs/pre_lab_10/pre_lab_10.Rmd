@@ -16,10 +16,15 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 ```
 
-### Task 2: Get Some PPP Data
+### Task 2: Get PPP Data on Lender Types
 
+First, let's get some data and work with it. Let's use a cleaned-up version of 2021 PPP loan totals by type of lender that we generated in Chapter 13. Let's look at it.
 
+**Task** Load the cleaned-up lender totals CSV file
 
+```{r}
+lender_types <- read_csv("data/lender_totals_2021.csv")
+```
 
 ### Task 3: Log into Datawrapper
 **Task** Log into [datawrapper.de](https://www.datawrapper.de/). Once logged in, you'll click on New Chart.
@@ -28,35 +33,52 @@ library(tidyverse)
 knitr::include_graphics(rep("images/ppp_datawrapper1.png"))
 ```
 
-The first thing we'll do is upload our CSV that we created before. Click on XLS/CSV and upload the file.
+### Task 4: Upload the CSV File
+
+The first thing we'll do is upload the lender types CSV that's in the pre_lab_10/data folder.
+
+**Task** Click on XLS/CSV and upload the lender_totals_2021.csv file.
 
 ```{r, echo=FALSE}
 knitr::include_graphics(rep("images/datawrapper2.png"))
 ```
 
-Next up is to check and see what Datawrappper did with our data when we uploaded it. As you can see from the text on the left, if it's blue, it's a number. If it's green, it's a date. If it's black, it's text. Red means there's a problem. This data is very clean, so it imports cleanly. Click on the "Proceed" button.
+### Task 5: Inspect the Data
+
+Next up is to check and see what Datawrappper did with our data when we uploaded it. As you can see from the text on the left, if it's blue, it's a number. If it's green, it's a date. If it's black, it's text. Red means there's a problem. This data is very clean, so it imports cleanly.
+
+**Task** Look at the uploaded data, then click on the "Proceed" button.
 
 ```{r, echo=FALSE}
 knitr::include_graphics(rep("images/ppp_datawrapper3.png"))
 ```
+
+### Task 6: Make a Chart
+
 Now we make a chart. Bar chart comes up by default, which is good, because with totals, that's what we have.
 
-Click on Refine. The first option we want to change is the Number Format, because we have currency figures to display and we want to make it as easy as possible for readers to understand what we're displaying. Datawrapper has an excellent reference for its [custom formats](https://academy.datawrapper.de/article/207-custom-number-formats-that-you-can-display-in-datawrapper) that you can consult. Let's choose `$0.[00]a`, which adds a dollar sign and abbreviates larger amounts:
+**Task** Click on Refine. The first option we want to change is the Number Format, because we have currency figures to display and we want to make it as easy as possible for readers to understand what we're displaying. Datawrapper has an excellent reference for its [custom formats](https://academy.datawrapper.de/article/207-custom-number-formats-that-you-can-display-in-datawrapper) that you can consult. Let's choose `$0.[00]a`, which adds a dollar sign and abbreviates larger amounts:
 
 ```{r, echo=FALSE}
 knitr::include_graphics(rep("images/ppp_datawrapper4.png"))
 ```
 
-Now we need to annotate our charts. Every chart needs a title, a source line and a credit line. Most need chatter (called description here). Click on the "Annotate" tab to get started.
+### Task 7: Annotate the Chart
 
-Really think about the title and description: the title is like a headline and the description is provides some additional context. Another way to think about it: the title is the most important lesson from the graphic, and the description could be the next most important lesson or could provide more context to the title.
+Now we need to annotate our charts. Every chart needs a title, a source line and a credit line. Most need chatter (called `description` here).
+
+**Task** Click on the "Annotate" tab to get add the title and description. Really think about the title and description: the title is like a headline and the description is provides some additional context. Another way to think about it: the title is the most important lesson from the graphic, and the description could be the next most important lesson or could provide more context to the title.
 
 ```{r, echo=FALSE}
 knitr::include_graphics(rep("images/ppp_datawrapper5.png"))
 ```
 
-To publish, we click the "Publish & Embed" tab. Some publication systems allow for the embedding of HTML into a post or a story. Some don't. The only way to know is to ask someone at your publication. Every publication system on the planet, though, can publish an image. So there's always a way to export your chart as a PNG file, which you can upload like any photo.
+### Task 7: Publish the Chart
+
+**Task** Click the "Publish & Embed" tab, then click on the "PNG" icon. Finally, click the "Download image" button and save that file in the pre_lab_10 folder.
 
 ```{r, echo=FALSE}
 knitr::include_graphics(rep("images/ppp_datawrapper7.png"))
 ```
+
+Some publication systems allow for the embedding of HTML into a post or a story. Some don't. The only way to know is to ask someone at your publication. Every publication system on the planet, though, can publish an image. So there's always a way to export your chart as a PNG file, which you can upload like any photo.
