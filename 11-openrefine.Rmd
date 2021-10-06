@@ -36,7 +36,7 @@ Let's load our full Maryland PPP loans data.
 
 ```{r include=FALSE}
 
-md_loans <- read_rds("data/ppp_loan_data/processed/md/ppp_loans_md.rmd")
+md_loans <- read_rds("data/ppp_loan_data/processed/md/ppp_loans_md.rds")
 
 ```
 
