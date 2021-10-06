@@ -12,13 +12,13 @@ knitr::opts_chunk$set(echo = TRUE)
 ## About this lab
 
 To complete this lab, you need to:
-* install Tabula](https://tabula.technology/)
+* [install Tabula](https://tabula.technology/)
 * run existing code as directed (look for **Task**).
-* modify existing code as directed (look for **Task**).
+* write code as directed (look for **Task**).
 * write code in empty codeblocks provided to answer questions included (look for **Q**).
 * write out the answer in the form of a complete sentence in the space given (look for **A**).
 
-When you are finished, commit changes and push to your personal GitHub repo, then submit the URL to this document on ELMS.
+When you are finished, commit changes in the lab_06 folder and push to your personal GitHub repo, then submit the URL to this document on ELMS.
 
 ## Load libraries and establish settings
 
@@ -36,32 +36,32 @@ library(tidyverse)
 
 We'll be working with the [Maryland Statistical Handbook](https://planning.maryland.gov/MSDC/Documents/md-statistical-handbook.pdf) from the state Department of Planning. It's not tiny (44MB), and you'll want to download it to a place you'll remember (like your Downloads folder).
 
-**Task** Download the file from the above link and save it.
+**Task** Download the file from the above link and save it to your Downloads folder.
 
 ## Setup Tabula
 
 **Task** Start Tabula and load the PDF, then extract a table
 
-Start Tabula, then go to http://127.0.0.1:8080/ in your browser. Click the "Browse" button and find the Statistical Handbook file and click "open", and then click the "Import button" in Tabula. This will take a minute or two.
+Start Tabula, then go to http://127.0.0.1:8080/ in your browser. Click the "Browse" button and find the Statistical Handbook file in your Downloads folder and click "open", and then click the "Import button" in Tabula. This will take a minute or two.
 
-Let's go to page 30 of the PDF, Table 2A, "International Migration for Maryland's Jurisdictions, July 1, 2010 to July 1, 2019". This is _net migration_, meaning it shows the total number of people moving to Maryland and its regions/jurisdictions _minus_ the total number of people leaving the same, divided into 12-month periods from July to July. In Tabula, draw a box around that table's border and click the "Preview & Export Extracted Data" button. It should look pretty clean. Let's export that CSV (it should be called `tabula-md-statistical-handbook.csv` by default) to your Downloads folder.
+Let's go to page 30 of the PDF, Table 2A, "International Migration for Maryland's Jurisdictions, July 1, 2010 to July 1, 2019". This is _net migration_, meaning it shows the total number of people moving to Maryland and its regions/jurisdictions _minus_ the total number of people leaving the same, divided into 12-month periods from July to July. In Tabula, draw a box around that table's border and click the "Preview & Export Extracted Data" button. It should look pretty clean. Let's export that CSV (it should be called `tabula-md-statistical-handbook.csv` by default) to your lab_06/data folder.
 
 ## Cleaning up the data in R
 
 Let's load it into R, and in doing so we'll skip the first two rows and add our own headers that are cleaner. `read_csv` allows us to do this ([and more](https://readr.tidyverse.org/reference/read_delim.html)):
 
-**Task** Run the codeblock below to load the data.
+**Task** Write code to read the CSV file into a dataframe called `international_migration`. As in the pre_lab, you may have to skip 1 or more rows and you may want to supply easier to use column names that use underscores.
 
 ```{r}
-international_migration <- read_csv('tabula-md-statistical-handbook.csv', skip=2, col_names=c("jurisdiction", "july_2011", "july_2012", "july_2013", "july_2014", "july_2015", "july_2016", "july_2017", "july_2018", "july_2019", "total"))
+# Write the code to load the CSV file here
 ```
 
 Add a column for the type of migration ("international") and populate it:
 
-**Task** Run the codeblock below to add a column to the data.
+**Task** Write the code to add a `migration_type` column to the data and populate it with the value of "international"
 
 ```{r}
-international_migration <- international_migration %>% mutate(type='international')
+# Write the code to add the column here
 ```
 
 ## Answer questions
@@ -74,7 +74,7 @@ international_migration <- international_migration %>% mutate(type='internationa
 
 ```
 
-**Q2** Write a sentence or two that describes the data you produced in A1. Treat this as if you were trying to convey the most important part.
+**Q2** Write a sentence or two that describes the data you produced in A1. Try to convey the most important idea.
 **A2** [write your answer here]
 
 **Q3** Which region & jurisdiction had the biggest percentage change for international migration between July 2018 and July 2017? The formula for percentage change is easy to remember: (New-Old)/Old.
@@ -93,24 +93,24 @@ international_migration <- international_migration %>% mutate(type='internationa
 
 **Task** Extract second table from Tabula
 
-Let's go to page 31 of the PDF, Table 2B, "Domestic Migration for Maryland's Jurisdictions, July 1, 2010 to July 1, 2019". In Tabula, hit the "Clear All Selections" button and then draw a box around that table's border and click the "Preview & Export Extracted Data" button. It should look pretty clean. Let's export that CSV to your Downloads folder (let's rename it to `tabula-md-statistical-handbook-domestic.csv`).
+Let's go to page 31 of the PDF, Table 2B, "Domestic Migration for Maryland's Jurisdictions, July 1, 2010 to July 1, 2019". In Tabula, hit the "Clear All Selections" button and then draw a box around that table's border and click the "Preview & Export Extracted Data" button. It should look pretty clean. Let's export that CSV to your lab_06/data folder. (and rename it to `tabula-md-statistical-handbook-domestic.csv`).
 
 ## Cleaning up the data in R
 
 Let's load it into R, and in doing so we'll skip the first two rows and add our own headers that are cleaner:
 
-**Task** Run the codeblock below to load the data.
+**Task** Write code to read the CSV file into a dataframe called `domestic_migration`. As in the pre_lab, you may have to skip 1 or more rows and you may want to supply easier to use column names that use underscores. Your work on the international file should serve as a guide.
 
 ```{r}
-domestic_migration <- read_csv('tabula-md-statistical-handbook-domestic.csv', skip=2, col_names=c("jurisdiction", "july_2011", "july_2012", "july_2013", "july_2014", "july_2015", "july_2016", "july_2017", "july_2018", "july_2019", "total"))
+# Write the code to load the CSV file here
 ```
 
 Add a column for the type of migration ("domestic") and populate it:
 
-**Task** Run the codeblock below to add a column to the data.
+**Task** Write the code to add a `migration_type` column to the data and populate it with the value of "domestic"
 
 ```{r}
-domestic_migration <- domestic_migration %>% mutate(type='domestic')
+# Write the code to add the column here
 ```
 
 ## Answer questions
@@ -122,7 +122,7 @@ domestic_migration <- domestic_migration %>% mutate(type='domestic')
 
 ```
 
-**Q6** How many regions & jurisdictions had net positive migration for July 2017, July 2018 and July 2019?
+**Q6** How many regions & jurisdictions had net positive migration for July 2017, July 2018 and July 2019 (not just individually but all three together)?
 **A6** [write your answer here]
 
 ```{r}
