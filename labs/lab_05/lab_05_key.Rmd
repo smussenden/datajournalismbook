@@ -60,6 +60,12 @@ wv_population_county <- read_csv("data/wv_population_county.csv")
 
 ```
 
+```{r}
+x <- lab_05 %>%
+  group_by(servicing_lender_name) %>%
+  count()
+```
+
 ## Answer questions
 
 **Q1.**  In the data folder, there is a csv called zip_25401_loan_sample.csv.  It contains a sample of loans from West Virginia ZIP Code 25401. 

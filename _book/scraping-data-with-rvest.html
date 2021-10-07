@@ -24,7 +24,7 @@
 <meta name="author" content="Matt Waite (original author); updated by Derek Willis and Sean Mussenden" />
 
 
-<meta name="date" content="2021-09-24" />
+<meta name="date" content="2021-10-07" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -233,11 +233,12 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="14.1" data-path="combining-and-joining.html"><a href="combining-and-joining.html#combining-data-stacking"><i class="fa fa-check"></i><b>14.1</b> Combining data (stacking)</a></li>
 <li class="chapter" data-level="14.2" data-path="combining-and-joining.html"><a href="combining-and-joining.html#joining-data"><i class="fa fa-check"></i><b>14.2</b> Joining data</a></li>
 </ul></li>
-<li class="chapter" data-level="15" data-path="scraping-data-with-rvest.html"><a href="scraping-data-with-rvest.html"><i class="fa fa-check"></i><b>15</b> Scraping data with Rvest</a>
+<li class="chapter" data-level="15" data-path="scraping-data-with-rvest.html"><a href="scraping-data-with-rvest.html"><i class="fa fa-check"></i><b>15</b> Scraping data with Rvest</a></li>
+<li class="chapter" data-level="16" data-path="advanced-rvest.html"><a href="advanced-rvest.html"><i class="fa fa-check"></i><b>16</b> Advanced rvest</a>
 <ul>
-<li class="chapter" data-level="15.1" data-path="scraping-data-with-rvest.html"><a href="scraping-data-with-rvest.html#a-more-difficult-example"><i class="fa fa-check"></i><b>15.1</b> A more difficult example</a></li>
+<li class="chapter" data-level="16.1" data-path="advanced-rvest.html"><a href="advanced-rvest.html#using-for-loops"><i class="fa fa-check"></i><b>16.1</b> Using for loops</a></li>
+<li class="chapter" data-level="16.2" data-path="advanced-rvest.html"><a href="advanced-rvest.html#looping-and-rvest"><i class="fa fa-check"></i><b>16.2</b> Looping and rvest</a></li>
 </ul></li>
-<li class="chapter" data-level="16" data-path="advanced-rvest.html"><a href="advanced-rvest.html"><i class="fa fa-check"></i><b>16</b> Advanced rvest</a></li>
 <li class="chapter" data-level="17" data-path="intro-to-apis-the-census.html"><a href="intro-to-apis-the-census.html"><i class="fa fa-check"></i><b>17</b> Intro to APIs: The Census</a>
 <ul>
 <li class="chapter" data-level="17.1" data-path="intro-to-apis-the-census.html"><a href="intro-to-apis-the-census.html#the-acs"><i class="fa fa-check"></i><b>17.1</b> The ACS</a></li>
@@ -325,156 +326,230 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
             <section class="normal" id="section-">
 <div id="scraping-data-with-rvest" class="section level1" number="15">
 <h1><span class="header-section-number">Chapter 15</span> Scraping data with Rvest</h1>
-<p>Sometimes, governments put data online on a page or in a searchable database. And when you ask them for a copy of the data underneath the website, they say no. Why? Because they have a website. That’s it. That’s their reason. We don’t have to give you the data because we’ve already given you the data, never mind that they haven’t.
-One of the most powerful tools you can learn as a data journalist is how to scrape data. Scraping is the process of programming a computer to act like a browser, go to a website, injest the HTML from that website and turn it into data.</p>
-<p>The degree of difficulty here goes from Easy to So Hard You Want To Throw Your Laptop Out A Window. And the curve between the two steep. You can learn how to scrape Easy in a day. The hard ones take months to years of programming experience.</p>
-<p>So.</p>
-<p>Let’s try an easy one.</p>
+<p>Sometimes, governments put data online on a page or in a searchable database. And when you ask them for a copy of the data underneath the website, they say no.</p>
+<p>Why? Because they have a website. That’s it. That’s their reason. They say they don’t have to give you the data because they’ve already given you the data, never mind that they haven’t given to you in a form you can actually load into R with ease.</p>
+<p>Lucky for us, there’s a way for us to write code to get data even when an agency hasn’t made it easy: webscraping.</p>
+<p>One of the most powerful tools you can learn as a data journalist is how to scrape data from the web. Scraping is the process of programming a computer to act like a human that opens a web browser, goes to a website, ingests the HTML from that website into R and turns it into data.</p>
+<p>The degree of difficulty here goes from “Easy” to “So Hard You Want To Throw Your Laptop Out A Window.” And the curve between the two can be steep. You can learn how to scrape “Easy” in a day. The hard ones take a little more time, but it’s often well worth the effort because it lets you get stories you couldn’t get without it.</p>
+<p>In this chapter, we’ll show you an easy one. And in the next chapter, we’ll so you a moderately harder one.</p>
+<p>Let’s start easy.</p>
 <p>We’re going to use a library called <code>rvest</code>, which you can install it the same way we’ve done all installs: go to the console and <code>install.packages("rvest")</code>.</p>
-<p>We’ll load them first:</p>
-<div class="sourceCode" id="cb212"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb212-1"><a href="scraping-data-with-rvest.html#cb212-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rvest)</span></code></pre></div>
+<p>Like so many R package names, rvest is a bad pun. You’re supposed to read it to sound like “harvest,” as in “harvesting” information from a website the same way you’d harvest crops in a field.</p>
+<p>We’ll load these packages first:</p>
+<div class="sourceCode" id="cb211"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb211-1"><a href="scraping-data-with-rvest.html#cb211-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rvest)</span></code></pre></div>
 <pre><code>## 
 ## Attaching package: &#39;rvest&#39;</code></pre>
 <pre><code>## The following object is masked from &#39;package:readr&#39;:
 ## 
 ##     guess_encoding</code></pre>
-<div class="sourceCode" id="cb215"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb215-1"><a href="scraping-data-with-rvest.html#cb215-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code></pre></div>
-<p>The first thing we need to do is define a URL. What URL are we going to scrape? This is where paying attention to URLs pays off. Some search urls are addressable – meaning you can copy the url of your search and go to it again and again. Or is the search term invisible?</p>
-<p>Let’s take an example from the Nebraska Legislature. The Legislature publishes a daily agenda that tells you what bills will be debated on the floor that day. Here’s <a href="https://nebraskalegislature.gov/calendar/agenda.php?day=2020-02-03">an example from Feb. 3</a>. Go that page. You’ll see multiple sections – a reports section, and the General File section. General File is the first stage of floor debate. Those are the bills to be debated.</p>
-<p>Let’s grab them with rvest.</p>
-<p>First, we create a url variable and set it equal to that url.</p>
-<div class="sourceCode" id="cb216"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb216-1"><a href="scraping-data-with-rvest.html#cb216-1" aria-hidden="true" tabindex="-1"></a>url <span class="ot">&lt;-</span> <span class="st">&quot;https://nebraskalegislature.gov/calendar/agenda.php?day=2020-02-03&quot;</span></span></code></pre></div>
-<p>Now we’re going to do a handful of things at once. We’re going to take that url, pass it to a <code>read_html</code> command, which does what you think it does. We’re then going to search that HTML for a specific node, the node that contains our data.</p>
-<p>The most difficult part of scraping data from any website is knowing what exact HTML tag you need to grab. In this case, we want a <code>&lt;table&gt;</code> tag that has all of our data table in it. But how do you tell R which one that is? Well, it’s easy, once you know what to do. But it’s not simple. So I’ve made a short video to show you how to find it.</p>
-<iframe width="560" height="315" src="https://www.youtube.com/embed/kYkSE3zWa9Y" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
-</iframe>
-<p>Using that same trick on the Legislature page, we find the table with those general file bills and it’s in something called <code>agenda_table_4464</code>. With that, we can turn it into a table.</p>
-<div class="sourceCode" id="cb217"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb217-1"><a href="scraping-data-with-rvest.html#cb217-1" aria-hidden="true" tabindex="-1"></a>agenda <span class="ot">&lt;-</span> url <span class="sc">%&gt;%</span></span>
-<span id="cb217-2"><a href="scraping-data-with-rvest.html#cb217-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read_html</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb217-3"><a href="scraping-data-with-rvest.html#cb217-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_nodes</span>(<span class="at">xpath =</span> <span class="st">&#39;//*[@id=&quot;agenda_table_4464&quot;]&#39;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb217-4"><a href="scraping-data-with-rvest.html#cb217-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_table</span>()</span></code></pre></div>
-<p>After doing that, looking at the environment for your agenda. And you’ll see … not a dataframe. You’ll see a list. With one thing in it. That one thing? A dataframe. So we need to grab that first element. We get it by doing this:</p>
-<div class="sourceCode" id="cb218"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb218-1"><a href="scraping-data-with-rvest.html#cb218-1" aria-hidden="true" tabindex="-1"></a>agenda <span class="ot">&lt;-</span> agenda[[<span class="dv">1</span>]]</span></code></pre></div>
-<p>And now we can take a look:</p>
-<div class="sourceCode" id="cb219"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb219-1"><a href="scraping-data-with-rvest.html#cb219-1" aria-hidden="true" tabindex="-1"></a>agenda</span></code></pre></div>
-<pre><code>## # A tibble: 10 x 3
-##    Document                         Introducer Description                      
-##    &lt;chr&gt;                            &lt;chr&gt;      &lt;chr&gt;                            
-##  1 &quot;Currently or Pendingon Floor\n… Bolz       Provide a duty for the county bo…
-##  2 &quot;Currently or Pendingon Floor\n… Kolterman  Adopt the Surgical Technologist …
-##  3 &quot;Currently or Pendingon Floor\n… Kolterman  Appropriation Bill               
-##  4 &quot;Currently or Pendingon Floor\n… Bolz       Change eligibility provisions fo…
-##  5 &quot;Currently or Pendingon Floor\n… Kolterman  Change provisions relating to na…
-##  6 &quot;Currently or Pendingon Floor\n… Kolterman  Appropriation Bill               
-##  7 &quot;Currently or Pendingon Floor\n… Dorn       Change provisions relating to di…
-##  8 &quot;Currently or Pendingon Floor\n… Wishart    Change provisions relating to  f…
-##  9 &quot;Currently or Pendingon Floor\n… McDonnell  Change provisions relating to co…
-## 10 &quot;Currently or Pendingon Floor\n… Vargas     Change provisions relating to th…</code></pre>
-<p>And as you can see, it’s … not perfect. But we can fix that with a little <code>gsub</code> magic.</p>
-<div class="sourceCode" id="cb221"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb221-1"><a href="scraping-data-with-rvest.html#cb221-1" aria-hidden="true" tabindex="-1"></a>agenda <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">Document =</span> <span class="fu">gsub</span>(<span class="st">&quot;Currently or Pendingon Floor</span><span class="sc">\n</span><span class="st"> &quot;</span>,<span class="st">&quot;&quot;</span>,Document))</span></code></pre></div>
-<pre><code>## # A tibble: 10 x 3
-##    Document                        Introducer Description                       
-##    &lt;chr&gt;                           &lt;chr&gt;      &lt;chr&gt;                             
-##  1 &quot;                             … Bolz       Provide a duty for the county boa…
-##  2 &quot;                             … Kolterman  Adopt the Surgical Technologist R…
-##  3 &quot;                             … Kolterman  Appropriation Bill                
-##  4 &quot;                             … Bolz       Change eligibility provisions for…
-##  5 &quot;                             … Kolterman  Change provisions relating to nai…
-##  6 &quot;                             … Kolterman  Appropriation Bill                
-##  7 &quot;                             … Dorn       Change provisions relating to dis…
-##  8 &quot;                             … Wishart    Change provisions relating to  fo…
-##  9 &quot;                             … McDonnell  Change provisions relating to com…
-## 10 &quot;                             … Vargas     Change provisions relating to the…</code></pre>
-<div id="a-more-difficult-example" class="section level2" number="15.1">
-<h2><span class="header-section-number">15.1</span> A more difficult example</h2>
-<p>The Nebraska Legislature, with it’s unique unicameral or one house structure, does some things a little differently than other legislatures. Example: Bills have to go through three rounds of debate before getting passed. There’s General File (round 1), Select File (round 2), and Final Reading (round 3).</p>
-<p>So what does a day where they do more than general file look like? <a href="https://nebraskalegislature.gov/calendar/agenda.php?day=2020-02-21">Like this</a>.</p>
-<p>How do we scrape that?</p>
-<div class="sourceCode" id="cb223"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb223-1"><a href="scraping-data-with-rvest.html#cb223-1" aria-hidden="true" tabindex="-1"></a>harderurl <span class="ot">&lt;-</span> <span class="st">&quot;https://nebraskalegislature.gov/calendar/agenda.php?day=2020-02-21&quot;</span></span></code></pre></div>
-<div class="sourceCode" id="cb224"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb224-1"><a href="scraping-data-with-rvest.html#cb224-1" aria-hidden="true" tabindex="-1"></a>harderagenda <span class="ot">&lt;-</span> harderurl <span class="sc">%&gt;%</span></span>
-<span id="cb224-2"><a href="scraping-data-with-rvest.html#cb224-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read_html</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb224-3"><a href="scraping-data-with-rvest.html#cb224-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_nodes</span>(<span class="st">&quot;table&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb224-4"><a href="scraping-data-with-rvest.html#cb224-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_table</span>()</span></code></pre></div>
-<p>You can see that <code>harderagenda</code> has a list of four instead of a list of one. We can see each item in the list has a dataframe. We can see them individually. Here’s the first:</p>
-<div class="sourceCode" id="cb225"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb225-1"><a href="scraping-data-with-rvest.html#cb225-1" aria-hidden="true" tabindex="-1"></a>harderagenda[[<span class="dv">1</span>]]</span></code></pre></div>
-<pre><code>## # A tibble: 4 x 3
-##   Document                          Introducer Description                      
-##   &lt;chr&gt;                             &lt;chr&gt;      &lt;chr&gt;                            
-## 1 &quot;Currently or Pendingon Floor\n … Kolterman  Define the required beginning da…
-## 2 &quot;Currently or Pendingon Floor\n … Geist      Change and provide provisions fo…
-## 3 &quot;Currently or Pendingon Floor\n … Chambers   Change provisions relating to ra…
-## 4 &quot;Currently or Pendingon Floor\n … Gragert    Provide for state park permits  …</code></pre>
-<p>Here’s the second:</p>
-<div class="sourceCode" id="cb227"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb227-1"><a href="scraping-data-with-rvest.html#cb227-1" aria-hidden="true" tabindex="-1"></a>harderagenda[[<span class="dv">2</span>]]</span></code></pre></div>
-<pre><code>## # A tibble: 4 x 3
-##   Document                          Introducer Description                      
-##   &lt;chr&gt;                             &lt;chr&gt;      &lt;chr&gt;                            
-## 1 &quot;Currently or Pendingon Floor\n … Crawford   Change the Child Protection and …
-## 2 &quot;Currently or Pendingon Floor\n … Lindstrom  Change provisions of the Multipl…
-## 3 &quot;Currently or Pendingon Floor\n … Quick      Change the Nebraska Municipal La…
-## 4 &quot;Currently or Pendingon Floor\n … Hunt       Adopt the Nebraska Fair Pay to P…</code></pre>
-<p>So we can merge those together no problem, but how would we know what stage each bill is at?</p>
-<p>Look at the page – we can see that the bills are separated by a big headline like “SELECT FILE: 2020 PRIORITY BILLS.” To separate these, we need to grab those and then add them to each bill using mutate.</p>
-<p>Here’s how we grab them:</p>
-<div class="sourceCode" id="cb229"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb229-1"><a href="scraping-data-with-rvest.html#cb229-1" aria-hidden="true" tabindex="-1"></a>labels <span class="ot">&lt;-</span> harderurl <span class="sc">%&gt;%</span></span>
-<span id="cb229-2"><a href="scraping-data-with-rvest.html#cb229-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read_html</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb229-3"><a href="scraping-data-with-rvest.html#cb229-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_nodes</span>(<span class="st">&quot;.card-header&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb229-4"><a href="scraping-data-with-rvest.html#cb229-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_text</span>()</span></code></pre></div>
-<p>Another list. If you look at the first, it’s at the top of the page with no bills. Here’s the second:</p>
-<div class="sourceCode" id="cb230"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb230-1"><a href="scraping-data-with-rvest.html#cb230-1" aria-hidden="true" tabindex="-1"></a>labels[[<span class="dv">2</span>]]</span></code></pre></div>
-<pre><code>## [1] &quot;\n                    SELECT FILE:  2020 PRIORITY BILLS\n\t\t                    &quot;</code></pre>
-<p>So we know can see there’s some garbage in there we want to clean out. We can use a new library called <code>stringr</code> to trim the excess spaces and <code>gsub</code> to strip the newline character: <code>\n</code>.</p>
-<div class="sourceCode" id="cb232"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb232-1"><a href="scraping-data-with-rvest.html#cb232-1" aria-hidden="true" tabindex="-1"></a>harderagenda[[<span class="dv">1</span>]] <span class="sc">%&gt;%</span> </span>
-<span id="cb232-2"><a href="scraping-data-with-rvest.html#cb232-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Document =</span> <span class="fu">gsub</span>(<span class="st">&quot;Currently or Pendingon Floor</span><span class="sc">\n</span><span class="st"> &quot;</span>,<span class="st">&quot;&quot;</span>,Document)) <span class="sc">%&gt;%</span></span>
-<span id="cb232-3"><a href="scraping-data-with-rvest.html#cb232-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Stage =</span> labels[[<span class="dv">2</span>]]) <span class="sc">%&gt;%</span></span>
-<span id="cb232-4"><a href="scraping-data-with-rvest.html#cb232-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Stage =</span> <span class="fu">gsub</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>,<span class="st">&quot;&quot;</span>,Stage)) <span class="sc">%&gt;%</span></span>
-<span id="cb232-5"><a href="scraping-data-with-rvest.html#cb232-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Stage =</span> <span class="fu">str_trim</span>(Stage, <span class="at">side =</span> <span class="st">&quot;both&quot;</span>))</span></code></pre></div>
-<pre><code>## # A tibble: 4 x 4
-##   Document                  Introducer Description                  Stage       
-##   &lt;chr&gt;                     &lt;chr&gt;      &lt;chr&gt;                        &lt;chr&gt;       
-## 1 &quot;                       … Kolterman  Define the required beginni… SELECT FILE…
-## 2 &quot;                       … Geist      Change and provide provisio… SELECT FILE…
-## 3 &quot;                       … Chambers   Change provisions relating … SELECT FILE…
-## 4 &quot;                       … Gragert    Provide for state park perm… SELECT FILE…</code></pre>
-<p>Now it’s just a matter grinding through the items in the list.</p>
-<p>NOTE: This is grossly inefficient and very manual. And, we’d have to change this for every day we want to scrape. As such, this is not the “right” way to do this. We’ll cover that in the next chapter.</p>
-<div class="sourceCode" id="cb234"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb234-1"><a href="scraping-data-with-rvest.html#cb234-1" aria-hidden="true" tabindex="-1"></a>harderagenda1 <span class="ot">&lt;-</span> harderagenda[[<span class="dv">1</span>]] <span class="sc">%&gt;%</span> </span>
-<span id="cb234-2"><a href="scraping-data-with-rvest.html#cb234-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Document =</span> <span class="fu">gsub</span>(<span class="st">&quot;Currently or Pendingon Floor</span><span class="sc">\n</span><span class="st"> &quot;</span>,<span class="st">&quot;&quot;</span>,Document)) <span class="sc">%&gt;%</span></span>
-<span id="cb234-3"><a href="scraping-data-with-rvest.html#cb234-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Stage =</span> labels[[<span class="dv">2</span>]]) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">Stage =</span> <span class="fu">gsub</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>,<span class="st">&quot;&quot;</span>,Stage)) <span class="sc">%&gt;%</span></span>
-<span id="cb234-4"><a href="scraping-data-with-rvest.html#cb234-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Stage =</span> <span class="fu">str_trim</span>(Stage, <span class="at">side =</span> <span class="st">&quot;both&quot;</span>))</span></code></pre></div>
-<div class="sourceCode" id="cb235"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb235-1"><a href="scraping-data-with-rvest.html#cb235-1" aria-hidden="true" tabindex="-1"></a>harderagenda2 <span class="ot">&lt;-</span> harderagenda[[<span class="dv">2</span>]] <span class="sc">%&gt;%</span> </span>
-<span id="cb235-2"><a href="scraping-data-with-rvest.html#cb235-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Document =</span> <span class="fu">gsub</span>(<span class="st">&quot;Currently or Pendingon Floor</span><span class="sc">\n</span><span class="st"> &quot;</span>,<span class="st">&quot;&quot;</span>,Document)) <span class="sc">%&gt;%</span></span>
-<span id="cb235-3"><a href="scraping-data-with-rvest.html#cb235-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Stage =</span> labels[[<span class="dv">3</span>]]) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">Stage =</span> <span class="fu">gsub</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>,<span class="st">&quot;&quot;</span>,Stage)) <span class="sc">%&gt;%</span></span>
-<span id="cb235-4"><a href="scraping-data-with-rvest.html#cb235-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Stage =</span> <span class="fu">str_trim</span>(Stage, <span class="at">side =</span> <span class="st">&quot;both&quot;</span>))</span></code></pre></div>
-<div class="sourceCode" id="cb236"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb236-1"><a href="scraping-data-with-rvest.html#cb236-1" aria-hidden="true" tabindex="-1"></a>harderagenda3 <span class="ot">&lt;-</span> harderagenda[[<span class="dv">3</span>]] <span class="sc">%&gt;%</span> </span>
-<span id="cb236-2"><a href="scraping-data-with-rvest.html#cb236-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Document =</span> <span class="fu">gsub</span>(<span class="st">&quot;Currently or Pendingon Floor</span><span class="sc">\n</span><span class="st"> &quot;</span>,<span class="st">&quot;&quot;</span>,Document)) <span class="sc">%&gt;%</span></span>
-<span id="cb236-3"><a href="scraping-data-with-rvest.html#cb236-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Stage =</span> labels[[<span class="dv">4</span>]]) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">Stage =</span> <span class="fu">gsub</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>,<span class="st">&quot;&quot;</span>,Stage)) <span class="sc">%&gt;%</span></span>
-<span id="cb236-4"><a href="scraping-data-with-rvest.html#cb236-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Stage =</span> <span class="fu">str_trim</span>(Stage, <span class="at">side =</span> <span class="st">&quot;both&quot;</span>))</span></code></pre></div>
-<div class="sourceCode" id="cb237"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb237-1"><a href="scraping-data-with-rvest.html#cb237-1" aria-hidden="true" tabindex="-1"></a>harderagenda4 <span class="ot">&lt;-</span> harderagenda[[<span class="dv">4</span>]] <span class="sc">%&gt;%</span> </span>
-<span id="cb237-2"><a href="scraping-data-with-rvest.html#cb237-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Document =</span> <span class="fu">gsub</span>(<span class="st">&quot;Currently or Pendingon Floor</span><span class="sc">\n</span><span class="st"> &quot;</span>,<span class="st">&quot;&quot;</span>,Document)) <span class="sc">%&gt;%</span></span>
-<span id="cb237-3"><a href="scraping-data-with-rvest.html#cb237-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Stage =</span> labels[[<span class="dv">5</span>]]) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">Stage =</span> <span class="fu">gsub</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>,<span class="st">&quot;&quot;</span>,Stage)) <span class="sc">%&gt;%</span></span>
-<span id="cb237-4"><a href="scraping-data-with-rvest.html#cb237-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Stage =</span> <span class="fu">str_trim</span>(Stage, <span class="at">side =</span> <span class="st">&quot;both&quot;</span>))</span></code></pre></div>
-<p>Now we merge:</p>
-<div class="sourceCode" id="cb238"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb238-1"><a href="scraping-data-with-rvest.html#cb238-1" aria-hidden="true" tabindex="-1"></a>largeragenda <span class="ot">&lt;-</span> <span class="fu">rbind</span>(harderagenda1, harderagenda2)</span>
-<span id="cb238-2"><a href="scraping-data-with-rvest.html#cb238-2" aria-hidden="true" tabindex="-1"></a>largeragenda <span class="ot">&lt;-</span> <span class="fu">rbind</span>(largeragenda, harderagenda3)</span>
-<span id="cb238-3"><a href="scraping-data-with-rvest.html#cb238-3" aria-hidden="true" tabindex="-1"></a>largeragenda <span class="ot">&lt;-</span> <span class="fu">rbind</span>(largeragenda, harderagenda4)</span></code></pre></div>
-<p>And now we have a dataset of all bills and what stage they’re at for that day.</p>
-<div class="sourceCode" id="cb239"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb239-1"><a href="scraping-data-with-rvest.html#cb239-1" aria-hidden="true" tabindex="-1"></a>largeragenda</span></code></pre></div>
-<pre><code>## # A tibble: 10 x 4
-##    Document             Introducer    Description             Stage             
-##    &lt;chr&gt;                &lt;chr&gt;         &lt;chr&gt;                   &lt;chr&gt;             
-##  1 &quot;                  … Kolterman     Define the required be… &quot;SELECT FILE:  20…
-##  2 &quot;                  … Geist         Change and provide pro… &quot;SELECT FILE:  20…
-##  3 &quot;                  … Chambers      Change provisions rela… &quot;SELECT FILE:  20…
-##  4 &quot;                  … Gragert       Provide for state park… &quot;SELECT FILE:  20…
-##  5 &quot;                  … Crawford      Change the Child Prote… &quot;GENERAL FILE: 20…
-##  6 &quot;                  … Lindstrom     Change provisions of t… &quot;GENERAL FILE: 20…
-##  7 &quot;                  … Quick         Change the Nebraska Mu… &quot;GENERAL FILE: 20…
-##  8 &quot;                  … Hunt          Adopt the Nebraska Fai… &quot;GENERAL FILE: 20…
-##  9 &quot;                  … Agriculture … Adopt the Animal Healt… &quot;GENERAL FILE: 20…
-## 10 &quot;                  … Howard        Congratulate Leona R. … &quot;LEGISLATIVE RESO…</code></pre>
+<div class="sourceCode" id="cb214"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb214-1"><a href="scraping-data-with-rvest.html#cb214-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb214-2"><a href="scraping-data-with-rvest.html#cb214-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(janitor)</span></code></pre></div>
+<p>For this example, we’re going to work on loading a simple table of data from the Bureau of Labor Statistics. This is a table of industry sectors (each with a two-digit NAICS code) that we could make use of in our analysis of PPP loan data.</p>
+<p>Recall that our PPP loan data has six-digit NAICS codes for each industry, which allows us to identify the industry for each loan. For example 212221 is the code for “Gold Mining Industry.”</p>
+<p>A six-digit NAICS code is the most specific. As we remove numbers from the right to create five-digit, four-digit, three-digit and two-digit codes, the industries they represent get broader. Here’s an example:</p>
+<ul>
+<li>212221 - Gold Mining Industry</li>
+<li>2122 - Metal Ore Mining Industry (which includes gold mining and things like silver mining, iron mining and copper mining)</li>
+<li>21 - Mining, Quarrying, and Oil and Gas Extraction Industry (which contains the metal mining industries mentioned above, but also oil drilling, coal mining and more).</li>
+</ul>
+<p>It might be useful to have a lookup table of those top-level, two-digit NAICS codes (also called sector codes) for our analysis, to help us answer questions about what specific top-level industries got loans. L</p>
+<p>Let’s suppose we can’t find a table like that for download, but we do see a version on the BLS website at this URL: <a href="https://www.bls.gov/ces/naics/">https://www.bls.gov/ces/naics/</a>.</p>
+<p><img src="images/rvest1.png" width="857" />
+We could get this table into R with the following manual steps: highlighting the text, copying it into Excel, saving it as a csv, and reading it into R.</p>
+<p>Or, we could write a few lines of webscraping code to have R do that for us!</p>
+<p>In this simple example, it’s probably faster to do it manually than have R do it for us. And this table is unlikely to change much in the future.</p>
+<p>Why would we ever write code to grab a single table? There’s several reasons:</p>
+<ol style="list-style-type: decimal">
+<li>Our methods are transparent. If a colleague wants to run our code from scratch to factcheck our work, they don’t need to repeat the manual steps, which are harder to document than writing code.</li>
+<li>Let’s suppose we wanted to grab the same table every day, to monitor for changes (like, say, a table on a health department website that has COVID case numbers that update every day). Writing a script once, and pressing a single button every day is going to be much more efficient than doing this manually every day.</li>
+<li>If we’re doing it manually, we’re more likely to make a mistake, like maybe failing to copy every row from the whole table.</li>
+<li>It’s good practice to prepare us to do more complex scraping jobs. As we’ll see in the next chapter, if we ever want to grab the same table from hundreds of pages, writing code is much faster and easier than going to a hundred different pages ourselves and downloading data.</li>
+</ol>
+<p>So, to scrape, the first thing we need to do is start with the URL. Let’s store it as an object called naics_url.</p>
+<div class="sourceCode" id="cb215"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb215-1"><a href="scraping-data-with-rvest.html#cb215-1" aria-hidden="true" tabindex="-1"></a>naics_url <span class="ot">&lt;-</span> <span class="st">&quot;https://www.bls.gov/ces/naics/&quot;</span></span></code></pre></div>
+<p>When we go to the web page, we can see a nicely-designed page that contains our information.</p>
+<p>But what we really care about, for our purposes, is the html code that creates that page.</p>
+<p>In our web browser, if we right-click anywhere on the page and select “view source” from the popup menu, we can see the source code. Or you can just copy this into Google Chrome: <a href="view-source:https://www.bls.gov/ces/naics/" class="uri">view-source:https://www.bls.gov/ces/naics/</a>.</p>
+<p>Here’s a picture of what some of the source code looks like.</p>
+<p><img src="images/rvest2.png" width="1125" />
+We’ll use those HTML tags – things like <code>&lt;div&gt;</code> and <code>&lt;a&gt;</code> and <code>&lt;table&gt;</code> – to grab the info we need.</p>
+<p>Okay, step 1.</p>
+<p>Let’s write a bit of code to tell R to go to the URL for the page and ingest all of that HTML code. In the code below, we’re starting with our URL and using the read_html() function from rvest to ingest all of the page html, storing it as an object called naics_industry.</p>
+<div class="sourceCode" id="cb216"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb216-1"><a href="scraping-data-with-rvest.html#cb216-1" aria-hidden="true" tabindex="-1"></a><span class="co"># read in the html </span></span>
+<span id="cb216-2"><a href="scraping-data-with-rvest.html#cb216-2" aria-hidden="true" tabindex="-1"></a>naics_industry <span class="ot">&lt;-</span> naics_url <span class="sc">%&gt;%</span></span>
+<span id="cb216-3"><a href="scraping-data-with-rvest.html#cb216-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read_html</span>() </span>
+<span id="cb216-4"><a href="scraping-data-with-rvest.html#cb216-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb216-5"><a href="scraping-data-with-rvest.html#cb216-5" aria-hidden="true" tabindex="-1"></a><span class="co"># display the html below</span></span>
+<span id="cb216-6"><a href="scraping-data-with-rvest.html#cb216-6" aria-hidden="true" tabindex="-1"></a>naics_industry</span></code></pre></div>
+<pre><code>## {html_document}
+## &lt;html lang=&quot;en-us&quot;&gt;
+## [1] &lt;head&gt;\n&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=UTF-8 ...
+## [2] &lt;body class=&quot;layout-fixed&quot;&gt;\n\t\t\t\t&lt;section aria-label=&quot;content&quot;&gt;&lt;!-- P ...</code></pre>
+<p>If you’re running this code in R Studio, in our environment window at right, you’ll see naics_industry as a “list of 2.”</p>
+<p>This is not a dataframe, it’s a different type of data structure a “nested list.”</p>
+<p>If we click on the name “naics_industry” in our environment window, we can see that it’s pulled in the html and shown us the general page structure. Nested within the <code>&lt;html&gt;</code> tag is the <code>&lt;head&gt;</code> and <code>&lt;body&gt;</code>, the two fundamental sections of most web pages. We’re going to pull information out of the <code>&lt;body&gt;</code> tag in a bit.</p>
+<p><img src="images/rvest3.png" width="374" /></p>
+<p>Now, our task is to just pull out the section of the html that contains the information we need.</p>
+<p>But which part do we need from that mess of html code? To figure that out, we can go back to the page in a web browser like chrome, and use built in developer tools to “inspect” the html code underlying the page.</p>
+<p>On the page, find the data we want to grab – “Table 2. NAICS Sectors” - and right click on the word “Sector” in the column header of the table. That will bring up a dropdown menu. Select “Inspect,” which will pop up a window called the “element inspector” that shows us where different elements on the page are located, what html tags created those elements, and other info.</p>
+<p><img src="images/rvest4.png" width="1211" /></p>
+<p>The entire table that we want of naics sectors is actually contained inside an html <code>&lt;table&gt;</code>. It has a header row <code>&lt;thead&gt;</code> that contains the column names and a <code>&lt;tbody&gt;</code> that contains one row <code>&lt;tr&gt;</code> per industry sector code.</p>
+<p>Because it’s inside of a table, and not some other kind of element (like a <code>&lt;div&gt;</code>), rvest has a special function for easily extracting and converting html tables, called html_table(). This function extracts all six html tables on the page, only one of which we actually want</p>
+<div class="sourceCode" id="cb218"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb218-1"><a href="scraping-data-with-rvest.html#cb218-1" aria-hidden="true" tabindex="-1"></a><span class="co"># read in the html and extract all the tables</span></span>
+<span id="cb218-2"><a href="scraping-data-with-rvest.html#cb218-2" aria-hidden="true" tabindex="-1"></a>naics_industry <span class="ot">&lt;-</span> naics_url <span class="sc">%&gt;%</span></span>
+<span id="cb218-3"><a href="scraping-data-with-rvest.html#cb218-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read_html</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb218-4"><a href="scraping-data-with-rvest.html#cb218-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_table</span>()</span>
+<span id="cb218-5"><a href="scraping-data-with-rvest.html#cb218-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb218-6"><a href="scraping-data-with-rvest.html#cb218-6" aria-hidden="true" tabindex="-1"></a><span class="co"># display the tables below</span></span>
+<span id="cb218-7"><a href="scraping-data-with-rvest.html#cb218-7" aria-hidden="true" tabindex="-1"></a>naics_industry</span></code></pre></div>
+<pre><code>## [[1]]
+## # A tibble: 4 x 3
+##   Conversion               `Reference Month Implemented` `Date Released` 
+##   &lt;chr&gt;                    &lt;chr&gt;                         &lt;chr&gt;           
+## 1 SIC to NAICS 2002        May 2003                      June 6, 2003    
+## 2 NAICS 2002 to NAICS 2007 January 2008                  February 1, 2008
+## 3 NAICS 2007 to NAICS 2012 January 2012                  February 3, 2012
+## 4 NAICS 2012 to NAICS 2017 January 2018                  February 2, 2018
+## 
+## [[2]]
+## # A tibble: 21 x 2
+##    Sector Description                                  
+##    &lt;chr&gt;  &lt;chr&gt;                                        
+##  1 11     Agriculture, Forestry, Fishing and Hunting   
+##  2 21     Mining, Quarrying, and Oil and Gas Extraction
+##  3 22     Utilities                                    
+##  4 23     Construction                                 
+##  5 31-33  Manufacturing                                
+##  6 42     Wholesale Trade                              
+##  7 44-45  Retail Trade                                 
+##  8 48-49  Transportation and Warehousing               
+##  9 51     Information                                  
+## 10 52     Finance and Insurance                        
+## # … with 11 more rows
+## 
+## [[3]]
+## # A tibble: 11 x 2
+##    Division                        Description                                  
+##    &lt;chr&gt;                           &lt;chr&gt;                                        
+##  1 A                               Agriculture, Forestry, And Fishing           
+##  2 B                               Mining                                       
+##  3 C                               Construction                                 
+##  4 D                               Manufacturing                                
+##  5 E                               Transportation, Communications, Electric, Ga…
+##  6 F                               Wholesale Trade                              
+##  7 G                               Retail Trade                                 
+##  8 H                               Finance, Insurance, And Real Estate          
+##  9 I                               Services                                     
+## 10 J                               Public Administration                        
+## 11 Source: www.osha.gov/pls/imis/… Source: www.osha.gov/pls/imis/sic_manual.html
+## 
+## [[4]]
+## # A tibble: 6 x 6
+##   SIC              SIC     SIC        NAICS          NAICS  NAICS   
+##   &lt;chr&gt;            &lt;chr&gt;   &lt;chr&gt;      &lt;chr&gt;          &lt;chr&gt;  &lt;chr&gt;   
+## 1 &quot;Level&quot;          &quot;Code1&quot; &quot;Example2&quot; Level          Code1  Example2
+## 2 &quot;Division&quot;       &quot;Alpha&quot; &quot;D&quot;        Sector         XX     31      
+## 3 &quot;Major Group&quot;    &quot;XX&quot;    &quot;20&quot;       Subsector      XXX    311     
+## 4 &quot;Industry Group&quot; &quot;XXX&quot;   &quot;203&quot;      Industry Group XXXX   3114    
+## 5 &quot;Industry&quot;       &quot;XXXX&quot;  &quot;2037&quot;     NAICS Industry XXXXX  31141   
+## 6 &quot;&quot;               &quot;&quot;      &quot;&quot;         U.S. Industry  XXXXXX 311411  
+## 
+## [[5]]
+## # A tibble: 4 x 4
+##   Positions `Example Value` `Field Name`             `All Possible Values`    
+##   &lt;chr&gt;     &lt;chr&gt;           &lt;chr&gt;                    &lt;chr&gt;                    
+## 1 1-2       CE              Survey Abbreviation      CE                       
+## 2 3         U               Seasonal Adjustment Code S,U                      
+## 3 4-11      31335311        Industry Code            00000000 through 90932999
+## 4 12-13     01              Data Type Code           01 through 99            
+## 
+## [[6]]
+## # A tibble: 4 x 4
+##   Positions `Example Value` `Field Name`             `All Possible Values`
+##   &lt;chr&gt;     &lt;chr&gt;           &lt;chr&gt;                    &lt;chr&gt;                
+## 1 1-2       EE              Survey Abbreviation      EE                   
+## 2 3         S               Seasonal Adjustment Code S,U                  
+## 3 4-9       000000          Industry Code            000000 through 959000
+## 4 10-11     01              Data Type Code           01 through 83</code></pre>
+<p>In the environment window at right, look at naics_industry. Note that it’s now a “list of 6.”</p>
+<p>Click on it to open it up. It should look like this.</p>
+<p><img src="images/rvest5.png" width="798" />
+This gets a little complicated, but what you’re seeing here is a nested list that contains six different data frames – also called tibbles – one for each table that exists on the web page we scraped.</p>
+<p>They’re numbered 1 to 6. The first 1 has 4 rows and 3 columns, the second has 21 rows and 2 columns, and so on.</p>
+<p>To examine what’s in each dataframe, mouse over the right edge (next to the word columns) on each row, and click the little scroll icon. The icon will be hidden until you mouse over it.</p>
+<p>Click on the scroll icon for the first dataframe examine it.</p>
+<p><img src="images/rvest6.png" width="606" /></p>
+<p>That’s not the one we want!</p>
+<p>Let’s try clicking on the scroll icon for row 2.</p>
+<p><img src="images/rvest7.png" width="847" /></p>
+<p>That’s more like it! So, all we need to do now is to store that single dataframe as an object, and get rid of the rest. We can do that with this code, which says "keep only the second dataframe from our nested list. If we wanted to keep the third one, we’d change the number 2 to number 3.</p>
+<div class="sourceCode" id="cb220"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb220-1"><a href="scraping-data-with-rvest.html#cb220-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Read in all html from table, store all tables on page as nested list of dataframes.</span></span>
+<span id="cb220-2"><a href="scraping-data-with-rvest.html#cb220-2" aria-hidden="true" tabindex="-1"></a>naics_industry  <span class="ot">&lt;-</span> naics_url <span class="sc">%&gt;%</span></span>
+<span id="cb220-3"><a href="scraping-data-with-rvest.html#cb220-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read_html</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb220-4"><a href="scraping-data-with-rvest.html#cb220-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_table</span>()</span>
+<span id="cb220-5"><a href="scraping-data-with-rvest.html#cb220-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb220-6"><a href="scraping-data-with-rvest.html#cb220-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Just keep the second dataframe in our list</span></span>
+<span id="cb220-7"><a href="scraping-data-with-rvest.html#cb220-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb220-8"><a href="scraping-data-with-rvest.html#cb220-8" aria-hidden="true" tabindex="-1"></a>naics_industry <span class="ot">&lt;-</span> naics_industry[[<span class="dv">2</span>]]</span>
+<span id="cb220-9"><a href="scraping-data-with-rvest.html#cb220-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb220-10"><a href="scraping-data-with-rvest.html#cb220-10" aria-hidden="true" tabindex="-1"></a><span class="co"># show the dataframe</span></span>
+<span id="cb220-11"><a href="scraping-data-with-rvest.html#cb220-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb220-12"><a href="scraping-data-with-rvest.html#cb220-12" aria-hidden="true" tabindex="-1"></a>naics_industry</span></code></pre></div>
+<pre><code>## # A tibble: 21 x 2
+##    Sector Description                                  
+##    &lt;chr&gt;  &lt;chr&gt;                                        
+##  1 11     Agriculture, Forestry, Fishing and Hunting   
+##  2 21     Mining, Quarrying, and Oil and Gas Extraction
+##  3 22     Utilities                                    
+##  4 23     Construction                                 
+##  5 31-33  Manufacturing                                
+##  6 42     Wholesale Trade                              
+##  7 44-45  Retail Trade                                 
+##  8 48-49  Transportation and Warehousing               
+##  9 51     Information                                  
+## 10 52     Finance and Insurance                        
+## # … with 11 more rows</code></pre>
+<p>We now have a proper dataframe.</p>
+<p>From here, we can do a little light cleaning. Let’s use clean_names() to standardize the column names. Then let’s use slice() to remove the last row – row number 21 – which contains source information that will complicate our use of this table later.</p>
+<div class="sourceCode" id="cb222"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb222-1"><a href="scraping-data-with-rvest.html#cb222-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Read in all html from table, store all tables on page as nested list of dataframes.</span></span>
+<span id="cb222-2"><a href="scraping-data-with-rvest.html#cb222-2" aria-hidden="true" tabindex="-1"></a>naics_industry <span class="ot">&lt;-</span> naics_url <span class="sc">%&gt;%</span></span>
+<span id="cb222-3"><a href="scraping-data-with-rvest.html#cb222-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read_html</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb222-4"><a href="scraping-data-with-rvest.html#cb222-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_table</span>()</span>
+<span id="cb222-5"><a href="scraping-data-with-rvest.html#cb222-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb222-6"><a href="scraping-data-with-rvest.html#cb222-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Just keep the second dataframe in our list, standardize column headers, remove last row</span></span>
+<span id="cb222-7"><a href="scraping-data-with-rvest.html#cb222-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb222-8"><a href="scraping-data-with-rvest.html#cb222-8" aria-hidden="true" tabindex="-1"></a>naics_industry <span class="ot">&lt;-</span> naics_industry[[<span class="dv">2</span>]] <span class="sc">%&gt;%</span></span>
+<span id="cb222-9"><a href="scraping-data-with-rvest.html#cb222-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">clean_names</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb222-10"><a href="scraping-data-with-rvest.html#cb222-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice</span>(<span class="sc">-</span><span class="dv">21</span>)</span>
+<span id="cb222-11"><a href="scraping-data-with-rvest.html#cb222-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb222-12"><a href="scraping-data-with-rvest.html#cb222-12" aria-hidden="true" tabindex="-1"></a><span class="co"># show the dataframe</span></span>
+<span id="cb222-13"><a href="scraping-data-with-rvest.html#cb222-13" aria-hidden="true" tabindex="-1"></a>naics_industry</span></code></pre></div>
+<pre><code>## # A tibble: 20 x 2
+##    sector description                                                           
+##    &lt;chr&gt;  &lt;chr&gt;                                                                 
+##  1 11     Agriculture, Forestry, Fishing and Hunting                            
+##  2 21     Mining, Quarrying, and Oil and Gas Extraction                         
+##  3 22     Utilities                                                             
+##  4 23     Construction                                                          
+##  5 31-33  Manufacturing                                                         
+##  6 42     Wholesale Trade                                                       
+##  7 44-45  Retail Trade                                                          
+##  8 48-49  Transportation and Warehousing                                        
+##  9 51     Information                                                           
+## 10 52     Finance and Insurance                                                 
+## 11 53     Real Estate and Rental and Leasing                                    
+## 12 54     Professional, Scientific, and Technical Services                      
+## 13 55     Management of Companies and Enterprises                               
+## 14 56     Administrative and Support and Waste Management and Remediation Servi…
+## 15 61     Educational Services                                                  
+## 16 62     Health Care and Social Assistance                                     
+## 17 71     Arts, Entertainment, and Recreation                                   
+## 18 72     Accommodation and Food Services                                       
+## 19 81     Other Services (except Public Administration)                         
+## 20 92     Public Administration</code></pre>
+<p>And there we go. We now have a nice tidy dataframe of NAICS sector codes.</p>
+<p>In the next chapter, we’ll look at a more complicated example.</p>
 
-</div>
 </div>
             </section>
 
