@@ -24,7 +24,7 @@
 <meta name="author" content="Matt Waite (original author); updated by Derek Willis and Sean Mussenden" />
 
 
-<meta name="date" content="2021-09-24" />
+<meta name="date" content="2021-10-07" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -233,11 +233,12 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="14.1" data-path="combining-and-joining.html"><a href="combining-and-joining.html#combining-data-stacking"><i class="fa fa-check"></i><b>14.1</b> Combining data (stacking)</a></li>
 <li class="chapter" data-level="14.2" data-path="combining-and-joining.html"><a href="combining-and-joining.html#joining-data"><i class="fa fa-check"></i><b>14.2</b> Joining data</a></li>
 </ul></li>
-<li class="chapter" data-level="15" data-path="scraping-data-with-rvest.html"><a href="scraping-data-with-rvest.html"><i class="fa fa-check"></i><b>15</b> Scraping data with Rvest</a>
+<li class="chapter" data-level="15" data-path="scraping-data-with-rvest.html"><a href="scraping-data-with-rvest.html"><i class="fa fa-check"></i><b>15</b> Scraping data with Rvest</a></li>
+<li class="chapter" data-level="16" data-path="advanced-rvest.html"><a href="advanced-rvest.html"><i class="fa fa-check"></i><b>16</b> Advanced rvest</a>
 <ul>
-<li class="chapter" data-level="15.1" data-path="scraping-data-with-rvest.html"><a href="scraping-data-with-rvest.html#a-more-difficult-example"><i class="fa fa-check"></i><b>15.1</b> A more difficult example</a></li>
+<li class="chapter" data-level="16.1" data-path="advanced-rvest.html"><a href="advanced-rvest.html#using-for-loops"><i class="fa fa-check"></i><b>16.1</b> Using for loops</a></li>
+<li class="chapter" data-level="16.2" data-path="advanced-rvest.html"><a href="advanced-rvest.html#looping-and-rvest"><i class="fa fa-check"></i><b>16.2</b> Looping and rvest</a></li>
 </ul></li>
-<li class="chapter" data-level="16" data-path="advanced-rvest.html"><a href="advanced-rvest.html"><i class="fa fa-check"></i><b>16</b> Advanced rvest</a></li>
 <li class="chapter" data-level="17" data-path="intro-to-apis-the-census.html"><a href="intro-to-apis-the-census.html"><i class="fa fa-check"></i><b>17</b> Intro to APIs: The Census</a>
 <ul>
 <li class="chapter" data-level="17.1" data-path="intro-to-apis-the-census.html"><a href="intro-to-apis-the-census.html#the-acs"><i class="fa fa-check"></i><b>17.1</b> The ACS</a></li>
@@ -329,15 +330,15 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>But simple stuff – and even some slightly complicated stuff – can be done with tools made for people who aren’t data viz pros.</p>
 <p>The tool we’re going to use is called <a href="https://www.datawrapper.de/">Datawrapper</a>.</p>
 <p>First, let’s get some data and work with it. Let’s use a cleaned-up version of 2021 PPP loan totals by type of lender. Let’s look at it.</p>
-<div class="sourceCode" id="cb294"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb294-1"><a href="visualizing-your-data-for-publication.html#cb294-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code></pre></div>
-<div class="sourceCode" id="cb295"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb295-1"><a href="visualizing-your-data-for-publication.html#cb295-1" aria-hidden="true" tabindex="-1"></a>lender_types <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;data/lender_totals_2021.csv&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb342"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb342-1"><a href="visualizing-your-data-for-publication.html#cb342-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code></pre></div>
+<div class="sourceCode" id="cb343"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb343-1"><a href="visualizing-your-data-for-publication.html#cb343-1" aria-hidden="true" tabindex="-1"></a>lender_types <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;data/lender_totals_2021.csv&quot;</span>)</span></code></pre></div>
 <pre><code>## 
 ## ── Column specification ────────────────────────────────────────────────────────
 ## cols(
 ##   type = col_character(),
 ##   net_dollars = col_double()
 ## )</code></pre>
-<div class="sourceCode" id="cb297"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb297-1"><a href="visualizing-your-data-for-publication.html#cb297-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(lender_types)</span></code></pre></div>
+<div class="sourceCode" id="cb345"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb345-1"><a href="visualizing-your-data-for-publication.html#cb345-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(lender_types)</span></code></pre></div>
 <pre><code>## # A tibble: 6 x 2
 ##   type                                  net_dollars
 ##   &lt;chr&gt;                                       &lt;dbl&gt;
