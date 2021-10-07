@@ -82,3 +82,22 @@ knitr::include_graphics(rep("images/ppp_datawrapper7.png"))
 ```
 
 Some publication systems allow for the embedding of HTML into a post or a story. Some don't. The only way to know is to ask someone at your publication. Every publication system on the planet, though, can publish an image. So there's always a way to export your chart as a PNG file, which you can upload like any photo.
+
+### Task 8: Make a Simple Map
+
+Let's create a choropleth map - one that shows variations between the total number of approved PPP applications across Maryland counties. First, we'll need to generate that data using our collection of Maryland PPP loans.
+
+**Task** Run the following code to load the Maryland PPP loans data.
+
+```{r}
+maryland_ppp <- read_rds("pre_lab_10.rds")
+```
+
+**Task** Next, we'll create a dataframe that has county (jurisdiction) level counts of approved applications. Run the following code to do that. There are some mistakes in the data, so we're going to remove those with a filter after doing the counting:
+
+```{r}
+md_counties <- maryland_ppp %>%
+    group_by(project_county_name) %>%
+    summarise(count=n()) %>%
+    filter(count > 6) # just dropping some non-MD counties that have an incorrect state value
+```
