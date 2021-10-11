@@ -440,9 +440,9 @@ employment_info
 
 Now we have a proper dataframe of 6 rows and 6 columns.  
 
-It has much more information than we need, so let's clean it up to isolate only the "Employment, all employees (seasonally adjusted)" value for May 2021.
+It has much more information than we need, so let's clean it up to isolate only the "Employment, all employees (seasonally adjusted)" value for June 2021.
 
-Use clean_names() to standardize the column names, use slice() to keep only the second row, and use select() to keep two columns data_series and may2021.
+Use clean_names() to standardize the column names, use slice() to keep only the second row, and use select() to keep two columns data_series and jun_2021.
 
 ### Task 11: Run code to keep row 2 and light cleaning
 **Task** Run the following code to keep row 2 and light cleaning. Briefly describe the output that appears below the codeblock.
@@ -953,7 +953,7 @@ for(row_number in 1:nrow(naics_industry)) {
 
 }
 ```
-We now have 19 dataframes, each containing one row each and two columns, one of which is the employment number for a given sector for may2021. But we're missing information about what industry sector these employment numbers represent.
+We now have 19 dataframes, each containing one row each and two columns, one of which is the employment number for a given sector for jun_2021. But we're missing information about what industry sector these employment numbers represent.
 
 We can add that back in by using bind_cols() to reconnect the each_row_df, which contains the sector code and the sector name.
 
@@ -997,7 +997,7 @@ for(row_number in 1:nrow(naics_industry)) {
 ```
 Then we'll do a little bit of cleaning.
 
-Let's use parse_number() to remove the comma from the may2021 number and convert it from a character to number. We'll use rename() to make the may2021 column name a little more descriptive. And then we'll use select() to keep only the columns we want to keep -- the sector number, the sector name, and the may 2021 employment number.
+Let's use parse_number() to remove the comma from the jun_2021 number and convert it from a character to number. We'll use rename() to make the jun_2021 column name a little more descriptive. And then we'll use select() to keep only the columns we want to keep -- the sector number, the sector name, and the jun_2021 employment number.
 
 ### Task 34: Run code to run for loop to clean up tables
 **Task** Run the following for loop to clean up tables. Briefly describe the output that appears below the codeblock.
