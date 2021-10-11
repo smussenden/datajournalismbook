@@ -328,9 +328,9 @@ We can find it here: [https://www.bls.gov/iag/tgs/iag22.htm](https://www.bls.gov
 
 A few scrolls down the page, there's a table that has employee statistics.  
 
-The table is called "Employment and Unemployment". There's a row in the tabled for "Employment, all employees (seasonally adjusted)".  And in that row, there's a value for the number of employees -- in thousands -- in May 2021.  
+The table is called "Employment and Unemployment". There's a row in the tabled for "Employment, all employees (seasonally adjusted)".  And in that row, there's a value for the number of employees -- in thousands -- in June 2021.  
 
-The table shows that for the mining sector, it was 539.3  -- or 593,300 -- in May 2021.  That's the value we want to ingest in R.
+The table shows that for the mining sector, it was 538.6  -- or 538,600 -- in June 2021.  That's the value we want to ingest in R. 
 
 ### Task 5: Load image
 **Task** Run the following code to display an image showing what you should see on the web page.
@@ -1024,7 +1024,7 @@ for(row_number in 1:nrow(naics_industry)) {
       html_elements(xpath = xpath_employment_table) %>%
       html_table()
 
-    # Grab the dataframe out of the list (it's the first and only element inside the list); clean up the field names with clean_names(); use slice(2) to keep only the second row; use bind_cols() to append the sector code and name to this table; turn may2021 column into a proper number, and rename it.  Then select only three columns we need.
+    # Grab the dataframe out of the list (it's the first and only element inside the list); clean up the field names with clean_names(); use slice(2) to keep only the second row; use bind_cols() to append the sector code and name to this table; turn jun_2021 column into a proper number, and rename it.  Then select only three columns we need.
     employment_info <- employment_info[[1]] %>%
       clean_names() %>%
       slice(2) %>%
@@ -1080,7 +1080,7 @@ for(row_number in 1:nrow(naics_industry)) {
       html_elements(xpath = xpath_employment_table) %>%
       html_table()
 
-    # Grab the dataframe out of the list (it's the first and only element inside the list); clean up the field names with clean_names(); use slice(2) to keep only the second row; use bind_cols() to append the sector code and name to this table; turn may2021 column into a proper number, and rename it.  Then select only three columns we need.
+    # Grab the dataframe out of the list (it's the first and only element inside the list); clean up the field names with clean_names(); use slice(2) to keep only the second row; use bind_cols() to append the sector code and name to this table; turn jun_2021 column into a proper number, and rename it.  Then select only three columns we need.
     employment_info <- employment_info[[1]] %>%
       clean_names() %>%
       slice(2) %>%
