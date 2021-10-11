@@ -61,9 +61,9 @@ We can find it here: [https://www.bls.gov/iag/tgs/iag22.htm](https://www.bls.gov
 
 A few scrolls down the page, there's a table that has employee statistics.  
 
-The table is called "Employment and Unemployment". There's a row in the tabled for "Employment, all employees (seasonally adjusted)".  And in that row, there's a value for the number of employees -- in thousands -- in May 2021.  
+The table is called "Employment and Unemployment". There's a row in the tabled for "Employment, all employees (seasonally adjusted)".  And in that row, there's a value for the number of employees -- in thousands -- in June 2021.  
 
-The table shows that for the mining sector, it was 539.3  -- or 593,300 -- in May 2021.  That's the value we want to ingest in R. 
+The table shows that for the mining sector, it was 538.6  -- or 538,600 -- in June 2021.  That's the value we want to ingest in R. 
 
 ```{r, echo=FALSE}
 knitr::include_graphics(rep("images/advrvest1.png"))
@@ -113,7 +113,6 @@ knitr::include_graphics(rep("images/advrvest2.png"))
 Recall that in the last chapter, when we used the html_table() function, it pulled in every single table on the page, six in total.  
 
 Here, we can use that id property to pick out just the table we want, and leave all the others behind. 
-
 We do that with a new function from rvest called html_element(), employing a bit of information about that element stored in what's called the  [xpath](https://en.wikipedia.org/wiki/XPath). Xpath is a query language that helps us write programs that target specific parts of web pages.  
 
 The syntax is a little unwieldy, I know. 
@@ -155,9 +154,9 @@ employment_info
 
 Now we have a proper dataframe of 6 rows and 6 columns.  
 
-It has much more information than we need, so let's clean it up to isolate only the "Employment, all employees (seasonally adjusted)" value for May 2021. 
+It has much more information than we need, so let's clean it up to isolate only the "Employment, all employees (seasonally adjusted)" value for June 2021. 
 
-Use clean_names() to standardize the column names, use slice() to keep only the second row, and use select() to keep two columns data_series and may2021. 
+Use clean_names() to standardize the column names, use slice() to keep only the second row, and use select() to keep two columns data_series and jun_2021. 
 
 ```{r}
 
@@ -174,7 +173,7 @@ employment_info <- url %>%
 employment_info <- employment_info %>%
   clean_names() %>%
   slice(2) %>%
-  select(data_series, may2021)
+  select(data_series, jun_2021)
 
 # Display it so we can see what it looks like
 employment_info
@@ -373,7 +372,7 @@ employment_info <- url %>%
 employment_info <- employment_info %>%
   clean_names() %>%
   slice(2) %>%
-  select(data_series, may2021)
+  select(data_series, jun_2021)
 
 # Display it so we can see what it looks like
 employment_info
@@ -588,7 +587,7 @@ for(row_number in 1:nrow(naics_industry)) {
       
 }
 ```
-We now have 19 dataframes, each containing one row each and two columns, one of which is the employment number for a given sector for may2021. But we're missing information about what industry sector these employment numbers represent. 
+We now have 19 dataframes, each containing one row each and two columns, one of which is the employment number for a given sector for jun_2021. But we're missing information about what industry sector these employment numbers represent. 
 
 We can add that back in by using bind_cols() to reconnect the each_row_df, which contains the sector code and the sector name.   
 ```{r}
@@ -627,7 +626,7 @@ for(row_number in 1:nrow(naics_industry)) {
 ```
 Then we'll do a little bit of cleaning. 
 
-Let's use parse_number() to remove the comma from the may2021 number and convert it from a character to number. We'll use rename() to make the may2021 column name a little more descriptive. And then we'll use select() to keep only the columns we want to keep -- the sector number, the sector name, and the may 2021 employment number.
+Let's use parse_number() to remove the comma from the jun_2021 number and convert it from a character to number. We'll use rename() to make the jun_2021 column name a little more descriptive. And then we'll use select() to keep only the columns we want to keep -- the sector number, the sector name, and the jun_2021 employment number.
 
 ```{r}
 
@@ -650,14 +649,14 @@ for(row_number in 1:nrow(naics_industry)) {
       html_elements(xpath = xpath_employment_table) %>%
       html_table() 
     
-    # Grab the dataframe out of the list (it's the first and only element inside the list); clean up the field names with clean_names(); use slice(2) to keep only the second row; use bind_cols() to append the sector code and name to this table; turn may2021 column into a proper number, and rename it.  Then select only three columns we need. 
+    # Grab the dataframe out of the list (it's the first and only element inside the list); clean up the field names with clean_names(); use slice(2) to keep only the second row; use bind_cols() to append the sector code and name to this table; turn jun_2021 column into a proper number, and rename it.  Then select only three columns we need. 
     employment_info <- employment_info[[1]] %>%
       clean_names() %>%
       slice(2) %>% 
       bind_cols(each_row_df) %>%
-      mutate(may2021 = parse_number(may2021)) %>%
-      rename(may_2021_employees = may2021) %>%
-      select(sector,description,may_2021_employees) 
+      mutate(jun_2021 = parse_number(jun_2021)) %>%
+      rename(jun_2021_employees = jun_2021) %>%
+      select(sector,description,jun_2021_employees) 
     
     # To help us see what's happening as we build this, we're going to print the thing we're creating.  
     print(employment_info)
@@ -702,14 +701,14 @@ for(row_number in 1:nrow(naics_industry)) {
       html_elements(xpath = xpath_employment_table) %>%
       html_table() 
     
-    # Grab the dataframe out of the list (it's the first and only element inside the list); clean up the field names with clean_names(); use slice(2) to keep only the second row; use bind_cols() to append the sector code and name to this table; turn may2021 column into a proper number, and rename it.  Then select only three columns we need. 
+    # Grab the dataframe out of the list (it's the first and only element inside the list); clean up the field names with clean_names(); use slice(2) to keep only the second row; use bind_cols() to append the sector code and name to this table; turn jun_2021 column into a proper number, and rename it.  Then select only three columns we need. 
     employment_info <- employment_info[[1]] %>%
       clean_names() %>%
       slice(2) %>% 
       bind_cols(each_row_df) %>%
-      mutate(may2021 = parse_number(may2021)) %>%
-      rename(may_2021_employees = may2021) %>%
-      select(sector,description,may_2021_employees) 
+      mutate(jun_2021 = parse_number(jun_2021)) %>%
+      rename(jun_2021_employees = jun_2021) %>%
+      select(sector,description,jun_2021_employees) 
     
     # Bind each individual employment info table to our employment_by_sector_all dataframe
     employment_by_sector_all <- employment_by_sector_all %>%
@@ -721,7 +720,7 @@ for(row_number in 1:nrow(naics_industry)) {
 employment_by_sector_all
 ```
 
-Ta da! The end result is a nice tidy dataframe with the number of employees in May 2021 for each sector. 
+Ta da! The end result is a nice tidy dataframe with the number of employees in June 2021 for each sector. 
 
 It's always a good idea to spot check the results, especially any values that look suspciously high or low. 
 
@@ -746,7 +745,7 @@ In the second row of this table, it has the unemployment rate. Nowhere on the pa
 ```{r}
 # remove the suspicious value for agriculture. 
 employment_by_sector_all <- employment_by_sector_all %>%
-  mutate(may_2021_employees = na_if(may_2021_employees,8.4))
+  mutate(jun_2021_employees = na_if(jun_2021_employees,7.5))
 
 # display it
 employment_by_sector_all
