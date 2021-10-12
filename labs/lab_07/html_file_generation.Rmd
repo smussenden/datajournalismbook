@@ -1,0 +1,45 @@
+---
+title: "state_html_files"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+# Define API Key
+
+library(tidycensus)
+library(rvest)
+library(tidyverse)
+library(janitor)
+library(kableExtra)
+census_api_key("549950d36c22ff16455fe196bbbd01d63cfbe6cf")
+population_state<- get_acs(geography="state", variables=c("B01001_001"),geometry = FALSE, year=2019) %>%
+  clean_names() %>%
+  select(state = name,
+         population=estimate) 
+
+
+ppp_totals_by_state_url <- "https://projects.propublica.org/coronavirus/bailouts/"
+
+ppp_totals_by_state <- ppp_totals_by_state_url %>%
+  read_html() %>%
+  html_table()
+
+ppp_totals_by_state <- ppp_totals_by_state[[1]] %>%
+  clean_names() %>%
+  mutate(total_ppp_loans=parse_number(total)) %>%
+  select(state,total_ppp_loans) %>%
+  inner_join(population_state)
+  
+
+kbl(ppp_totals_by_state) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"))
+
+
+```
