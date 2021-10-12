@@ -1,6 +1,6 @@
 ---
-title: "lab_06"
-author: "derek willis"
+title: "lab_07"
+author: "sean mussenden"
 date: "8/25/2021"
 output: html_document
 ---
@@ -9,50 +9,83 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## You will need
+## About this lab
 
-* Tabula
+To complete this lab, you need to:
+* write code in empty codeblocks provided to answer questions included (look for **Q**).
+* write out the answer in the form of a complete sentence in the space given (look for **A**).
+
+When you are finished, commit changes and push to your personal GitHub repo, then submit the URL to this document on ELMS.
 
 ## Load libraries and establish settings
+**Task**: Load rvest, janitor and the tidyverse
 ```{r}
 # Turn off scientific notation
 options(scipen=999)
 
-# Load the tidyverse.
-library(tidyverse)
-```
-
-
-```{r}
-
+# Load the tidyverse,rvest,janitor
 library(rvest)
 library(tidyverse)
 library(janitor)
 ```
 
+
+Q1. How many individual cases has the U.S. Department of Justice filed against people accused of fraud related to the PPP or EIDL loan program, according to the DOJ website listing those cases: https://www.justice.gov/criminal-fraud/cares-act-fraud?  An example of one case that appears on this page is "U.S. v. Richard Ayvazyan et al". To answer this question, you will need to use rvest scrape the data on this single webpage into a dataframe that lists only case names. Hint: you will need to make use of html_elements() and html_text() -- a function that extracts text inside of an html tag -- for this.
+A1. 89.
+
 ```{r}
+# Define URL
 doj_url <- "https://www.justice.gov/criminal-fraud/cares-act-fraud"
 
-# Get employment html
+# Get html of page, extract all elements that are a bold tag nested inside of an li tag nested inside a ul tag.  Extract the text, turn it into a dataframe, then count the number of rows.  
 cases <- doj_url %>%
   read_html()  %>%
   html_elements('ul li b') %>%
   html_text() %>%
-  as_tibble() %>%
-  rename(cases = value) %>%
-  mutate(cases = str_remove_all(cases,"U.S. v|\\.")) %>%
-  mutate(cases = str_trim(cases,side="both"))
-  
+  as_tibble() 
 
-# Display it so we can see what it looks like
-cases
+# Count cases
+cases %>%
+  summarise(
+    count_cases=n()
+  )
 ```
 
+Q2. In how many individual judicial districts has the U.S. Department of Justice filed cases against people accused of fraud related to the PPP or EIDL loan program, according to the DOJ website listing those cases: https://www.justice.gov/criminal-fraud/cares-act-fraud?  Note: an example of a judicial district is "Southern District of Florida". You will need to use rvest scrape the data on this single webpage into a dataframe.
+A2. 28.
+
 ```{r}
+# Define URL
 doj_url <- "https://www.justice.gov/criminal-fraud/cares-act-fraud"
 
-# Get employment html
-cases <- doj_url %>%
+# Get html of page, extract all elements that are in a p tag.  Extract the text, turn it into a dataframe, keep only rows 14 and up, then count the number of rows.  
+case_districts <- doj_url %>%
+  read_html()  %>%
+  html_elements('p') %>%
+  html_text() %>%
+  as_tibble() %>%
+  slice(14:41) 
+
+# Count districts
+case_districts %>%
+  summarise(
+    count_districts=n()
+  )
+```
+
+Q4. The website (https://www.justice.gov/criminal-fraud/cares-act-fraud) shows that the DOJ filed more cases in the Southern District of Florida than in any other district. One of those cases was filed against someone named "Diamond Blue Smith". Who is Smith, and what was he accused of, according to the criminal complaint? If you were an editor, would you have assigned a reporter to write a story about this case when the complaint was filed in court? Why or why not?
+A4. Prosecuetors allege that Smith, a rapper, allegedly used falsified documents to obtain a PPP loan, using some of the proceeds to buy a Ferrari, and to helping many others obtain fraudulent loans.  
+
+Q5. In what percentage of all judicial districts has the U.S. Department of Justice filed cases cases against people accused of fraud related to the PPP or EIDL loan program, according to the DOJ website listing those cases: https://www.justice.gov/criminal-fraud/cares-act-fraud? In answering this question, you should also produce a list of judicial districts where DOJ has NOT filed a case, according to this site.  Note: to answer this question, you will need to scrape a table of all district courts on this up-to-date Wikipedia page under the heading "Active Courts": https://en.wikipedia.org/wiki/List_of_United_States_district_and_territorial_courts  
+A5. 29.8 percent
+
+
+```{r}
+# Define URL of DOJ site
+doj_url <- "https://www.justice.gov/criminal-fraud/cares-act-fraud"
+
+# Get html of page, extract all elements that are in a p tag.  Extract the text, turn it into a dataframe, keep only rows 14 and up, change name of value column to districts, clean whitespace that will prevent a proper join, create a column indicating that anything on this is a cares act district.
+case_districts <- doj_url %>%
   read_html()  %>%
   html_elements('p') %>%
   html_text() %>%
@@ -60,242 +93,84 @@ cases <- doj_url %>%
   slice(14:41) %>%
   rename(districts = value) %>%
   mutate(districts = str_trim(districts,side="both")) %>%
-  mutate(cares_act_cases = "yes")
-  
+  mutate(cares_act_district = "yes")
 
-# Display it so we can see what it looks like
-cases
-```
-
-```{r}
+# Define Wiki district courts URL
 wiki_url <- "https://en.wikipedia.org/wiki/List_of_United_States_district_and_territorial_courts"
 
-# Get employment html
-courts <- wiki_url %>%
+# Get html from wiki page, extract all html tables into nested list of dataframes
+all_districts <- wiki_url %>%
   read_html()  %>%
   html_table() 
 
-# 
-courts <- courts[[3]] %>%
+# Keep the third table, clean names
+all_districts <- all_districts[[3]] %>%
   clean_names()
-  
-x <- courts %>%
-  left_join(cases, by=c("region"="districts")) %>%
-  mutate(cares_act_cases = case_when(
-    is.na(cares_act_cases) ~ "no",
-    TRUE ~ cares_act_cases
+
+# Join case_districts to all districts, populate non-cares act districts with no, group and count by cares act district column, create a column with total districts, then calculate percentage. 
+
+all_districts_count <- all_districts %>%
+  left_join(case_districts, by=c("region"="districts")) %>%
+  mutate(cares_act_district = case_when(
+    is.na(cares_act_district) ~ "no",
+    TRUE ~ cares_act_district
   )) %>%
-  group_by(cares_act_cases) %>%
-  count()
+  group_by(cares_act_district) %>%
+  summarise(
+    count=n()
+  ) %>%
+  mutate(total_districts = sum(count)) %>%
+  mutate(pct_districts = count/total_districts*100)
 
-
-# Display it so we can see what it looks like
-x
+# Display count
+all_districts_count
 ```
-Examine charging documents
-Describe
+Q6. What might explain why, according to this site, the DOJ has filed PPP-related fraud cases in less than half of the country's judicial districts? 
+A6. The DOJ press website could be wrong; it could have missed related cases filed in other districts. It also only lists "publicly charged" cases; there may be additional cases filed later that are currently under investigation. There could be less fraud happening in districts where no cases were filed. The U.S. Attorney in charge of bringing cases in a judicial district that has no cases may have other priorities.  
 
+Q7. Which state had the most approved PPP loans per 100,000 population? [This web page](https://smussenden.github.io/coursefiles/ppp_scraping_example/index.html) has links to 52 individual web pages, one for each state (plus Washington, D.C. and Puerto Rico). Each of those web pages contains a one-row html table that has the name of the state, the number of approved loans, and the 2019 population. Here's an example for [Alabama](https://smussenden.github.io/coursefiles/ppp_scraping_example/states/alabama.html). You'll need to scrape each individual page and combine into a single dataframe to answer this question.  
+A7. South Dakota, with 7379.5 loans per 100,000 population.
 ```{r}
 
-# Define API Key
+# Define the URL for that has all the urls for each state
+state_url <- "https://smussenden.github.io/coursefiles/ppp_scraping_example/index.html"
 
-library(tidycensus)
-census_api_key("549950d36c22ff16455fe196bbbd01d63cfbe6cf")
-population_state<- get_acs(geography="state", variables=c("B01001_001"),geometry = FALSE, year=2019) %>%
-  clean_names() %>%
-  select(state = name,
-         population=estimate) 
-
-
-ppp_totals_by_state_url <- "https://projects.propublica.org/coronavirus/bailouts/"
-
-ppp_totals_by_state <- ppp_totals_by_state_url %>%
+# Grab the table that contains the urls
+state_urls <- state_url %>%
   read_html() %>%
   html_table()
 
-ppp_totals_by_state <- ppp_totals_by_state[[1]] %>%
-  clean_names() %>%
-  mutate(total_ppp_loans=parse_number(total)) %>%
-  select(state,total_ppp_loans) %>%
-  inner_join(population_state)
+# Extract the table from the nested list, select only the URL column and turn it into a proper list. 
+state_urls <- state_urls[[1]] %>%
+  select(url) %>%
+  as_vector()
+
+# Create an empty dataframe to hold information from each state
+state_ppp_all <- tibble()
+
+# Loop through each URL on the list we made above.
+for (url_value in state_urls) {
+
+  # Create a dataframe called individual_state_info by visiting the URL for a state, read in the html, and extract the table as a nested list. 
+  individual_state_info <- url_value %>%
+    read_html() %>%
+    html_table()
   
-
-
-
-
-```
-
-```{r}
-sba_oig_url <- "https://www.sba.gov/document?sortBy=Effective%20Date&search=&documentType=All&program=Pandemic%20Oversight&documentActivity=All&page=1&office=All&relatedOffice=All"
-
-# Read in all html from table, store all tables on page as nested list of dataframes.
-sba_oig_url <- sba_oig %>%
-  read_html() %>%
-  html_text()
+  # Extract the table from the nested list, select only the URL column and turn it into a proper list. 
+  individual_state_info <- individual_state_info[[1]]
   
-sba_oig_url
-```
-
-```{r}
-
-
-# Define url of page we want to scrape
-
-naics_url <- "https://www.bls.gov/ces/naics/"
-
-# Read in all html from table, store all tables on page as nested list of dataframes.
-naics_industry  <- naics_url %>%
-  read_html() %>%
-  html_table()
-
-# Just keep the second dataframe in our list, standardize column headers, remove last row
-
-naics_industry <- naics_industry[[2]] %>%
-  clean_names() %>%
-  slice(-21)
-
-# show the dataframe
-naics_industry
-
-# Make a column with URL and xpath ID for each sector, remove the Public Administration sector
-naics_industry <- naics_industry %>%
-  mutate(sector_url = paste0("https://www.bls.gov/iag/tgs/iag",sector,".htm")) %>%
-  mutate(sector_xpath_id =paste0("iag",sector,"emp1")) %>%
-  filter(description != "Public Administration")
-# Display it
-naics_industry
-
-# Create an empty dataframe to hold results
-employment_by_sector_all <- tibble()
-
-# For loop, iterating over each row in our naics industry dataframe
-for(row_number in 1:nrow(naics_industry)) {
-
-    # Keep only the row for a given row number, get rid of every other row
-    each_row_df <- naics_industry %>%
-      slice(row_number)
-
-    # Define url of page to get
-    url <- each_row_df$sector_url
-
-    # Define id of table to ingest
-    xpath_employment_table <- paste0('//*[@id="',each_row_df$sector_xpath_id,'"]')
-
-    # Get employment table from each page by going to each url defined above, reading in the html with read_html(), extracting the table with the id generated by the xpath code using html_elements), and then turning the html into a proper dataframe using html_table().  The dataframe is in a nested list, which we'll have to extract in the next step.
-    employment_info <- url %>%
-      read_html() %>%
-      html_elements(xpath = xpath_employment_table) %>%
-      html_table()
-
-    # Grab the dataframe out of the list (it's the first and only element inside the list); clean up the field names with clean_names(); use slice(2) to keep only the second row; use bind_cols() to append the sector code and name to this table; turn jun_2021 column into a proper number, and rename it.  Then select only three columns we need.
-    employment_info <- employment_info[[1]] %>%
-      clean_names() %>%
-      slice(2) %>%
-      bind_cols(each_row_df) %>%
-      mutate(jun_2021 = parse_number(jun_2021)) %>%
-      rename(jun_2021_employees = jun_2021) %>%
-      select(sector,description,jun_2021_employees)
-
-    # Bind each individual employment info table to our employment_by_sector_all dataframe
-    employment_by_sector_all <- employment_by_sector_all %>%
-      bind_rows(employment_info)
-
+  # Bind each individual state info dataframe to the empty dataframe we created above
+  state_ppp_all <- state_ppp_all %>%
+    bind_rows(individual_state_info)
+  
 }
 
-# Display the completed dataframe
-employment_by_sector_all
-```
+# Update the table by calculating the nubmer of loans per 100K population
+state_ppp_all <- state_ppp_all %>%
+  mutate(loans_per_100K = total_ppp_loans/population*100000) %>%
+  arrange(desc(loans_per_100K))
+
+# Display the table
+state_ppp_all
 
 ```
-
-## Get Our PDF
-
-We'll be working with the [Maryland Statistical Handbook](https://planning.maryland.gov/MSDC/Documents/md-statistical-handbook.pdf) from the state Department of Planning. It's not tiny (44MB), and you'll want to download it to a place you'll remember (like your Downloads folder).
-
-## Setup Tabula
-
-Start Tabula, then go to http://127.0.0.1:8080/ in your browser. Click the "Browse" button and find the Statistical Handbook file and click "open", and then click the "Import button" in Tabula. This will take a minute or two.
-
-Let's go to page 30 of the PDF, Table 2A, "International Migration for Maryland's Jurisdictions, July 1, 2010 to July 1, 2019". This is _net migration_, meaning it shows the total number of people moving to Maryland and its regions/jurisdictions _minus_ the total number of people leaving the same, divided into 12-month periods from July to July. In Tabula, draw a box around that table's border and click the "Preview & Export Extracted Data" button. It should look pretty clean. Let's export that CSV (it should be called `tabula-md-statistical-handbook.csv` by default) to your Downloads folder.
-
-## Cleaning up the data in R
-
-Let's load it into R, and in doing so we'll skip the first two rows and add our own headers that are cleaner. `read_csv` allows us to do this ([and more](https://readr.tidyverse.org/reference/read_delim.html)):
-
-```{r}
-international_migration <- read_csv('tabula-md-statistical-handbook.csv', skip=2, col_names=c("jurisdiction", "july_2011", "july_2012", "july_2013", "july_2014", "july_2015", "july_2016", "july_2017", "july_2018", "july_2019", "total"))
-```
-
-Add a column for the type of migration ("international") and populate it:
-
-```{r}
-international_migration <- international_migration %>% mutate(type='international')
-```
-
-## Answer questions
-
-Q1. Which region and county/city below the state level accounted for the largest percentage of international migration overall?  You'll need to add and populate columns representing percent of total using `mutate`.
-A1. Suburban Washington (62.8%). Montgomery County (36.8%).
-
-```{r}
-international_migration %>%
-  mutate(pct_total=(total/198996)*100) %>%
-  select(jurisdiction, pct_total) %>%
-  arrange(desc(pct_total))
-```
-
-Q2. Write a sentence or two that describes the data you produced in A1. Treat this as if you were trying to convey the most important part.
-A2. International migrants to Maryland during the past 10 years were drawn mostly to the suburbs surrounding Washington, D.C., which accounted for more than six of every 10 foreign residents that moved to the state between July 2010 and July 2019.
-
-Q3. Which region & jurisdiction had the biggest percentage change for international migration between July 2018 and July 2017? The formula for percentage change is easy to remember: (New-Old)/Old.
-A3. Calvert County's international migrants declined 76 percent (albeit from a small population), and the Southern Maryland region declined 58.5 percent.
-
-```{r}
-international_migration %>%
-  mutate(pct_change=((july_2018-july_2017)/july_2017)*100) %>%
-  select(jurisdiction, pct_change) %>%
-  arrange(pct_change)
-```
-
-Q4. What's your best guess as to why these declines occurred, and in those area in particular?
-A4. One answer is that with the advent of the Trump administration, controls on international migration tightened.
-
-## Back to Tabula
-
-Let's go to page 31 of the PDF, Table 2B, "Domestic Migration for Maryland's Jurisdictions, July 1, 2010 to July 1, 2019". In Tabula, hit the "Clear All Selections" button and then draw a box around that table's border and click the "Preview & Export Extracted Data" button. It should look pretty clean. Let's export that CSV to your Downloads folder (let's rename it to `tabula-md-statistical-handbook-domestic.csv`).
-
-## Cleaning up the data in R
-
-Let's load it into R, and in doing so we'll skip the first two rows and add our own headers that are cleaner:
-
-```{r}
-domestic_migration <- read_csv('tabula-md-statistical-handbook-domestic.csv', skip=2, col_names=c("jurisdiction", "july_2011", "july_2012", "july_2013", "july_2014", "july_2015", "july_2016", "july_2017", "july_2018", "july_2019", "total"))
-```
-
-Add a column for the type of migration ("domestic") and populate it:
-
-```{r}
-domestic_migration <- domestic_migration %>% mutate(type='domestic')
-```
-
-## Answer questions
-Q5. Which Maryland individual jurisdiction saw the largest net decrease in domestic migration overall?
-A5. Baltimore City, with -62,834, with Prince George's County not far behind at -60,167.
-
-```{r}
-domestic_migration %>%
-  select(jurisdiction, total) %>%
-  arrange(total)
-```
-
-Q6. How many regions & jurisdictions had net positive migration for July 2017, July 2018 and July 2019?
-A6. 14, including the Southern Maryland and Upper Eastern Shore regions.
-
-```{r}
-domestic_migration %>%
-  filter(july_2017 > 0 & july_2018 > 0 & july_2019 > 0) %>%
-  select(jurisdiction, july_2017, july_2018, july_2019)
-```
-
-Q7. How would you describe this data? Is there a county or region that stands out, and why?
-A7. Frederick and Charles stand out for consistent growth, and Caroline for trending downwards.
