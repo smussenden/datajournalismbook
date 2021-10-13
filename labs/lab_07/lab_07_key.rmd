@@ -128,7 +128,7 @@ all_districts_count
 Q6. What might explain why, according to this site, the DOJ has filed PPP-related fraud cases in less than half of the country's judicial districts? 
 A6. The DOJ press website could be wrong; it could have missed related cases filed in other districts. It also only lists "publicly charged" cases; there may be additional cases filed later that are currently under investigation. There could be less fraud happening in districts where no cases were filed. The U.S. Attorney in charge of bringing cases in a judicial district that has no cases may have other priorities.  
 
-Q7. Which state had the most approved PPP loans per 100,000 population? [This web page](https://smussenden.github.io/coursefiles/ppp_scraping_example/index.html) has links to 52 individual web pages, one for each state (plus Washington, D.C. and Puerto Rico). Each of those web pages contains a one-row html table that has the name of the state, the number of approved loans, and the 2019 population. Here's an example for [Alabama](https://smussenden.github.io/coursefiles/ppp_scraping_example/states/alabama.html). You'll need to scrape each individual page and combine into a single dataframe to answer this question.  
+Q7. Which state had the most approved PPP loans per 100,000 population? [This web page](https://smussenden.github.io/coursefiles/ppp_scraping_example/index.html) has links to 52 individual web pages, one for each state (plus Washington, D.C. and Puerto Rico). Each of those web pages contains a one-row html table that has the name of the state, the number of approved loans, and the 2019 population. Here's an example for [Alabama](https://smussenden.github.io/coursefiles/ppp_scraping_example/states/alabama.html). You'll need to loop over the individual state urls, scrape each individual page and combine the information on each page into a single dataframe to answer this question. 
 A7. South Dakota, with 7379.5 loans per 100,000 population.
 ```{r}
 
@@ -140,19 +140,24 @@ state_urls <- state_url %>%
   read_html() %>%
   html_table()
 
-# Extract the table from the nested list, select only the URL column and turn it into a proper list. 
-state_urls <- state_urls[[1]] %>%
-  select(url) %>%
-  as_vector()
+# Extract the table from the nested list
+state_urls <- state_urls[[1]] 
 
 # Create an empty dataframe to hold information from each state
 state_ppp_all <- tibble()
 
 # Loop through each URL on the list we made above.
-for (url_value in state_urls) {
+for (row_number in 1:nrow(state_urls)) {
 
+  # Keep only the row for a given row number, get rid of every other row
+  each_row_df <- state_urls %>%
+    slice(row_number)
+  
+  # Define url of page to get
+  url <- each_row_df$url
+  
   # Create a dataframe called individual_state_info by visiting the URL for a state, read in the html, and extract the table as a nested list. 
-  individual_state_info <- url_value %>%
+  individual_state_info <- url %>%
     read_html() %>%
     html_table()
   
