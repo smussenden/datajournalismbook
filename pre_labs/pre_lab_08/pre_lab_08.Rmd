@@ -35,7 +35,7 @@ To use the API, you need to [an API key from the Census Bureau](https://api.cens
 **Task** Replace YOUR KEY HERE in the codeblock below with your Census API Key (leave the quotemarks).
 
 ```{r echo=FALSE}
-census_api_key("YOUR KEY HERE", install=TRUE)
+#census_api_key("YOUR KEY HERE", install=TRUE)
 ```
 
 The `install=TRUE` part saves your key for future use.
@@ -78,7 +78,7 @@ p10 <- get_decennial(geography = "state", variables = "P001001", year = 2010)
 Let's take a peek at 2010.
 
 ```{r}
-p2010
+p10
 ```
 
 As you can see, we have a GEOID, NAME, then variable and value. Variable and value are going to be the same. Because those are named the same thing, to merge them together, we need to rename them.
@@ -86,9 +86,9 @@ As you can see, we have a GEOID, NAME, then variable and value. Variable and val
 **Task** Run the following codeblock to rename the population total columns in each dataframe:
 
 ```{r}
-p10 %>% select(GEOID, NAME, value) %>% rename(Population2010=value) -> p2010
+p10 %>% select(GEOID, NAME, value) %>% rename(Population2010=value) -> p10
 
-p00 %>% select(GEOID, NAME, value) %>% rename(Population2000=value) -> p2000
+p00 %>% select(GEOID, NAME, value) %>% rename(Population2000=value) -> p00
 ```
 
 Now we join the data together.
@@ -96,7 +96,7 @@ Now we join the data together.
 **Task** Run the following codeblock to combine the two dataframes into a single variable called `alldata`:
 
 ```{r}
-alldata <- p2000 %>% inner_join(p2010)
+alldata <- p00 %>% inner_join(p10)
 ```
 
 And now we calculate the percent change.
