@@ -56,13 +56,13 @@ Write code here to read the RDS file
 ## Answer questions
 
 **Q1** What is the Maryland jurisdiction with the lowest median age, according to the ACS 2019 5-year estimates? You will need to find the variable for median age first.
-**A1** Baltimore City, with an estimated median age of 35.4 years and a margin of error of 0.2 years.
+**A1** 
 
 ```{r}
 ```
 
-**Q2** Which Maryland counties have a median age of at least 50? You can use the dataframe you just made to answer this.
-**A2** Talbot and Worcester counties
+**Q2** Which Maryland counties have a median age of at least 50?
+**A2**
 
 ```{r}
 ```
@@ -82,7 +82,7 @@ Write code here to read the RDS file
 ```{r}
 ```
 
-**Q6** How would you describe to an editor the top 10 zip codes with the most removed application in terms of Black population? What do they have in common? Are there any zip codes that seem different, and if so why?
+**Q6** How would you describe to an editor the top 10 zip codes with the most removed application in terms of Black population? Where are they located, and what do they have in common? Are there any zip codes that seem different, and if so why?
 **A6**
 
 **Q7** What other columns from the PPP data could be useful in reporting on what happened to this removed loans?
