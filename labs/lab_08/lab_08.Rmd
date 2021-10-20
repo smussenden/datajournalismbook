@@ -56,7 +56,7 @@ Write code here to read the RDS file
 ## Answer questions
 
 **Q1** What is the Maryland jurisdiction with the lowest median age, according to the ACS 2019 5-year estimates? You will need to find the variable for median age first.
-**A1** 
+**A1**
 
 ```{r}
 ```
@@ -67,7 +67,7 @@ Write code here to read the RDS file
 ```{r}
 ```
 
-**Q3** Which Maryland counties have the highest percentage of 5-17 year-olds that speak Spanish at home? Start with the code you wrote for Q4 and add a second dataframe with the total population of 5-17 year-olds by county. For each dataframe, rename the `estimate` column to a meaningful name you've given the ACS variable, remove the `variable` columns in each using select and then join them based on GEOID and NAME. Then you can add a column to calculate the percentage of the total 5-17 population that speaks Spanish at home.
+**Q3** Which Maryland counties have the highest percentage of 5-17 year-olds that speak Spanish at home? You'll need one dataframe with county-level data on the number of 5-17 year-olds that speak Spanish at home and a second dataframe with the total population of 5-17 year-olds by county. For each dataframe, rename the `estimate` column to a meaningful name you've given the ACS variable, remove the `variable` columns in each using select and then join them based on GEOID and NAME. Then you can add a column to calculate the percentage of the total 5-17 population that speaks Spanish at home.
 **A3**
 
 ```{r}
