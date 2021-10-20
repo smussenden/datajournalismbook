@@ -52,10 +52,10 @@ v19 <- load_variables(2019, "acs5", cache=TRUE)
 
 You'll also need to load an RDS file of PPP loan applications that were removed from the original data by lenders in July.
 
-**Task** load the RDS file and save it to a dataframe
+**Task** read the RDS file and save it to a dataframe
 
 ```{r}
-removed_ppp <- load_rds('data/lab_08.rds')
+removed_ppp <- read_rds('data/lab_08.rds')
 ```
 
 ## Answer questions
@@ -95,28 +95,8 @@ combined_5_17 <- speak_spanish_5_17 %>%
 **Q4** Given the counties with the largest percentage of 5-17 year-olds that speak Spanish at home, what stands out to you about the data? How would you describe the top 5 counties? How would you describe Garrett County's numbers?
 **A4** Caroline County stands out - it has a tiny population compared to Prince George's and Montgomery but as many as 10 percent of its 5-17 year-olds speak Spanish at home. The top 5 are a combination of the largest jurisdictions (except Baltimore city and County) and some very small ones. We may not be able to accurately describe the percentage for Garrett County, given the margin of error for those speaking Spanish at home, but it seems very, very small.
 
-**Q5** Which Maryland county has the largest percentage of its households without internet access, according to ACS data? Hint: the total households variable is `DP02_0001` - you'll need to find the variable for number of households with no internet access. For this question, you'll need to load the households data and the no internet data into separate dataframes. In each dataframe, rename the `estimate` column and remove the `variable` column. You'll need to combine the two dataframes in order to calculate the percentage of all households that have no internet access.
-**A5** Somerset County, with 22.2 percent
-
-```{r}
-md_households <- get_acs(geography='county', variables=c(households='DP02_0001'), state='MD') %>%
-  rename('households'='estimate') %>%
-  select(-variable)
-md_no_internet <- get_acs(geography='county', variables=c(no_internet='B28002_013'), state='MD') %>%
-  rename('no_internet'='estimate') %>%
-  select(-variable)
-md_combined <- md_households %>%
-  inner_join(md_no_internet, by='GEOID')
-md_combined %>%
-  mutate(pct_no_internet = (no_internet/households)*100) %>%
-  arrange(desc(pct_no_internet))
-```
-
-**Q6** Of all Maryland jurisdictions listed in your answer to Q6, which one is the outlier? Write a couple of sentences describing why you chose that jurisdiction and how you might frame a story pitch based on this data.
-**A6** Baltimore City is the outlier - the others are both smaller in terms of population and more rural. Closing the broadband gap in Maryland will involve solving two different kinds of problems: extending Internet access to less-populated, rural areas of the state and also getting access to many in Baltimore City, where one in five households lack access to the Internet.
-
-**Q7**
-**A7**
+**Q5** Which 5-digit zip code had the most removed PPP applications, and what is the percentage of Black population in that zip code according to the ACS? To answer this question, you will need to creeate separate dataframes with ACS data on total population by zip code and Black population by zip code. In each dataframe, rename the `estimate` column and remove the `variable` column. You'll need to combine the two dataframes in order to calculate the percentage, and then you can combine it with the PPP data. Remember: the PPP data may not have only 5-digit zip codes!
+**A5**
 
 ```{r}
 black_pop_zip <- get_acs('zcta', variables = "B02001_003", year=2019) %>%
@@ -129,7 +109,9 @@ zip_combined <- black_pop_zip %>%
   inner_join(total_pop_zip, by='GEOID') %>%
   mutate(pct_black = (black_population/total_population)*100) %>%
   arrange(desc(pct_black))
+
 removed_by_zip <- removed_ppp %>%
+  mutate(zip5=str_sub(zip, 1, 5)) %>%
   group_by(zip5) %>%
   summarise(count = n())%>%
   arrange(desc(count))
@@ -137,3 +119,9 @@ removed_by_zip <- removed_ppp %>%
 removed_by_zip %>% left_join(zip_combined, by=c('zip5'='GEOID')) %>%
   arrange(desc(count))
 ```
+
+**Q6** How would you describe to an editor the top 10 zip codes with the most removed application in terms of Black population? What do they have in common? Are there any zip codes that seem different, and if so why?
+**A6**
+
+**Q7** What other columns from the PPP data could be useful in reporting on what happened to this removed loans?
+**A7**

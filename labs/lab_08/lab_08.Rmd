@@ -47,10 +47,10 @@ You'll also need to load the list of American Community Survey variables from th
 
 You'll also need to load an RDS file of PPP loan applications that were removed from the original data by lenders in July.
 
-**Task** load the RDS file and save it to a dataframe
+**Task** read the RDS file and save it to a dataframe
 
 ```{r}
-Write code here to load the RDS file
+Write code here to read the RDS file
 ```
 
 ## Answer questions
@@ -76,15 +76,14 @@ Write code here to load the RDS file
 **Q4** Given the counties with the largest percentage of 5-17 year-olds that speak Spanish at home, what stands out to you about the data? How would you describe the top 5 counties? How would you describe Garrett County's numbers?
 **A4**
 
-**Q5** Which Maryland county has the largest percentage of its households without internet access, according to ACS data? Hint: the total households variable is `DP02_0001` - you'll need to find the variable for number of households with no internet access. For this question, you'll need to load the households data and the no internet data into separate dataframes. In each dataframe, rename the `estimate` column and remove the `variable` column. You'll need to combine the two dataframes in order to calculate the percentage of all households that have no internet access.
-**A5** Somerset County, with 22.2 percent
+**Q5** Which 5-digit zip code had the most removed PPP applications, and what is the percentage of Black population in that zip code according to the ACS? To answer this question, you will need to creeate separate dataframes with ACS data on total population by zip code and Black population by zip code. In each dataframe, rename the `estimate` column and remove the `variable` column. You'll need to combine the two dataframes in order to calculate the percentage, and then you can combine it with the PPP data. Remember: the PPP data may not have only 5-digit zip codes!
+**A5**
 
 ```{r}
 ```
 
-**Q6** Of all Maryland jurisdictions listed in your answer to Q6, which one is the outlier? Write a couple of sentences describing why you chose that jurisdiction and how you might frame a story pitch based on this data.
+**Q6** How would you describe to an editor the top 10 zip codes with the most removed application in terms of Black population? What do they have in common? Are there any zip codes that seem different, and if so why?
 **A6**
 
-
-**Q7**
+**Q7** What other columns from the PPP data could be useful in reporting on what happened to this removed loans?
 **A7**
