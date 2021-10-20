@@ -102,7 +102,7 @@ combined_5_17 <- speak_spanish_5_17 %>%
 black_pop_zip <- get_acs('zcta', variables = "B02001_003", year=2019) %>%
   rename('black_population'='estimate') %>%
   select(-variable)
-total_pop_zip <- get_acs('zcta', variables = "B01003_001", year=2019) %>%
+total_pop_zip <- get_acs('zcta', variables = "B02001_001", year=2019) %>%
   rename('total_population'='estimate') %>%
   select(-variable)
 zip_combined <- black_pop_zip %>%
@@ -120,7 +120,7 @@ removed_by_zip %>% left_join(zip_combined, by=c('zip5'='GEOID')) %>%
   arrange(desc(count))
 ```
 
-**Q6** How would you describe to an editor the top 10 zip codes with the most removed application in terms of Black population? What do they have in common? Are there any zip codes that seem different, and if so why?
+**Q6** How would you describe to an editor the top 10 zip codes with the most removed application in terms of Black population? Where are they located, and what do they have in common? Are there any zip codes that seem different, and if so why?
 **A6**
 
 **Q7** What other columns from the PPP data could be useful in reporting on what happened to this removed loans?
