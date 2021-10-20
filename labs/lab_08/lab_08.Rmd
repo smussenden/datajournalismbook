@@ -37,50 +37,54 @@ You'll need your Census API Key:
 
 You'll also need to load the list of American Community Survey variables from the 2019 5-year estimates so you can identify the codes you need:
 
-**Task** load the ACS variables and save them to a dataframe
+**Task** load the variables from the 2019 5-year ACS and save them to a dataframe
 
 ```{r}
-# Write code here to load the ACS variables and save them to a dataframe
+# Write code here to load the ACS variables
+```
+
+## Load PPP data
+
+You'll also need to load an RDS file of PPP loan applications that were removed from the original data by lenders in July.
+
+**Task** load the RDS file and save it to a dataframe
+
+```{r}
+Write code here to load the RDS file
 ```
 
 ## Answer questions
 
 **Q1** What is the Maryland jurisdiction with the lowest median age, according to the ACS 2019 5-year estimates? You will need to find the variable for median age first.
-**A1**
+**A1** Baltimore City, with an estimated median age of 35.4 years and a margin of error of 0.2 years.
 
 ```{r}
 ```
 
-**Q2** Which Maryland jurisdictions have a median age of at least 50?
-**A2**
+**Q2** Which Maryland counties have a median age of at least 50? You can use the dataframe you just made to answer this.
+**A2** Talbot and Worcester counties
 
 ```{r}
 ```
 
-**Q3** Considering the answers to the first two questions, what kinds of public needs do places with the demographic characteristics of Baltimore City have compared to the counties from Q2? What kinds of programs or services should the latter jurisdictions expect to spend more money on?
+**Q3** Which Maryland counties have the highest percentage of 5-17 year-olds that speak Spanish at home? Start with the code you wrote for Q4 and add a second dataframe with the total population of 5-17 year-olds by county. For each dataframe, rename the `estimate` column to a meaningful name you've given the ACS variable, remove the `variable` columns in each using select and then join them based on GEOID and NAME. Then you can add a column to calculate the percentage of the total 5-17 population that speaks Spanish at home.
 **A3**
 
-**Q4** Which two Maryland jurisdictions have the most children between 5 and 17 that speak Spanish at home? Can you tell which one has the most?
+```{r}
+```
+
+**Q4** Given the counties with the largest percentage of 5-17 year-olds that speak Spanish at home, what stands out to you about the data? How would you describe the top 5 counties? How would you describe Garrett County's numbers?
 **A4**
 
-```{r}
-```
-
-**Q5** A better answer to Q4 involves calculating percentages of children between 5 and 17 that speak Spanish at home. Which counties have the highest percentage of 5-17 year-olds that speak Spanish at home? Start with the code you wrote for Q4 and adapt it so that you also load the total population of 5-17 year-olds by county into another dataframe. In each case, rename the `estimate` columns to the name you've given the ACS codes, remove the `variable` columns in each using select and then join them based on GEOID and NAME. Then you can add a column to calculate the percentage of the total 5-17 population that speaks Spanish at home.
-**A5**
+**Q5** Which Maryland county has the largest percentage of its households without internet access, according to ACS data? Hint: the total households variable is `DP02_0001` - you'll need to find the variable for number of households with no internet access. For this question, you'll need to load the households data and the no internet data into separate dataframes. In each dataframe, rename the `estimate` column and remove the `variable` column. You'll need to combine the two dataframes in order to calculate the percentage of all households that have no internet access.
+**A5** Somerset County, with 22.2 percent
 
 ```{r}
 ```
 
-**Q6** Given the counties with the largest percentage of 5-17 year-olds that speak Spanish at home, what stands out to you? How would you describe the top 5 counties? How would you describe Garrett County's numbers?
+**Q6** Of all Maryland jurisdictions listed in your answer to Q6, which one is the outlier? Write a couple of sentences describing why you chose that jurisdiction and how you might frame a story pitch based on this data.
 **A6**
 
 
-**Q7** Which Maryland jurisdiction has the largest percentage of its households without internet access? Hint: the total households variable is `DP02_0001`. For this question, you'll need to load households data and the no internet data into separate dataframes, rename the `variable` columns in each and remove the variable columns in each using select and then join them based on GEOID and NAME. Then you can add a column to calculate the percentage of households without internet.
+**Q7**
 **A7**
-
-```{r}
-```
-
-**Q8** Of all the Maryland jurisdictions listed in your answer to Q5, which one is the outlier? Write a couple of sentences describing why you chose that jurisdiction and how you might frame a story pitch based on this data.
-**A8**

@@ -42,10 +42,20 @@ census_api_key("YOUR KEY HERE", install=TRUE)
 
 You'll also need to load the list of American Community Survey variables from the 2019 5-year estimates so you can identify the codes you need:
 
-**Task** load the ACS variables and save them to a dataframe
+**Task** load the variables from the 2019 5-year ACS and save them to a dataframe
 
 ```{r}
 v19 <- load_variables(2019, "acs5", cache=TRUE)
+```
+
+## Load PPP data
+
+You'll also need to load an RDS file of PPP loan applications that were removed from the original data by lenders in July.
+
+**Task** load the RDS file and save it to a dataframe
+
+```{r}
+removed_ppp <- load_rds('data/lab_08.rds')
 ```
 
 ## Answer questions
@@ -58,26 +68,15 @@ md_median_age <- get_acs(geography='county', variables=c(median_age='B01002_001'
 arrange(md_median_age, estimate)
 ```
 
-**Q2** Which Maryland jurisdictions have a median age of at least 50?
+**Q2** Which Maryland counties have a median age of at least 50? You can use the dataframe you just made to answer this.
 **A2** Talbot and Worcester counties
 
 ```{r}
 md_median_age %>% filter(estimate >= 50)
 ```
 
-**Q3** Considering the answers to the first two questions, what kinds of public services do places with the demographic characteristics of Baltimore City have compared to the counties from Q2? What kinds of programs or services should the latter jurisdictions expect to spend more money on?
-**A3** Baltimore City not only has infrastructure needs (housing, for example) that some rural jurisdictions may not, but because it has more children, the services it will need more of include schools, libraries and parks. Jurisdictions such as Talbot and Worcester counties, with their older populations, may have greater need of health care facilities, senior centers and transportation.
-
-**Q4** Which two Maryland jurisdictions have the most children between 5 and 17 that speak Spanish at home? Can you tell which one has the most?
-**A4** Prince George's and Montgomery counties, although given the margin of error it's not clear which one has the most.
-
-```{r}
-md_speak_spanish_5_17 <- get_acs(geography='county', variables=c(speak_spanish_5_17='B16007_004'), state='MD') %>%
-  arrange(desc(estimate))
-```
-
-**Q5** A better answer to Q4 involves calculating percentages of children between 5 and 17 that speak Spanish at home. Which counties have the highest percentage of 5-17 year-olds that speak Spanish at home? Start with the code you wrote for Q4 and adapt it so that you also load the total population of 5-17 year-olds by county into another dataframe. In each case, rename the `estimate` columns to the name you've given the ACS codes, remove the `variable` columns in each using select and then join them based on GEOID and NAME. Then you can add a column to calculate the percentage of the total 5-17 population that speaks Spanish at home.
-**A5**
+**Q3** A better answer to Q3 involves calculating percentages of children between 5 and 17 that speak Spanish at home. Which counties have the highest percentage of 5-17 year-olds that speak Spanish at home? Start with the code you wrote for Q4 and add a second dataframe with the total population of 5-17 year-olds by county. For each dataframe, rename the `estimate` column to a meaningful name you've given the ACS variable, remove the `variable` columns in each using select and then join them based on GEOID and NAME. Then you can add a column to calculate the percentage of the total 5-17 population that speaks Spanish at home.
+**A3**
 
 ```{r}
 speak_spanish_5_17 <- get_acs(geography='county', variables=c(speak_spanish_5_17='B16007_004'), state='MD') %>%
@@ -93,12 +92,11 @@ combined_5_17 <- speak_spanish_5_17 %>%
   arrange(desc(pct_of_total))
 ```
 
-**Q6** Given the counties with the largest percentage of 5-17 year-olds that speak Spanish at home, what stands out to you? How would you describe the top 5 counties? How would you describe Garrett County's numbers?
-**A6** Caroline County stands out - it has a tiny population compared to Prince George's and Montgomery but as many as 10 percent of its 5-17 year-olds speak Spanish at home. The top 5 are a combination of the largest jurisdictions (except Baltimore city and County) and some very small ones. We may not be able to accurately describe the percentage for Garrett County, given the margin of error for those speaking Spanish at home, but it seems very, very small.
+**Q4** Given the counties with the largest percentage of 5-17 year-olds that speak Spanish at home, what stands out to you about the data? How would you describe the top 5 counties? How would you describe Garrett County's numbers?
+**A4** Caroline County stands out - it has a tiny population compared to Prince George's and Montgomery but as many as 10 percent of its 5-17 year-olds speak Spanish at home. The top 5 are a combination of the largest jurisdictions (except Baltimore city and County) and some very small ones. We may not be able to accurately describe the percentage for Garrett County, given the margin of error for those speaking Spanish at home, but it seems very, very small.
 
-
-**Q7** Which Maryland jurisdiction has the largest percentage of its households without internet access? Hint: the total households variable is `DP02_0001`. For this question, you'll need to load households data and the no internet data into separate dataframes, rename the `variable` columns in each and remove the variable columns in each using select and then join them based on GEOID and NAME. Then you can add a column to calculate the percentage of households without internet.
-**A7** Somerset County, with 22.2 percent
+**Q5** Which Maryland county has the largest percentage of its households without internet access, according to ACS data? Hint: the total households variable is `DP02_0001` - you'll need to find the variable for number of households with no internet access. For this question, you'll need to load the households data and the no internet data into separate dataframes. In each dataframe, rename the `estimate` column and remove the `variable` column. You'll need to combine the two dataframes in order to calculate the percentage of all households that have no internet access.
+**A5** Somerset County, with 22.2 percent
 
 ```{r}
 md_households <- get_acs(geography='county', variables=c(households='DP02_0001'), state='MD') %>%
@@ -114,5 +112,28 @@ md_combined %>%
   arrange(desc(pct_no_internet))
 ```
 
-**Q8** Of the Maryland jurisdictions listed in your answer to Q5, which one is the outlier? Write a couple of sentences describing why you chose that jurisdiction and how you might frame a story pitch based on this data.
-**A8** Baltimore City is the outlier - the others are both smaller in terms of population and more rural. Closing the broadband gap in Maryland will involve solving two different kinds of problems: extending Internet access to less-populated, rural areas of the state and also getting access to many in Baltimore City, where one in five households lack access to the Internet.
+**Q6** Of all Maryland jurisdictions listed in your answer to Q6, which one is the outlier? Write a couple of sentences describing why you chose that jurisdiction and how you might frame a story pitch based on this data.
+**A6** Baltimore City is the outlier - the others are both smaller in terms of population and more rural. Closing the broadband gap in Maryland will involve solving two different kinds of problems: extending Internet access to less-populated, rural areas of the state and also getting access to many in Baltimore City, where one in five households lack access to the Internet.
+
+**Q7**
+**A7**
+
+```{r}
+black_pop_zip <- get_acs('zcta', variables = "B02001_003", year=2019) %>%
+  rename('black_population'='estimate') %>%
+  select(-variable)
+total_pop_zip <- get_acs('zcta', variables = "B01003_001", year=2019) %>%
+  rename('total_population'='estimate') %>%
+  select(-variable)
+zip_combined <- black_pop_zip %>%
+  inner_join(total_pop_zip, by='GEOID') %>%
+  mutate(pct_black = (black_population/total_population)*100) %>%
+  arrange(desc(pct_black))
+removed_by_zip <- removed_ppp %>%
+  group_by(zip5) %>%
+  summarise(count = n())%>%
+  arrange(desc(count))
+
+removed_by_zip %>% left_join(zip_combined, by=c('zip5'='GEOID')) %>%
+  arrange(desc(count))
+```
