@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>Chapter 17 Intro to APIs: The Census | Data Journalism with R and the Tidyverse</title>
   <meta name="description" content="This is a book built on a very opinionated philosophy for journalism students doing data journalism in R with replicable methods." />
-  <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.23 and GitBook 2.6.7" />
 
   <meta property="og:title" content="Chapter 17 Intro to APIs: The Census | Data Journalism with R and the Tidyverse" />
   <meta property="og:type" content="book" />
@@ -24,7 +24,7 @@
 <meta name="author" content="Matt Waite (original author); updated by Derek Willis and Sean Mussenden" />
 
 
-<meta name="date" content="2021-10-11" />
+<meta name="date" content="2021-10-22" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -35,7 +35,6 @@
 <link rel="next" href="visualizing-your-data-for-reporting.html"/>
 <script src="libs/header-attrs-2.10/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
@@ -51,11 +50,12 @@
 
 
 
+
 <link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
 <script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
 <script src="libs/htmlwidgets-1.5.3/htmlwidgets.js"></script>
 <link href="libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
-<script src="libs/datatables-binding-0.19/datatables.js"></script>
+<script src="libs/datatables-binding-0.18/datatables.js"></script>
 <link href="libs/dt-core-1.10.20/css/jquery.dataTables.min.css" rel="stylesheet" />
 <link href="libs/dt-core-1.10.20/css/jquery.dataTables.extra.css" rel="stylesheet" />
 <script src="libs/dt-core-1.10.20/js/jquery.dataTables.min.js"></script>
@@ -331,17 +331,17 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>Let’s demonstrate.</p>
 <p>We’re going to use a library called <code>tidycensus</code> which makes calls to the Census API in a very tidy way, and gives you back tidy data. That means we don’t have to go through the process of importing the data from a file. I can’t tell you how amazing this is, speaking from experience. The documentation for this library is <a href="https://walker-data.com/tidycensus/">here</a>. Another R library for working with Census APIs (there is more than one) is <a href="https://github.com/hrecht/censusapi">this one</a> from Hannah Recht, a journalist with Kaiser Health News.</p>
 <p>First we need to install <code>tidycensus</code> using the console: <code>install.packages("tidycensus")</code></p>
-<div class="sourceCode" id="cb299"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb299-1"><a href="intro-to-apis-the-census.html#cb299-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb299-2"><a href="intro-to-apis-the-census.html#cb299-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidycensus)</span></code></pre></div>
+<div class="sourceCode" id="cb325"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb325-1"><a href="intro-to-apis-the-census.html#cb325-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb325-2"><a href="intro-to-apis-the-census.html#cb325-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidycensus)</span></code></pre></div>
 <p>To use the API, you need an API key. To get that, you need to <a href="https://api.census.gov/data/key_signup.html">apply for an API key with the Census Bureau</a>. It takes a few minutes and you need to activate your key via email. Once you have your key, you need to set that for this session. Just FYI: Your key is your key. Do not share it around.</p>
-<div class="sourceCode" id="cb300"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb300-1"><a href="intro-to-apis-the-census.html#cb300-1" aria-hidden="true" tabindex="-1"></a><span class="fu">census_api_key</span>(<span class="st">&quot;YOUR KEY HERE&quot;</span>, <span class="at">install=</span><span class="cn">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb326"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb326-1"><a href="intro-to-apis-the-census.html#cb326-1" aria-hidden="true" tabindex="-1"></a><span class="fu">census_api_key</span>(<span class="st">&quot;YOUR KEY HERE&quot;</span>, <span class="at">install=</span><span class="cn">TRUE</span>)</span></code></pre></div>
 <p>The two main functions in tidycensus are <code>get_decennial</code>, which retrieves data from the 2000 and 2010 Censuses (and soon the 2020 Census), and <code>get_acs</code>, which pulls data from the American Community Survey, a between-Censuses annual survey that provides estimates, not hard counts, but asks more detailed questions. If you’re new to Census data, there’s <a href="http://walker-data.com/umich-workshop/census-data-in-r/slides/#1">a very good set of slides from Kyle Walker</a>, the creator of tidycensus, and he’s working on a <a href="https://walker-data.com/census-r/index.html">book</a> that you can read for free online.</p>
 <p>It’s important to keep in mind that Census data represents people - you, your neighbors and total strangers. It also requires some level of definitions, especially about race &amp; ethnicity, that may or may not match how you define yourself or how others define themselves.</p>
 <p>So to give you some idea of how complicated the data is, let’s pull up just one file from the decennial Census. We’ll use Summary File 1, or SF1. That has the major population and housing stuff.</p>
-<div class="sourceCode" id="cb301"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb301-1"><a href="intro-to-apis-the-census.html#cb301-1" aria-hidden="true" tabindex="-1"></a>sf1 <span class="ot">&lt;-</span> <span class="fu">load_variables</span>(<span class="dv">2010</span>, <span class="st">&quot;sf1&quot;</span>, <span class="at">cache =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb301-2"><a href="intro-to-apis-the-census.html#cb301-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb301-3"><a href="intro-to-apis-the-census.html#cb301-3" aria-hidden="true" tabindex="-1"></a>sf1</span></code></pre></div>
-<pre><code>## # A tibble: 8,959 x 3
+<div class="sourceCode" id="cb327"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb327-1"><a href="intro-to-apis-the-census.html#cb327-1" aria-hidden="true" tabindex="-1"></a>sf1 <span class="ot">&lt;-</span> <span class="fu">load_variables</span>(<span class="dv">2010</span>, <span class="st">&quot;sf1&quot;</span>, <span class="at">cache =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb327-2"><a href="intro-to-apis-the-census.html#cb327-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb327-3"><a href="intro-to-apis-the-census.html#cb327-3" aria-hidden="true" tabindex="-1"></a>sf1</span></code></pre></div>
+<pre><code>## # A tibble: 8,959 × 3
 ##    name    label                                concept         
 ##    &lt;chr&gt;   &lt;chr&gt;                                &lt;chr&gt;           
 ##  1 H001001 Total                                HOUSING UNITS   
@@ -357,39 +357,39 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ## # … with 8,949 more rows</code></pre>
 <p>Note: There are thousands of variables in SF1. That’s not a typo. Open it in your environment by double clicking. As you scroll down, you’ll get an idea of what you’ve got to choose from.</p>
 <p>If you think that’s crazy, try the SF3 file from 2000.</p>
-<div class="sourceCode" id="cb303"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb303-1"><a href="intro-to-apis-the-census.html#cb303-1" aria-hidden="true" tabindex="-1"></a>sf3 <span class="ot">&lt;-</span> <span class="fu">load_variables</span>(<span class="dv">2000</span>, <span class="st">&quot;sf3&quot;</span>, <span class="at">cache =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb303-2"><a href="intro-to-apis-the-census.html#cb303-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb303-3"><a href="intro-to-apis-the-census.html#cb303-3" aria-hidden="true" tabindex="-1"></a>sf3</span></code></pre></div>
-<pre><code>## # A tibble: 16,520 x 3
-##    name    label                         concept                                
-##    &lt;chr&gt;   &lt;chr&gt;                         &lt;chr&gt;                                  
-##  1 H001001 Total                         HOUSING UNITS [1]                      
-##  2 H002001 Total                         UNWEIGHTED SAMPLE HOUSING UNITS BY OCC…
-##  3 H002002 Total!!Occupied               UNWEIGHTED SAMPLE HOUSING UNITS BY OCC…
-##  4 H002003 Total!!Vacant                 UNWEIGHTED SAMPLE HOUSING UNITS BY OCC…
-##  5 H003001 Total                         100-PERCENT COUNT OF HOUSING UNITS [1] 
-##  6 H004001 Percent of occupied housing … PERCENT OF HOUSING UNITS IN SAMPLE BY …
-##  7 H004002 Percent of vacant housing un… PERCENT OF HOUSING UNITS IN SAMPLE BY …
-##  8 H005001 Total                         URBAN AND RURAL [7]                    
-##  9 H005002 Total!!Urban                  URBAN AND RURAL [7]                    
-## 10 H005003 Total!!Urban!!Inside urbaniz… URBAN AND RURAL [7]                    
+<div class="sourceCode" id="cb329"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb329-1"><a href="intro-to-apis-the-census.html#cb329-1" aria-hidden="true" tabindex="-1"></a>sf3 <span class="ot">&lt;-</span> <span class="fu">load_variables</span>(<span class="dv">2000</span>, <span class="st">&quot;sf3&quot;</span>, <span class="at">cache =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb329-2"><a href="intro-to-apis-the-census.html#cb329-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb329-3"><a href="intro-to-apis-the-census.html#cb329-3" aria-hidden="true" tabindex="-1"></a>sf3</span></code></pre></div>
+<pre><code>## # A tibble: 16,520 × 3
+##    name    label                                       concept                  
+##    &lt;chr&gt;   &lt;chr&gt;                                       &lt;chr&gt;                    
+##  1 H001001 Total                                       HOUSING UNITS [1]        
+##  2 H002001 Total                                       UNWEIGHTED SAMPLE HOUSIN…
+##  3 H002002 Total!!Occupied                             UNWEIGHTED SAMPLE HOUSIN…
+##  4 H002003 Total!!Vacant                               UNWEIGHTED SAMPLE HOUSIN…
+##  5 H003001 Total                                       100-PERCENT COUNT OF HOU…
+##  6 H004001 Percent of occupied housing units in sample PERCENT OF HOUSING UNITS…
+##  7 H004002 Percent of vacant housing units in sample   PERCENT OF HOUSING UNITS…
+##  8 H005001 Total                                       URBAN AND RURAL [7]      
+##  9 H005002 Total!!Urban                                URBAN AND RURAL [7]      
+## 10 H005003 Total!!Urban!!Inside urbanized areas        URBAN AND RURAL [7]      
 ## # … with 16,510 more rows</code></pre>
 <p>Yes. That’s more than 16,000 variables to choose from. I told you. Astonishing.</p>
 <p>So let’s try to answer a question using the Census. What is the fastest growing state since 2000?</p>
 <p>To answer this, we need to pull the total population by state in each of the decennial census. Here’s 2000.</p>
-<div class="sourceCode" id="cb305"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb305-1"><a href="intro-to-apis-the-census.html#cb305-1" aria-hidden="true" tabindex="-1"></a>p00 <span class="ot">&lt;-</span> <span class="fu">get_decennial</span>(<span class="at">geography =</span> <span class="st">&quot;state&quot;</span>, <span class="at">variables =</span> <span class="st">&quot;P001001&quot;</span>, <span class="at">year =</span> <span class="dv">2000</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb331"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb331-1"><a href="intro-to-apis-the-census.html#cb331-1" aria-hidden="true" tabindex="-1"></a>p00 <span class="ot">&lt;-</span> <span class="fu">get_decennial</span>(<span class="at">geography =</span> <span class="st">&quot;state&quot;</span>, <span class="at">variables =</span> <span class="st">&quot;P001001&quot;</span>, <span class="at">year =</span> <span class="dv">2000</span>)</span></code></pre></div>
 <p>Now 2010.</p>
-<div class="sourceCode" id="cb306"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb306-1"><a href="intro-to-apis-the-census.html#cb306-1" aria-hidden="true" tabindex="-1"></a>p10 <span class="ot">&lt;-</span> <span class="fu">get_decennial</span>(<span class="at">geography =</span> <span class="st">&quot;state&quot;</span>, <span class="at">variables =</span> <span class="st">&quot;P001001&quot;</span>, <span class="at">year =</span> <span class="dv">2010</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb332"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb332-1"><a href="intro-to-apis-the-census.html#cb332-1" aria-hidden="true" tabindex="-1"></a>p10 <span class="ot">&lt;-</span> <span class="fu">get_decennial</span>(<span class="at">geography =</span> <span class="st">&quot;state&quot;</span>, <span class="at">variables =</span> <span class="st">&quot;P001001&quot;</span>, <span class="at">year =</span> <span class="dv">2010</span>)</span></code></pre></div>
 <p>Let’s take a peek at 2010.</p>
-<div class="sourceCode" id="cb307"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb307-1"><a href="intro-to-apis-the-census.html#cb307-1" aria-hidden="true" tabindex="-1"></a>p10</span></code></pre></div>
+<div class="sourceCode" id="cb333"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb333-1"><a href="intro-to-apis-the-census.html#cb333-1" aria-hidden="true" tabindex="-1"></a>p10</span></code></pre></div>
 <p>As you can see, we have a GEOID, NAME, then variable and value. Variable and value are going to be the same. Because those are named the same thing, to merge them together, we need to rename them.</p>
-<div class="sourceCode" id="cb308"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb308-1"><a href="intro-to-apis-the-census.html#cb308-1" aria-hidden="true" tabindex="-1"></a>p10 <span class="sc">%&gt;%</span> <span class="fu">select</span>(GEOID, NAME, value) <span class="sc">%&gt;%</span> <span class="fu">rename</span>(<span class="at">Population2010=</span>value) <span class="ot">-&gt;</span> p2010</span>
-<span id="cb308-2"><a href="intro-to-apis-the-census.html#cb308-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb308-3"><a href="intro-to-apis-the-census.html#cb308-3" aria-hidden="true" tabindex="-1"></a>p00 <span class="sc">%&gt;%</span> <span class="fu">select</span>(GEOID, NAME, value) <span class="sc">%&gt;%</span> <span class="fu">rename</span>(<span class="at">Population2000=</span>value) <span class="ot">-&gt;</span> p2000</span></code></pre></div>
+<div class="sourceCode" id="cb334"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb334-1"><a href="intro-to-apis-the-census.html#cb334-1" aria-hidden="true" tabindex="-1"></a>p10 <span class="sc">%&gt;%</span> <span class="fu">select</span>(GEOID, NAME, value) <span class="sc">%&gt;%</span> <span class="fu">rename</span>(<span class="at">Population2010=</span>value) <span class="ot">-&gt;</span> p2010</span>
+<span id="cb334-2"><a href="intro-to-apis-the-census.html#cb334-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb334-3"><a href="intro-to-apis-the-census.html#cb334-3" aria-hidden="true" tabindex="-1"></a>p00 <span class="sc">%&gt;%</span> <span class="fu">select</span>(GEOID, NAME, value) <span class="sc">%&gt;%</span> <span class="fu">rename</span>(<span class="at">Population2000=</span>value) <span class="ot">-&gt;</span> p2000</span></code></pre></div>
 <p>Now we join the data together.</p>
-<div class="sourceCode" id="cb309"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb309-1"><a href="intro-to-apis-the-census.html#cb309-1" aria-hidden="true" tabindex="-1"></a>alldata <span class="ot">&lt;-</span> p2000 <span class="sc">%&gt;%</span> <span class="fu">inner_join</span>(p2010)</span></code></pre></div>
+<div class="sourceCode" id="cb335"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb335-1"><a href="intro-to-apis-the-census.html#cb335-1" aria-hidden="true" tabindex="-1"></a>alldata <span class="ot">&lt;-</span> p2000 <span class="sc">%&gt;%</span> <span class="fu">inner_join</span>(p2010)</span></code></pre></div>
 <p>And now we calculate the percent change.</p>
-<div class="sourceCode" id="cb310"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb310-1"><a href="intro-to-apis-the-census.html#cb310-1" aria-hidden="true" tabindex="-1"></a>alldata <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">change =</span> ((Population2010<span class="sc">-</span>Population2000)<span class="sc">/</span>Population2000)<span class="sc">*</span><span class="dv">100</span>) <span class="sc">%&gt;%</span> <span class="fu">arrange</span>(<span class="fu">desc</span>(change))</span></code></pre></div>
+<div class="sourceCode" id="cb336"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb336-1"><a href="intro-to-apis-the-census.html#cb336-1" aria-hidden="true" tabindex="-1"></a>alldata <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">change =</span> ((Population2010<span class="sc">-</span>Population2000)<span class="sc">/</span>Population2000)<span class="sc">*</span><span class="dv">100</span>) <span class="sc">%&gt;%</span> <span class="fu">arrange</span>(<span class="fu">desc</span>(change))</span></code></pre></div>
 <p>And just like that: Nevada.</p>
 <p>You may be asking: hey, wasn’t there a 2020 Census? Where’s that data? The answer is that it’s coming - the Census Bureau has a <a href="https://www.census.gov/programs-surveys/popest/about/schedule.html">schedule of releases</a>.</p>
 <div id="the-acs" class="section level2" number="17.1">
@@ -398,15 +398,15 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>Here’s an example using the 5-year ACS estimates:</p>
 <p>What is Maryland’s richest county?</p>
 <p>We can measure this by median household income. That variable is <code>B19013_001</code>, so we can get that data like this (I’m narrowing it to the top 20 for simplicity):</p>
-<div class="sourceCode" id="cb311"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb311-1"><a href="intro-to-apis-the-census.html#cb311-1" aria-hidden="true" tabindex="-1"></a>md <span class="ot">&lt;-</span> <span class="fu">get_acs</span>(<span class="at">geography =</span> <span class="st">&quot;county&quot;</span>,</span>
-<span id="cb311-2"><a href="intro-to-apis-the-census.html#cb311-2" aria-hidden="true" tabindex="-1"></a>              <span class="at">variables =</span> <span class="fu">c</span>(<span class="at">medincome =</span> <span class="st">&quot;B19013_001&quot;</span>),</span>
-<span id="cb311-3"><a href="intro-to-apis-the-census.html#cb311-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">state =</span> <span class="st">&quot;MD&quot;</span>,</span>
-<span id="cb311-4"><a href="intro-to-apis-the-census.html#cb311-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">year =</span> <span class="dv">2019</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb337"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb337-1"><a href="intro-to-apis-the-census.html#cb337-1" aria-hidden="true" tabindex="-1"></a>md <span class="ot">&lt;-</span> <span class="fu">get_acs</span>(<span class="at">geography =</span> <span class="st">&quot;county&quot;</span>,</span>
+<span id="cb337-2"><a href="intro-to-apis-the-census.html#cb337-2" aria-hidden="true" tabindex="-1"></a>              <span class="at">variables =</span> <span class="fu">c</span>(<span class="at">medincome =</span> <span class="st">&quot;B19013_001&quot;</span>),</span>
+<span id="cb337-3"><a href="intro-to-apis-the-census.html#cb337-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">state =</span> <span class="st">&quot;MD&quot;</span>,</span>
+<span id="cb337-4"><a href="intro-to-apis-the-census.html#cb337-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">year =</span> <span class="dv">2019</span>)</span></code></pre></div>
 <pre><code>## Getting data from the 2015-2019 5-year ACS</code></pre>
-<div class="sourceCode" id="cb313"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb313-1"><a href="intro-to-apis-the-census.html#cb313-1" aria-hidden="true" tabindex="-1"></a>md <span class="ot">&lt;-</span> md <span class="sc">%&gt;%</span> <span class="fu">arrange</span>(<span class="fu">desc</span>(estimate)) <span class="sc">%&gt;%</span> <span class="fu">top_n</span>(<span class="dv">20</span>, estimate)</span>
-<span id="cb313-2"><a href="intro-to-apis-the-census.html#cb313-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb313-3"><a href="intro-to-apis-the-census.html#cb313-3" aria-hidden="true" tabindex="-1"></a>md</span></code></pre></div>
-<pre><code>## # A tibble: 20 x 5
+<div class="sourceCode" id="cb339"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb339-1"><a href="intro-to-apis-the-census.html#cb339-1" aria-hidden="true" tabindex="-1"></a>md <span class="ot">&lt;-</span> md <span class="sc">%&gt;%</span> <span class="fu">arrange</span>(<span class="fu">desc</span>(estimate)) <span class="sc">%&gt;%</span> <span class="fu">top_n</span>(<span class="dv">20</span>, estimate)</span>
+<span id="cb339-2"><a href="intro-to-apis-the-census.html#cb339-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb339-3"><a href="intro-to-apis-the-census.html#cb339-3" aria-hidden="true" tabindex="-1"></a>md</span></code></pre></div>
+<pre><code>## # A tibble: 20 × 5
 ##    GEOID NAME                             variable  estimate   moe
 ##    &lt;chr&gt; &lt;chr&gt;                            &lt;chr&gt;        &lt;dbl&gt; &lt;dbl&gt;
 ##  1 24027 Howard County, Maryland          medincome   121160  2169
@@ -430,39 +430,39 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ## 19 24045 Wicomico County, Maryland        medincome    56956  2596
 ## 20 24019 Dorchester County, Maryland      medincome    52917  3255</code></pre>
 <p>Howard, Calvert, Montgomery, Anne Arundel, Charles. What do they all have in common? Lots of suburban flight from DC and Baltimore. But do the margins of error let us say one county is richer than the other. We can find this out visually using error bars. Don’t worry much about the code here – we’ll cover that soon enough.</p>
-<div class="sourceCode" id="cb315"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb315-1"><a href="intro-to-apis-the-census.html#cb315-1" aria-hidden="true" tabindex="-1"></a>md <span class="sc">%&gt;%</span></span>
-<span id="cb315-2"><a href="intro-to-apis-the-census.html#cb315-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">NAME =</span> <span class="fu">gsub</span>(<span class="st">&quot; County, Maryland&quot;</span>, <span class="st">&quot;&quot;</span>, NAME)) <span class="sc">%&gt;%</span></span>
-<span id="cb315-3"><a href="intro-to-apis-the-census.html#cb315-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> estimate, <span class="at">y =</span> <span class="fu">reorder</span>(NAME, estimate))) <span class="sc">+</span></span>
-<span id="cb315-4"><a href="intro-to-apis-the-census.html#cb315-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_errorbarh</span>(<span class="fu">aes</span>(<span class="at">xmin =</span> estimate <span class="sc">-</span> moe, <span class="at">xmax =</span> estimate <span class="sc">+</span> moe)) <span class="sc">+</span></span>
-<span id="cb315-5"><a href="intro-to-apis-the-census.html#cb315-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">color =</span> <span class="st">&quot;red&quot;</span>) <span class="sc">+</span></span>
-<span id="cb315-6"><a href="intro-to-apis-the-census.html#cb315-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Household income by county in Maryland&quot;</span>,</span>
-<span id="cb315-7"><a href="intro-to-apis-the-census.html#cb315-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">&quot;2015-2019 American Community Survey&quot;</span>,</span>
-<span id="cb315-8"><a href="intro-to-apis-the-census.html#cb315-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">&quot;&quot;</span>,</span>
-<span id="cb315-9"><a href="intro-to-apis-the-census.html#cb315-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">&quot;ACS estimate (bars represent margin of error)&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb341"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb341-1"><a href="intro-to-apis-the-census.html#cb341-1" aria-hidden="true" tabindex="-1"></a>md <span class="sc">%&gt;%</span></span>
+<span id="cb341-2"><a href="intro-to-apis-the-census.html#cb341-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">NAME =</span> <span class="fu">gsub</span>(<span class="st">&quot; County, Maryland&quot;</span>, <span class="st">&quot;&quot;</span>, NAME)) <span class="sc">%&gt;%</span></span>
+<span id="cb341-3"><a href="intro-to-apis-the-census.html#cb341-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> estimate, <span class="at">y =</span> <span class="fu">reorder</span>(NAME, estimate))) <span class="sc">+</span></span>
+<span id="cb341-4"><a href="intro-to-apis-the-census.html#cb341-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_errorbarh</span>(<span class="fu">aes</span>(<span class="at">xmin =</span> estimate <span class="sc">-</span> moe, <span class="at">xmax =</span> estimate <span class="sc">+</span> moe)) <span class="sc">+</span></span>
+<span id="cb341-5"><a href="intro-to-apis-the-census.html#cb341-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">color =</span> <span class="st">&quot;red&quot;</span>) <span class="sc">+</span></span>
+<span id="cb341-6"><a href="intro-to-apis-the-census.html#cb341-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Household income by county in Maryland&quot;</span>,</span>
+<span id="cb341-7"><a href="intro-to-apis-the-census.html#cb341-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">&quot;2015-2019 American Community Survey&quot;</span>,</span>
+<span id="cb341-8"><a href="intro-to-apis-the-census.html#cb341-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">&quot;&quot;</span>,</span>
+<span id="cb341-9"><a href="intro-to-apis-the-census.html#cb341-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">&quot;ACS estimate (bars represent margin of error)&quot;</span>)</span></code></pre></div>
 <p><img src="datajournalism_files/figure-html/unnamed-chunk-187-1.png" width="672" /></p>
 <p>As you can see, some of the error bars are quite wide. Some are narrow. But if the bars overlap, it means the difference between the two counties is within the margin of error, and the differences aren’t statistically significant. So is the difference between Calvert and Montgomery significant? Nope. Is the difference between Howard and everyone else significant? Yes it is.</p>
 <p>Let’s ask another question of the ACS – did any counties lose income from the time of the global financial crisis to the current 5-year window?</p>
 <p>Let’s re-label our first household income data.</p>
-<div class="sourceCode" id="cb316"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb316-1"><a href="intro-to-apis-the-census.html#cb316-1" aria-hidden="true" tabindex="-1"></a>md19 <span class="ot">&lt;-</span> <span class="fu">get_acs</span>(<span class="at">geography =</span> <span class="st">&quot;county&quot;</span>,</span>
-<span id="cb316-2"><a href="intro-to-apis-the-census.html#cb316-2" aria-hidden="true" tabindex="-1"></a>              <span class="at">variables =</span> <span class="fu">c</span>(<span class="at">medincome =</span> <span class="st">&quot;B19013_001&quot;</span>),</span>
-<span id="cb316-3"><a href="intro-to-apis-the-census.html#cb316-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">state =</span> <span class="st">&quot;MD&quot;</span>,</span>
-<span id="cb316-4"><a href="intro-to-apis-the-census.html#cb316-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">year =</span> <span class="dv">2019</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb342"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb342-1"><a href="intro-to-apis-the-census.html#cb342-1" aria-hidden="true" tabindex="-1"></a>md19 <span class="ot">&lt;-</span> <span class="fu">get_acs</span>(<span class="at">geography =</span> <span class="st">&quot;county&quot;</span>,</span>
+<span id="cb342-2"><a href="intro-to-apis-the-census.html#cb342-2" aria-hidden="true" tabindex="-1"></a>              <span class="at">variables =</span> <span class="fu">c</span>(<span class="at">medincome =</span> <span class="st">&quot;B19013_001&quot;</span>),</span>
+<span id="cb342-3"><a href="intro-to-apis-the-census.html#cb342-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">state =</span> <span class="st">&quot;MD&quot;</span>,</span>
+<span id="cb342-4"><a href="intro-to-apis-the-census.html#cb342-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">year =</span> <span class="dv">2019</span>)</span></code></pre></div>
 <pre><code>## Getting data from the 2015-2019 5-year ACS</code></pre>
 <p>And now we grab the 2010 median household income.</p>
-<div class="sourceCode" id="cb318"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb318-1"><a href="intro-to-apis-the-census.html#cb318-1" aria-hidden="true" tabindex="-1"></a>md10 <span class="ot">&lt;-</span> <span class="fu">get_acs</span>(<span class="at">geography =</span> <span class="st">&quot;county&quot;</span>,</span>
-<span id="cb318-2"><a href="intro-to-apis-the-census.html#cb318-2" aria-hidden="true" tabindex="-1"></a>              <span class="at">variables =</span> <span class="fu">c</span>(<span class="at">medincome =</span> <span class="st">&quot;B19013_001&quot;</span>),</span>
-<span id="cb318-3"><a href="intro-to-apis-the-census.html#cb318-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">state =</span> <span class="st">&quot;MD&quot;</span>,</span>
-<span id="cb318-4"><a href="intro-to-apis-the-census.html#cb318-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">year =</span> <span class="dv">2010</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb344"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb344-1"><a href="intro-to-apis-the-census.html#cb344-1" aria-hidden="true" tabindex="-1"></a>md10 <span class="ot">&lt;-</span> <span class="fu">get_acs</span>(<span class="at">geography =</span> <span class="st">&quot;county&quot;</span>,</span>
+<span id="cb344-2"><a href="intro-to-apis-the-census.html#cb344-2" aria-hidden="true" tabindex="-1"></a>              <span class="at">variables =</span> <span class="fu">c</span>(<span class="at">medincome =</span> <span class="st">&quot;B19013_001&quot;</span>),</span>
+<span id="cb344-3"><a href="intro-to-apis-the-census.html#cb344-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">state =</span> <span class="st">&quot;MD&quot;</span>,</span>
+<span id="cb344-4"><a href="intro-to-apis-the-census.html#cb344-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">year =</span> <span class="dv">2010</span>)</span></code></pre></div>
 <pre><code>## Getting data from the 2006-2010 5-year ACS</code></pre>
 <p>What I’m going to do next is a lot, but each step is simple. I’m going to join the data together, so each county has one line of data. Then I’m going to rename some fields that repeat. Then I’m going to calculate the minimium and maximum value of the estimate using the margin of error. That’ll help me later. After that, I’m going to calculate a perent change and sort it by that change.</p>
-<div class="sourceCode" id="cb320"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb320-1"><a href="intro-to-apis-the-census.html#cb320-1" aria-hidden="true" tabindex="-1"></a>md10 <span class="sc">%&gt;%</span></span>
-<span id="cb320-2"><a href="intro-to-apis-the-census.html#cb320-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">inner_join</span>(md19, <span class="at">by=</span><span class="fu">c</span>(<span class="st">&quot;GEOID&quot;</span>, <span class="st">&quot;NAME&quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb320-3"><a href="intro-to-apis-the-census.html#cb320-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">estimate2010=</span>estimate.x, <span class="at">estimate2019=</span>estimate.y) <span class="sc">%&gt;%</span></span>
-<span id="cb320-4"><a href="intro-to-apis-the-census.html#cb320-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">min2010 =</span> estimate2010<span class="sc">-</span>moe.x, <span class="at">max2010 =</span> estimate2010<span class="sc">+</span>moe.x, <span class="at">min2019 =</span> estimate2019<span class="sc">-</span>moe.y, <span class="at">max2019 =</span> estimate2019<span class="sc">+</span>moe.y) <span class="sc">%&gt;%</span></span>
-<span id="cb320-5"><a href="intro-to-apis-the-census.html#cb320-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>variable.x, <span class="sc">-</span>variable.y, <span class="sc">-</span>moe.x, <span class="sc">-</span>moe.y) <span class="sc">%&gt;%</span></span>
-<span id="cb320-6"><a href="intro-to-apis-the-census.html#cb320-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">change =</span> ((estimate2019<span class="sc">-</span>estimate2010)<span class="sc">/</span>estimate2010)<span class="sc">*</span><span class="dv">100</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb320-7"><a href="intro-to-apis-the-census.html#cb320-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(change)</span></code></pre></div>
-<pre><code>## # A tibble: 24 x 9
+<div class="sourceCode" id="cb346"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb346-1"><a href="intro-to-apis-the-census.html#cb346-1" aria-hidden="true" tabindex="-1"></a>md10 <span class="sc">%&gt;%</span></span>
+<span id="cb346-2"><a href="intro-to-apis-the-census.html#cb346-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">inner_join</span>(md19, <span class="at">by=</span><span class="fu">c</span>(<span class="st">&quot;GEOID&quot;</span>, <span class="st">&quot;NAME&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb346-3"><a href="intro-to-apis-the-census.html#cb346-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">estimate2010=</span>estimate.x, <span class="at">estimate2019=</span>estimate.y) <span class="sc">%&gt;%</span></span>
+<span id="cb346-4"><a href="intro-to-apis-the-census.html#cb346-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">min2010 =</span> estimate2010<span class="sc">-</span>moe.x, <span class="at">max2010 =</span> estimate2010<span class="sc">+</span>moe.x, <span class="at">min2019 =</span> estimate2019<span class="sc">-</span>moe.y, <span class="at">max2019 =</span> estimate2019<span class="sc">+</span>moe.y) <span class="sc">%&gt;%</span></span>
+<span id="cb346-5"><a href="intro-to-apis-the-census.html#cb346-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>variable.x, <span class="sc">-</span>variable.y, <span class="sc">-</span>moe.x, <span class="sc">-</span>moe.y) <span class="sc">%&gt;%</span></span>
+<span id="cb346-6"><a href="intro-to-apis-the-census.html#cb346-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">change =</span> ((estimate2019<span class="sc">-</span>estimate2010)<span class="sc">/</span>estimate2010)<span class="sc">*</span><span class="dv">100</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb346-7"><a href="intro-to-apis-the-census.html#cb346-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(change)</span></code></pre></div>
+<pre><code>## # A tibble: 24 × 9
 ##    GEOID NAME  estimate2010 estimate2019 min2010 max2010 min2019 max2019  change
 ##    &lt;chr&gt; &lt;chr&gt;        &lt;dbl&gt;        &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
 ##  1 24039 Some…        42443        37803   39092   45794   31139   44467 -10.9  
@@ -480,7 +480,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>But did they?</p>
 <p>Look at the min and max values for both. Is the change statistically significant?</p>
 <p>The ACS data has lots of variables, just like the decennial Census does. To browse them, you can do this:</p>
-<div class="sourceCode" id="cb322"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb322-1"><a href="intro-to-apis-the-census.html#cb322-1" aria-hidden="true" tabindex="-1"></a>v19 <span class="ot">&lt;-</span> <span class="fu">load_variables</span>(<span class="dv">2019</span>, <span class="st">&quot;acs5&quot;</span>, <span class="at">cache=</span><span class="cn">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb348"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb348-1"><a href="intro-to-apis-the-census.html#cb348-1" aria-hidden="true" tabindex="-1"></a>v19 <span class="ot">&lt;-</span> <span class="fu">load_variables</span>(<span class="dv">2019</span>, <span class="st">&quot;acs5&quot;</span>, <span class="at">cache=</span><span class="cn">TRUE</span>)</span></code></pre></div>
 <p>And then view <code>v19</code> to see what kinds of variables are available via the API.</p>
 </div>
 <div id="wide-results" class="section level2" number="17.2">
@@ -490,13 +490,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="sorting-results" class="section level2" number="17.3">
 <h2><span class="header-section-number">17.3</span> Sorting Results</h2>
 <p>You’ll notice that we’ve used <code>arrange</code> to sort the results of tidycensus functions, although that’s done after we create a new variable to hold the data. There’s another way to use <code>arrange</code> that you should know about, one that you can use for exploratory analysis. An example using median household income from 2019:</p>
-<div class="sourceCode" id="cb323"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb323-1"><a href="intro-to-apis-the-census.html#cb323-1" aria-hidden="true" tabindex="-1"></a>md19 <span class="ot">&lt;-</span> <span class="fu">get_acs</span>(<span class="at">geography =</span> <span class="st">&quot;county&quot;</span>,</span>
-<span id="cb323-2"><a href="intro-to-apis-the-census.html#cb323-2" aria-hidden="true" tabindex="-1"></a>              <span class="at">variables =</span> <span class="fu">c</span>(<span class="at">medincome =</span> <span class="st">&quot;B19013_001&quot;</span>),</span>
-<span id="cb323-3"><a href="intro-to-apis-the-census.html#cb323-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">state =</span> <span class="st">&quot;MD&quot;</span>,</span>
-<span id="cb323-4"><a href="intro-to-apis-the-census.html#cb323-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">year =</span> <span class="dv">2019</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb349"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb349-1"><a href="intro-to-apis-the-census.html#cb349-1" aria-hidden="true" tabindex="-1"></a>md19 <span class="ot">&lt;-</span> <span class="fu">get_acs</span>(<span class="at">geography =</span> <span class="st">&quot;county&quot;</span>,</span>
+<span id="cb349-2"><a href="intro-to-apis-the-census.html#cb349-2" aria-hidden="true" tabindex="-1"></a>              <span class="at">variables =</span> <span class="fu">c</span>(<span class="at">medincome =</span> <span class="st">&quot;B19013_001&quot;</span>),</span>
+<span id="cb349-3"><a href="intro-to-apis-the-census.html#cb349-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">state =</span> <span class="st">&quot;MD&quot;</span>,</span>
+<span id="cb349-4"><a href="intro-to-apis-the-census.html#cb349-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">year =</span> <span class="dv">2019</span>)</span></code></pre></div>
 <pre><code>## Getting data from the 2015-2019 5-year ACS</code></pre>
-<div class="sourceCode" id="cb325"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb325-1"><a href="intro-to-apis-the-census.html#cb325-1" aria-hidden="true" tabindex="-1"></a><span class="fu">arrange</span>(md19, <span class="fu">desc</span>(estimate))</span></code></pre></div>
-<pre><code>## # A tibble: 24 x 5
+<div class="sourceCode" id="cb351"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb351-1"><a href="intro-to-apis-the-census.html#cb351-1" aria-hidden="true" tabindex="-1"></a><span class="fu">arrange</span>(md19, <span class="fu">desc</span>(estimate))</span></code></pre></div>
+<pre><code>## # A tibble: 24 × 5
 ##    GEOID NAME                          variable  estimate   moe
 ##    &lt;chr&gt; &lt;chr&gt;                         &lt;chr&gt;        &lt;dbl&gt; &lt;dbl&gt;
 ##  1 24027 Howard County, Maryland       medincome   121160  2169
@@ -524,6 +524,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
 <script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
@@ -564,7 +565,7 @@ gitbook.start({
 },
 "download": ["datajournalism.pdf", "datajournalism.epub"],
 "search": {
-"engine": "fuse",
+"engine": "lunr",
 "options": null
 },
 "toc": {

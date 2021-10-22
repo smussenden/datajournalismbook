@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>Chapter 6 Aggregates | Data Journalism with R and the Tidyverse</title>
   <meta name="description" content="This is a book built on a very opinionated philosophy for journalism students doing data journalism in R with replicable methods." />
-  <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.23 and GitBook 2.6.7" />
 
   <meta property="og:title" content="Chapter 6 Aggregates | Data Journalism with R and the Tidyverse" />
   <meta property="og:type" content="book" />
@@ -24,7 +24,7 @@
 <meta name="author" content="Matt Waite (original author); updated by Derek Willis and Sean Mussenden" />
 
 
-<meta name="date" content="2021-10-11" />
+<meta name="date" content="2021-10-22" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -35,7 +35,6 @@
 <link rel="next" href="mutating-data.html"/>
 <script src="libs/header-attrs-2.10/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
@@ -51,11 +50,12 @@
 
 
 
+
 <link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
 <script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
 <script src="libs/htmlwidgets-1.5.3/htmlwidgets.js"></script>
 <link href="libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
-<script src="libs/datatables-binding-0.19/datatables.js"></script>
+<script src="libs/datatables-binding-0.18/datatables.js"></script>
 <link href="libs/dt-core-1.10.20/css/jquery.dataTables.min.css" rel="stylesheet" />
 <link href="libs/dt-core-1.10.20/css/jquery.dataTables.extra.css" rel="stylesheet" />
 <script src="libs/dt-core-1.10.20/js/jquery.dataTables.min.js"></script>
@@ -349,8 +349,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>But, because those two libraries – and several others that we’re going to use over the course of this class – are so commonly used, there’s a shortcut to loading all of the libraries we’ll need:</p>
 <div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="aggregates.html#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code></pre></div>
 <pre><code>## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──</code></pre>
-<pre><code>## ✓ ggplot2 3.3.3     ✓ purrr   0.3.4
-## ✓ tibble  3.1.1     ✓ stringr 1.4.0
+<pre><code>## ✓ ggplot2 3.3.5     ✓ purrr   0.3.4
+## ✓ tibble  3.1.3     ✓ stringr 1.4.0
 ## ✓ tidyr   1.1.3     ✓ forcats 0.5.1</code></pre>
 <pre><code>## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
 ## x dplyr::filter() masks stats::filter()
@@ -450,37 +450,22 @@ A recipe to make pizza is a kind of function. We might call it <strong>make_pizz
 ## $ forgiveness_date               &lt;date&gt; NA, NA, 2021-02-25, 2020-12-30, NA, 20…</code></pre>
 <p>If we type <code>head(ppp_maryland_loans)</code>, it will print out the columns and the first six rows of data.</p>
 <div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="aggregates.html#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(ppp_maryland_loans)</span></code></pre></div>
-<pre><code>## # A tibble: 6 x 63
-##        id name   slug  amount state address city  zip   naics_code business_type
-##     &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;  &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;      &lt;dbl&gt; &lt;chr&gt;        
-## 1  9.94e7 TARBI… tarb… 149000 MD    6785 B… Elkr… 2107…     611110 Corporation  
-## 2  9.94e7 J &amp;AM… j-am… 146000 MD    10413 … Unio… 21791     238310 Subchapter S…
-## 3  9.94e7 DULAN… dula… 140400 MD    4 Wind… PHOE… 2113…     623110 Corporation  
-## 4  9.94e7 QUART… quar… 139527 MD    4972 W… Rock… 20852     311920 Corporation  
-## 5  9.94e7 ORCHA… orch… 133400 MD    1855 W… Owin… 2073…     561730 Subchapter S…
-## 6  9.94e7 FRUIT… frui… 133000 MD    402 MA… EAST… 2160…     531120 Limited  Lia…
+<pre><code>## # A tibble: 6 × 63
+##         id name  slug  amount state address city  zip   naics_code business_type
+##      &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;  &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;      &lt;dbl&gt; &lt;chr&gt;        
+## 1 99443772 TARB… tarb… 149000 MD    6785 B… Elkr… 2107…     611110 Corporation  
+## 2 99444241 J &amp;A… j-am… 146000 MD    10413 … Unio… 21791     238310 Subchapter S…
+## 3 99445051 DULA… dula… 140400 MD    4 Wind… PHOE… 2113…     623110 Corporation  
+## 4 99445208 QUAR… quar… 139527 MD    4972 W… Rock… 20852     311920 Corporation  
+## 5 99446123 ORCH… orch… 133400 MD    1855 W… Owin… 2073…     561730 Subchapter S…
+## 6 99446170 FRUI… frui… 133000 MD    402 MA… EAST… 2160…     531120 Limited  Lia…
 ## # … with 53 more variables: race &lt;chr&gt;, gender &lt;chr&gt;, veteran &lt;chr&gt;,
 ## #   non_profit &lt;lgl&gt;, jobs_retained &lt;dbl&gt;, date_approved &lt;date&gt;, lender &lt;chr&gt;,
 ## #   congressional_district &lt;chr&gt;, loan_range_sort_key &lt;lgl&gt;,
 ## #   previous_loan_range &lt;lgl&gt;, previous_name &lt;lgl&gt;, loan_number &lt;dbl&gt;,
 ## #   sba_office_code &lt;dbl&gt;, processing_method &lt;chr&gt;, loan_status &lt;chr&gt;,
 ## #   term &lt;dbl&gt;, sba_guaranty_percentage &lt;dbl&gt;, initial_approval_amount &lt;dbl&gt;,
-## #   current_approval_amount &lt;dbl&gt;, undisbursed_amount &lt;dbl&gt;,
-## #   franchise_name &lt;chr&gt;, servicing_lender_location_id &lt;dbl&gt;,
-## #   servicing_lender_name &lt;chr&gt;, servicing_lender_address &lt;chr&gt;,
-## #   servicing_lender_city &lt;chr&gt;, servicing_lender_state &lt;chr&gt;,
-## #   servicing_lender_zip &lt;chr&gt;, rural_urban_indicator &lt;chr&gt;,
-## #   hubzone_indicator &lt;chr&gt;, business_age_description &lt;chr&gt;,
-## #   project_city &lt;chr&gt;, project_county_name &lt;chr&gt;, project_state &lt;chr&gt;,
-## #   project_zip &lt;chr&gt;, utilities_proceed &lt;dbl&gt;, payroll_proceed &lt;dbl&gt;,
-## #   mortgage_interest_proceed &lt;dbl&gt;, rent_proceed &lt;dbl&gt;,
-## #   refinance_eidl_proceed &lt;dbl&gt;, health_care_proceed &lt;dbl&gt;,
-## #   debt_interest_proceed &lt;dbl&gt;, originating_lender_city &lt;chr&gt;,
-## #   originating_lender_state &lt;chr&gt;, loan_status_date &lt;date&gt;,
-## #   originating_lender_location_id &lt;dbl&gt;, old_slug &lt;lgl&gt;, lmi_indicator &lt;chr&gt;,
-## #   unmatched_original &lt;lgl&gt;, unmatched_updated &lt;lgl&gt;,
-## #   previous_jobs_reported &lt;lgl&gt;, ethnicity &lt;chr&gt;, forgiveness_amount &lt;dbl&gt;,
-## #   forgiveness_date &lt;date&gt;</code></pre>
+## #   current_approval_amount &lt;dbl&gt;, undisbursed_amount &lt;dbl&gt;, …</code></pre>
 <p>We can also click on the data name in the R Studio environment window to explore it interactively.</p>
 </div>
 <div id="group-by-and-count" class="section level2" number="6.3">
@@ -499,7 +484,7 @@ A recipe to make pizza is a kind of function. We might call it <strong>make_pizz
 <span id="cb26-3"><a href="aggregates.html#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
 <span id="cb26-4"><a href="aggregates.html#cb26-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">count_loans =</span> <span class="fu">n</span>()</span>
 <span id="cb26-5"><a href="aggregates.html#cb26-5" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
-<pre><code>## # A tibble: 24 x 2
+<pre><code>## # A tibble: 24 × 2
 ##    project_county_name count_loans
 ##    &lt;chr&gt;                     &lt;int&gt;
 ##  1 ALLEGANY                   1293
@@ -525,7 +510,7 @@ A recipe to make pizza is a kind of function. We might call it <strong>make_pizz
 <span id="cb28-4"><a href="aggregates.html#cb28-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">count_loans =</span> <span class="fu">n</span>()</span>
 <span id="cb28-5"><a href="aggregates.html#cb28-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span> </span>
 <span id="cb28-6"><a href="aggregates.html#cb28-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(count_loans))</span></code></pre></div>
-<pre><code>## # A tibble: 24 x 2
+<pre><code>## # A tibble: 24 × 2
 ##    project_county_name count_loans
 ##    &lt;chr&gt;                     &lt;int&gt;
 ##  1 MONTGOMERY                38781
@@ -558,7 +543,7 @@ A recipe to make pizza is a kind of function. We might call it <strong>make_pizz
 <span id="cb30-5"><a href="aggregates.html#cb30-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span> </span>
 <span id="cb30-6"><a href="aggregates.html#cb30-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(project_county_name,race)</span></code></pre></div>
 <pre><code>## `summarise()` has grouped output by &#39;project_county_name&#39;. You can override using the `.groups` argument.</code></pre>
-<pre><code>## # A tibble: 126 x 3
+<pre><code>## # A tibble: 126 × 3
 ## # Groups:   project_county_name [24]
 ##    project_county_name race                                      count_loans
 ##    &lt;chr&gt;               &lt;chr&gt;                                           &lt;int&gt;
@@ -586,7 +571,7 @@ A recipe to make pizza is a kind of function. We might call it <strong>make_pizz
 <span id="cb33-5"><a href="aggregates.html#cb33-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">total_loans_amount =</span> <span class="fu">sum</span>(amount)</span>
 <span id="cb33-6"><a href="aggregates.html#cb33-6" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span> </span>
 <span id="cb33-7"><a href="aggregates.html#cb33-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(total_loans_amount))</span></code></pre></div>
-<pre><code>## # A tibble: 24 x 3
+<pre><code>## # A tibble: 24 × 3
 ##    project_county_name count_loans total_loans_amount
 ##    &lt;chr&gt;                     &lt;int&gt;              &lt;dbl&gt;
 ##  1 MONTGOMERY                38781        3191350613.
@@ -610,7 +595,7 @@ A recipe to make pizza is a kind of function. We might call it <strong>make_pizz
 <span id="cb35-7"><a href="aggregates.html#cb35-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">median_loan_amount =</span> <span class="fu">median</span>(amount)</span>
 <span id="cb35-8"><a href="aggregates.html#cb35-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span> </span>
 <span id="cb35-9"><a href="aggregates.html#cb35-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(mean_loan_amount))</span></code></pre></div>
-<pre><code>## # A tibble: 24 x 5
+<pre><code>## # A tibble: 24 × 5
 ##    project_county_name count_loans total_loans_amount mean_loan_amount
 ##    &lt;chr&gt;                     &lt;int&gt;              &lt;dbl&gt;            &lt;dbl&gt;
 ##  1 HOWARD                    12011        1287751670.          107214.
@@ -638,7 +623,7 @@ A recipe to make pizza is a kind of function. We might call it <strong>make_pizz
 <span id="cb37-9"><a href="aggregates.html#cb37-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">max_loan_amount =</span> <span class="fu">max</span>(amount)</span>
 <span id="cb37-10"><a href="aggregates.html#cb37-10" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span> </span>
 <span id="cb37-11"><a href="aggregates.html#cb37-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(max_loan_amount))</span></code></pre></div>
-<pre><code>## # A tibble: 24 x 7
+<pre><code>## # A tibble: 24 × 7
 ##    project_county_name count_loans total_loans_amount mean_loan_amount
 ##    &lt;chr&gt;                     &lt;int&gt;              &lt;dbl&gt;            &lt;dbl&gt;
 ##  1 ANNE ARUNDEL              17336        1533274782.           88445.
@@ -657,41 +642,26 @@ A recipe to make pizza is a kind of function. We might call it <strong>make_pizz
 <p>It would be interesting to see what these companies are that got the maximum of $10 million. To do that, we could simply take our original data set and sort it from highest to lowest on the loan amount.</p>
 <div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="aggregates.html#cb39-1" aria-hidden="true" tabindex="-1"></a>ppp_maryland_loans <span class="sc">%&gt;%</span></span>
 <span id="cb39-2"><a href="aggregates.html#cb39-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(amount))</span></code></pre></div>
-<pre><code>## # A tibble: 195,856 x 63
-##         id name  slug  amount state address city  zip   naics_code business_type
-##      &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;  &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;      &lt;dbl&gt; &lt;chr&gt;        
-##  1  9.38e7 GSE … gse-… 1   e7 MD    1332 L… Syke… 21784     333318 Corporation  
-##  2  9.38e7 GMS … gms-… 1   e7 MD    PO Box… OAKL… 21550     212112 Corporation  
-##  3  9.38e7 LEME… leme… 1   e7 MD    8184 L… ELKR… 2107…     722513 Subchapter S…
-##  4  9.38e7 MISS… miss… 1   e7 MD    7750 G… Glen… 21061     722511 Limited  Lia…
-##  5  9.38e7 PT N… pt-n… 1   e7 MD    501 Fa… Tows… 21286     621340 Limited  Lia…
-##  6  9.38e7 SMAR… smar… 9.51e6 MD    1997 A… ANNA… 2140…     541611 Limited  Lia…
-##  7  9.38e7 SILV… silv… 9.50e6 MD    12276 … ROCK… 2085…     722511 Limited  Lia…
-##  8  9.38e7 D.A.… d-a-… 9.22e6 MD    1330 M… LAUR… 20708     238220 Limited  Lia…
-##  9  9.38e7 VISI… visi… 9.14e6 MD    530 Mc… Glen… 21061     517311 Subchapter S…
-## 10  9.38e7 YOUN… youn… 9.11e6 MD    303 W … Balt… 2120…     813410 501(c)3 – No…
+<pre><code>## # A tibble: 195,856 × 63
+##          id name  slug  amount state address city  zip   naics_code business_type
+##       &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;  &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;      &lt;dbl&gt; &lt;chr&gt;        
+##  1 93757930 GSE … gse-… 1   e7 MD    1332 L… Syke… 21784     333318 Corporation  
+##  2 93757929 GMS … gms-… 1   e7 MD    PO Box… OAKL… 21550     212112 Corporation  
+##  3 93757932 LEME… leme… 1   e7 MD    8184 L… ELKR… 2107…     722513 Subchapter S…
+##  4 93757931 MISS… miss… 1   e7 MD    7750 G… Glen… 21061     722511 Limited  Lia…
+##  5 93757928 PT N… pt-n… 1   e7 MD    501 Fa… Tows… 21286     621340 Limited  Lia…
+##  6 93757933 SMAR… smar… 9.51e6 MD    1997 A… ANNA… 2140…     541611 Limited  Lia…
+##  7 93757934 SILV… silv… 9.50e6 MD    12276 … ROCK… 2085…     722511 Limited  Lia…
+##  8 93757935 D.A.… d-a-… 9.22e6 MD    1330 M… LAUR… 20708     238220 Limited  Lia…
+##  9 93757936 VISI… visi… 9.14e6 MD    530 Mc… Glen… 21061     517311 Subchapter S…
+## 10 93757937 YOUN… youn… 9.11e6 MD    303 W … Balt… 2120…     813410 501(c)3 – No…
 ## # … with 195,846 more rows, and 53 more variables: race &lt;chr&gt;, gender &lt;chr&gt;,
 ## #   veteran &lt;chr&gt;, non_profit &lt;lgl&gt;, jobs_retained &lt;dbl&gt;, date_approved &lt;date&gt;,
 ## #   lender &lt;chr&gt;, congressional_district &lt;chr&gt;, loan_range_sort_key &lt;lgl&gt;,
 ## #   previous_loan_range &lt;lgl&gt;, previous_name &lt;lgl&gt;, loan_number &lt;dbl&gt;,
 ## #   sba_office_code &lt;dbl&gt;, processing_method &lt;chr&gt;, loan_status &lt;chr&gt;,
 ## #   term &lt;dbl&gt;, sba_guaranty_percentage &lt;dbl&gt;, initial_approval_amount &lt;dbl&gt;,
-## #   current_approval_amount &lt;dbl&gt;, undisbursed_amount &lt;dbl&gt;,
-## #   franchise_name &lt;chr&gt;, servicing_lender_location_id &lt;dbl&gt;,
-## #   servicing_lender_name &lt;chr&gt;, servicing_lender_address &lt;chr&gt;,
-## #   servicing_lender_city &lt;chr&gt;, servicing_lender_state &lt;chr&gt;,
-## #   servicing_lender_zip &lt;chr&gt;, rural_urban_indicator &lt;chr&gt;,
-## #   hubzone_indicator &lt;chr&gt;, business_age_description &lt;chr&gt;,
-## #   project_city &lt;chr&gt;, project_county_name &lt;chr&gt;, project_state &lt;chr&gt;,
-## #   project_zip &lt;chr&gt;, utilities_proceed &lt;dbl&gt;, payroll_proceed &lt;dbl&gt;,
-## #   mortgage_interest_proceed &lt;dbl&gt;, rent_proceed &lt;dbl&gt;,
-## #   refinance_eidl_proceed &lt;dbl&gt;, health_care_proceed &lt;dbl&gt;,
-## #   debt_interest_proceed &lt;dbl&gt;, originating_lender_city &lt;chr&gt;,
-## #   originating_lender_state &lt;chr&gt;, loan_status_date &lt;date&gt;,
-## #   originating_lender_location_id &lt;dbl&gt;, old_slug &lt;lgl&gt;, lmi_indicator &lt;chr&gt;,
-## #   unmatched_original &lt;lgl&gt;, unmatched_updated &lt;lgl&gt;,
-## #   previous_jobs_reported &lt;lgl&gt;, ethnicity &lt;chr&gt;, forgiveness_amount &lt;dbl&gt;,
-## #   forgiveness_date &lt;date&gt;</code></pre>
+## #   current_approval_amount &lt;dbl&gt;, undisbursed_amount &lt;dbl&gt;, …</code></pre>
 <p>The first five rows here all represent companies that got $10 million loans. Who are they? What industries are they in? The answers to these questions could provide a lead for further reporting.</p>
 
 </div>
@@ -706,6 +676,7 @@ A recipe to make pizza is a kind of function. We might call it <strong>make_pizz
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
 <script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
@@ -746,7 +717,7 @@ gitbook.start({
 },
 "download": ["datajournalism.pdf", "datajournalism.epub"],
 "search": {
-"engine": "fuse",
+"engine": "lunr",
 "options": null
 },
 "toc": {

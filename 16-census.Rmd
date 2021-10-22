@@ -18,7 +18,7 @@ library(tidycensus)
 To use the API, you need an API key. To get that, you need to [apply for an API key with the Census Bureau](https://api.census.gov/data/key_signup.html). It takes a few minutes and you need to activate your key via email. Once you have your key, you need to set that for this session. Just FYI: Your key is your key. Do not share it around.
 
 ```{r, include=FALSE}
-census_api_key("549950d36c22ff16455fe196bbbd01d63cfbe6cf", install=TRUE, overwrite=TRUE)
+census_api_key("549950d36c22ff16455fe196bbbd01d63cfbe6cf")
 ```
 
 ```{r, eval=FALSE}
