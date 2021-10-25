@@ -1,0 +1,203 @@
+---
+title: "lab_09"
+author: "derek willis"
+date: "8/26/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## You will need
+
+* A Census API key
+
+## Load libraries and establish settings
+
+**Task** Create a codeblock and load appropriate packages and settings for this lab.
+
+```{r}
+# Turn off scientific notation
+options(scipen=999)
+
+# Load the tidyverse.
+library(tidyverse)
+library(tidycensus)
+library(rvest)
+library(janitor)
+
+# Establish API Key for Census
+census_api_key("549950d36c22ff16455fe196bbbd01d63cfbe6cf")
+
+```
+
+Q1. Which day in April 2020 saw the most loans approved in West Virginia? You MUST do the following things when answering this question:
+* Use the WV ppp loan data, which is in the data folder and is called lab_09.rds.
+* Make a line chart with ggplot that has each date in April (i.e. 04-01-20, 04-02-20) -- and only dates in April -- labeled on the x axis. The height of the line for each point set by the total number of loans on that date. Give it an appropriate title, source, and x and y axis titles.   
+
+```{r}
+
+ppp_wv_loans <- read_rds("data/lab_09.rds")
+
+ppp_wv_loans <- ppp_wv_loans %>%
+  group_by(date_approved) %>%
+  summarise(
+    total_loans=n()
+  ) %>%
+  filter(date_approved > "2020-04-01" & date_approved < "2020-04-30")
+
+ppp_wv_loans %>%
+  ggplot() + 
+  geom_line(aes(x=date_approved, y=total_loans)) + 
+  scale_x_date(date_breaks = "1 day", date_labels = "%m-%d-%y") +
+  theme(
+    axis.text.x = element_text(angle = 45,  hjust=1)
+  )
+
+```
+
+Q1. What are the top 10 states that got the most PPP loans per 100,000 people? You MUST do the following things when answering this question
+
+* Make a codeblock below to write your code in.
+* Use the csv of total PPP loans by state in the data folder (state_ppp_all) as your source for total PPP loans by state.  
+* Use the tidycensus API to get a table of total population by state from the American Community Survey (ACS). To do this, you'll use use the alphanumeric variable for total population, which has the following "label" and "concept": "Estimate!!Total:" and "SEX BY AGE".  
+* Use ggplot to make a horizontal bar chart that shows the top 10 states, with the length of the bar determined by the state's total PPP loans per 100,000 people. Give it an appropriate title, source, and x and y axis titles. 
+* Make the bars blue! I didn't show you how to do this in the prelab, so do some web sleuthing to figure it out.  
+
+```{r}
+variables <- load_variables(2019, "acs5", cache=TRUE)
+
+state_total_population <- get_acs(geography='state', variables=c(total_population='B01001_001')) %>%
+  rename(total_population = estimate) %>%
+  clean_names() %>%
+  select(name, total_population)
+
+state_total_loans <- read_csv("data/state_ppp_all.csv") %>%
+    mutate(state = case_when(
+    state == "N Dakota" ~ "North Dakota",
+    state == "S Dakota" ~ "South Dakota",
+    TRUE ~ state
+  ))
+
+state_total_loans_population <- state_total_loans %>%
+  inner_join(state_total_population, by=c("state" = "name")) %>%
+  mutate(loans_per_100k = total_ppp_loans/total_population*100000) %>%
+  arrange(desc(loans_per_100k)) %>%
+  head(10)
+
+
+state_total_loans_population %>%
+  ggplot() +
+  geom_bar(aes(x=reorder(state,loans_per_100k), weight=loans_per_100k), fill = "blue") +
+  coord_flip() + 
+  labs(
+    title="Top 10 states by ppp loans per 100,000 people",
+    x = "State",
+    y = "Loans per 100K",
+    caption = "source: SBA PPP loan; U.S. Census."
+    
+  ) 
+
+```
+
+
+
+
+## Setup Census API
+
+You'll need your Census API Key:
+
+**Task** set your API Key
+
+```{r echo=FALSE}
+census_api_key("YOUR KEY HERE", install=TRUE)
+```
+
+## Load and view ACS variables
+
+You'll also need to load the list of American Community Survey variables from the 2019 5-year estimates so you can identify the codes you need:
+
+**Task** load the variables from the 2019 5-year ACS and save them to a dataframe
+
+```{r}
+v19 <- load_variables(2019, "acs5", cache=TRUE)
+```
+
+## Load PPP data
+
+You'll also need to load an RDS file of PPP loan applications that were removed from the original data by lenders in July.
+
+**Task** read the RDS file and save it to a dataframe
+
+```{r}
+removed_ppp <- read_rds('data/lab_08.rds')
+```
+
+## Answer questions
+
+**Q1** What is the Maryland jurisdiction with the lowest median age, according to the ACS 2019 5-year estimates? You will need to find the variable for median age first.
+**A1** Baltimore City, with an estimated median age of 35.4 years and a margin of error of 0.2 years.
+
+```{r}
+md_median_age <- get_acs(geography='county', variables=c(median_age='B01002_001'), state='MD')
+arrange(md_median_age, estimate)
+```
+
+**Q2** Which Maryland counties have a median age of at least 50? You can use the dataframe you just made to answer this.
+**A2** Talbot and Worcester counties
+
+```{r}
+md_median_age %>% filter(estimate >= 50)
+```
+
+**Q3** A better answer to Q3 involves calculating percentages of children between 5 and 17 that speak Spanish at home. Which counties have the highest percentage of 5-17 year-olds that speak Spanish at home? Start with the code you wrote for Q4 and add a second dataframe with the total population of 5-17 year-olds by county. For each dataframe, rename the `estimate` column to a meaningful name you've given the ACS variable, remove the `variable` columns in each using select and then join them based on GEOID and NAME. Then you can add a column to calculate the percentage of the total 5-17 population that speaks Spanish at home.
+**A3**
+
+```{r}
+speak_spanish_5_17 <- get_acs(geography='county', variables=c(speak_spanish_5_17='B16007_004'), state='MD') %>%
+   rename('speak_spanish_5_17'='estimate') %>%
+   select(-variable)
+md_population_5_17 <- get_acs(geography='county', variables=c(total_pop_5_17='B16007_002'), state='MD') %>%
+   rename('total_pop_5_17'='estimate') %>%
+   select(-variable)
+
+combined_5_17 <- speak_spanish_5_17 %>%
+  inner_join(md_population_5_17, by=c('GEOID', 'NAME')) %>%
+  mutate(pct_of_total = (speak_spanish_5_17/total_pop_5_17)*100) %>%
+  arrange(desc(pct_of_total))
+```
+
+**Q4** Given the counties with the largest percentage of 5-17 year-olds that speak Spanish at home, what stands out to you about the data? How would you describe the top 5 counties? How would you describe Garrett County's numbers?
+**A4** Caroline County stands out - it has a tiny population compared to Prince George's and Montgomery but as many as 10 percent of its 5-17 year-olds speak Spanish at home. The top 5 are a combination of the largest jurisdictions (except Baltimore city and County) and some very small ones. We may not be able to accurately describe the percentage for Garrett County, given the margin of error for those speaking Spanish at home, but it seems very, very small.
+
+**Q5** Which 5-digit zip code had the most removed PPP applications, and what is the percentage of Black population in that zip code according to the ACS? To answer this question, you will need to creeate separate dataframes with ACS data on total population by zip code and Black population by zip code. In each dataframe, rename the `estimate` column and remove the `variable` column. You'll need to combine the two dataframes in order to calculate the percentage, and then you can combine it with the PPP data. Remember: the PPP data may not have only 5-digit zip codes!
+**A5**
+
+```{r}
+black_pop_zip <- get_acs('zcta', variables = "B02001_003", year=2019) %>%
+  rename('black_population'='estimate') %>%
+  select(-variable)
+total_pop_zip <- get_acs('zcta', variables = "B02001_001", year=2019) %>%
+  rename('total_population'='estimate') %>%
+  select(-variable)
+zip_combined <- black_pop_zip %>%
+  inner_join(total_pop_zip, by='GEOID') %>%
+  mutate(pct_black = (black_population/total_population)*100) %>%
+  arrange(desc(pct_black))
+
+removed_by_zip <- removed_ppp %>%
+  mutate(zip5=str_sub(zip, 1, 5)) %>%
+  group_by(zip5) %>%
+  summarise(count = n())%>%
+  arrange(desc(count))
+
+removed_by_zip %>% left_join(zip_combined, by=c('zip5'='GEOID')) %>%
+  arrange(desc(count))
+```
+
+**Q6** How would you describe to an editor the top 10 zip codes with the most removed application in terms of Black population? Where are they located, and what do they have in common? Are there any zip codes that seem different, and if so why?
+**A6**
+
+**Q7** What other columns from the PPP data could be useful in reporting on what happened to this removed loans?
+**A7**
