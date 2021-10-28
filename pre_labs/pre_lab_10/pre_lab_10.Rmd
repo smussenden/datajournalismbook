@@ -95,29 +95,74 @@ Let's create a choropleth map - one that shows variations between the total numb
 maryland_ppp <- read_rds("data/pre_lab_10.rds")
 ```
 
-In order to make a map, we need to be able to tell Datawrapper that a certain column contains geographic information (besides the name of the county). The easiest way to do that for U.S. maps is to use something called a [FIPS Code](https://www.census.gov/programs-surveys/geography/guidance/geo-identifiers.html). You should read about them so you understand what they are, and think of them as a unique identifier for some geographical entity like a state or county. Our maryland_ppp dataframe doesn't have a FIPS code for each county, but there's another file in the data folder that does: md_fips.csv.
+**Task** First, we'll create a dataframe that has county (jurisdiction) level counts of approved applications. Run the following code to do that. There are some mistakes in the data, so we're going to remove those with a filter after doing the counting.
+**Answer** Describe what the code below is doing and the output.
 
-**Task** First, we'll create a dataframe that has county (jurisdiction) level counts of approved applications. Run the following code to do that. There are some mistakes in the data, so we're going to remove those with a filter after doing the counting:
+```{r}
+md_counties <- maryland_ppp %>%
+    group_by(project_county_name) %>%
+    summarise(count=n())
+```
+
+**Task** Let's deal with those seemingly extraneous records that don't appear to be MD PPP applications:
+**Answer** Describe what the code below is doing and the output.
 
 ```{r}
 md_counties <- maryland_ppp %>%
     group_by(project_county_name) %>%
     summarise(count=n()) %>%
-    filter(count > 6) # just dropping some non-MD counties that have an incorrect state value
+    filter(count > 6)
 ```
 
-**Task** Next we'll read the md_fips.csv file into a dataframe. Run the R code to do that:
+In order to make a map, we need to be able to tell Datawrapper that a certain column contains geographic information (besides the name of the county). The easiest way to do that for U.S. maps is to use something called a [FIPS Code](https://www.census.gov/programs-surveys/geography/guidance/geo-identifiers.html). You should read about them so you understand what they are, and think of them as a unique identifier for some geographical entity like a state or county. Our maryland_ppp dataframe doesn't have a FIPS code for each county, but this is a solved problem thanks to the Tigris library. Let's install it:
+
+**Task** Install and load the Tigris library
 
 ```{r}
-md_fips <- read_csv("data/md_fips.csv")
+install.packages('tigris')
+library(tigris)
 ```
 
-**Task** Now we'll join `md_counties` and `md_fips` together, based on the name of the jurisdiction:
+Once we've done that, we have access to a dataframe containing all fips codes:
 
+**Task** Save fips codes into a dataframe and isolate the Maryland codes
+```{r}
+all_fips <- fips_codes %>% as_tibble()
+md_fips <- all_fips %>% filter(state == 'MD')
+```
+
+Looks good, but there are two issues: Datawrapper expects a 5-digit FIPS code (the state code plus the county code, so "24001" for Allegany County) and the county names don't match the `project_county_name` in the PPP data. Let's fix the first issue - adding a full FIPS code based on its components using the function `str_c`, which concatenates multiple strings:
+
+**Task** Generate full FIPS codes
+**Answer** Describe the contents of the new `fips_code` column
+
+```{r}
+md_fips <- md_fips %>% mutate(fips_code = str_c(state_code, county_code))
+```
+
+Now we'll deal with the county names in `md_counties`. They are all caps and contain no punctuation, we could:
+
+1. Change counties in `md_counties` to match `md_fips`
+2. Change counties in `md_fips` to match `md_counties`
+
+Let's do the latter. We'll use mutate to create an uppercase version of the name, remove " COUNTY", replace the quotemarks with nothing and change St. Mary's so it matches the PPP data:
+
+**Task** Change the county names in `md_fips`
+
+```{r}
+md_fips <- md_fips %>% mutate(match_county = str_to_upper(county)) %>%
+   mutate(match_county = str_replace(match_county, ' COUNTY', '')) %>%
+   mutate(match_county = str_replace(match_county, "'", "")) %>%
+   mutate(match_county = str_replace(match_county, "ST. MARY", "SAINT MARY"))
+```
+
+**Task** Now we'll join `md_counties` and `md_fips` together using our new `match_county` column:
+**Answer** Describe here what you see in `md_counties_with_fips`
 
 ```{r}
 md_counties_with_fips <- md_counties %>%
-  left_join(md_fips, by=c('project_county_name'='county'))
+  left_join(md_fips, by=c('project_county_name'='match_county'))
+View(md_counties_with_fips)
 ```
 
 **Task** Then we'll write `md_counties_with_fips` to a CSV in the data folder using write_csv:
@@ -128,13 +173,13 @@ write_csv(md_counties_with_fips, "data/md_counties.csv")
 
 **Task** Go back to Datawrapper and click on "New Map". Click on "Choropleth map" and then choose "USA >> Counties (2018)" for the map base and click the Proceed button.
 
-**Task** Now we can upload the `md_counties.csv` file using the Upload File button. It should look like the following image:
+**Task** Now we can upload the `md_counties.csv` file we just saved using the Upload File button. It should look like the following image:
 
 ```{r, echo=FALSE}
 knitr::include_graphics(rep("images/ppp_datawrapper8.png"))
 ```
 
-We'll need to make sure that Datawrapper understands what the data is and where the FIPS code is. 
+We'll need to make sure that Datawrapper understands what the data is and where the FIPS code is.
 
 **Task** Click on the "Match" tab and make sure that yours looks like the image below:
 
@@ -146,18 +191,19 @@ knitr::include_graphics(rep("images/ppp_datawrapper9.png"))
 
 You'll see that the map currently is of the whole nation, and we only have Maryland data. Let's fix that.
 
-**Task** Look for "Hide regions without data" under Appearance, and click the slider icon to enable that feature. You should see a map zoomed into Maryland with some counties in various colors. 
+**Task** Look for "Hide regions without data" under Appearance, and click the slider icon to enable that feature. You should see a map zoomed into Maryland with some counties in various colors.
+**Answer** Describe the changes from the previous map
 
-But it's a little rough visually, so let's clean that up. 
+But it's a little rough visually, so let's clean that up.
 
-**Task** Look for the "Show color legend" label and add a caption for the legend, which is the horizontal bar under the title. It represents the extent of the data from smallest number of loans to largest. Then click on the "Annotate" tab to add the title, description, data source and byline.
+**Task** Look for the "Show color legend" label and add a caption for the legend, which is the horizontal bar under the title. It represents the extent of the data from smallest number of loans to largest. Then click on the "Annotate" tab to add a title, description, data source and byline. The title should represent the headline, while the description should be a longer phrase that tells people what they are looking at.
 
 That's better, but check out the tooltip by hovering over a county. It's not super helpful. Let's change the tooltip behavior to show the county name and a better-formatted number.
 
-**Task** Click the "Customize tooltips" button so it expands down. Change {{ fips }} to {{ PROPER(project_county_name) }} and {{ count }} to {{ FORMAT(count, "0,0.[00]")}}
+**Task** Click the "Customize tooltips" button so it expands down. Change {{ fips }} to {{ county }} and {{ count }} to {{ FORMAT(count, "0,0.[00]")}}
+**Answer** Describe the changes from the previous map
 
 Ok, that looks better. Let's publish!
 
 **Task** Click the "Proceed" button until you get to the "Publish & Embed" tab, then click "Publish Now". Copy the URL and paste it below.
 **Answer** Put the URL of your map here.
-
