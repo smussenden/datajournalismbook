@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>Chapter 15 Scraping data with Rvest | Data Journalism with R and the Tidyverse</title>
   <meta name="description" content="This is a book built on a very opinionated philosophy for journalism students doing data journalism in R with replicable methods." />
-  <meta name="generator" content="bookdown 0.23 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
 
   <meta property="og:title" content="Chapter 15 Scraping data with Rvest | Data Journalism with R and the Tidyverse" />
   <meta property="og:type" content="book" />
@@ -24,7 +24,7 @@
 <meta name="author" content="Matt Waite (original author); updated by Derek Willis and Sean Mussenden" />
 
 
-<meta name="date" content="2021-10-22" />
+<meta name="date" content="2021-11-01" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -33,8 +33,9 @@
   
 <link rel="prev" href="combining-and-joining.html"/>
 <link rel="next" href="advanced-rvest.html"/>
-<script src="libs/header-attrs-2.10/header-attrs.js"></script>
+<script src="libs/header-attrs-2.11/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
@@ -50,12 +51,11 @@
 
 
 
-
 <link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
 <script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
-<script src="libs/htmlwidgets-1.5.3/htmlwidgets.js"></script>
+<script src="libs/htmlwidgets-1.5.4/htmlwidgets.js"></script>
 <link href="libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
-<script src="libs/datatables-binding-0.18/datatables.js"></script>
+<script src="libs/datatables-binding-0.19/datatables.js"></script>
 <link href="libs/dt-core-1.10.20/css/jquery.dataTables.min.css" rel="stylesheet" />
 <link href="libs/dt-core-1.10.20/css/jquery.dataTables.extra.css" rel="stylesheet" />
 <script src="libs/dt-core-1.10.20/js/jquery.dataTables.min.js"></script>
@@ -252,7 +252,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </ul></li>
 <li class="chapter" data-level="19" data-path="visualizing-your-data-for-publication.html"><a href="visualizing-your-data-for-publication.html"><i class="fa fa-check"></i><b>19</b> Visualizing your data for publication</a>
 <ul>
-<li class="chapter" data-level="19.1" data-path="visualizing-your-data-for-publication.html"><a href="visualizing-your-data-for-publication.html#datawrapper"><i class="fa fa-check"></i><b>19.1</b> Datawrapper</a></li>
+<li class="chapter" data-level="19.1" data-path="visualizing-your-data-for-publication.html"><a href="visualizing-your-data-for-publication.html#datawrapper"><i class="fa fa-check"></i><b>19.1</b> Datawrapper</a>
+<ul>
+<li class="chapter" data-level="19.1.1" data-path="visualizing-your-data-for-publication.html"><a href="visualizing-your-data-for-publication.html#making-a-map"><i class="fa fa-check"></i><b>19.1.1</b> Making a Map</a></li>
+</ul></li>
 </ul></li>
 <li class="chapter" data-level="20" data-path="geographic-data-basics.html"><a href="geographic-data-basics.html"><i class="fa fa-check"></i><b>20</b> Geographic data basics</a>
 <ul>
@@ -354,7 +357,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </ul>
 <p>It might be useful to have a lookup table of those top-level, two-digit NAICS codes (also called sector codes) for our analysis, to help us answer questions about what specific top-level industries got loans. L</p>
 <p>Let’s suppose we can’t find a table like that for download, but we do see a version on the BLS website at this URL: <a href="https://www.bls.gov/ces/naics/">https://www.bls.gov/ces/naics/</a>.</p>
-<p><img src="images/rvest1.png" width="857" />
+<p><img src="images/rvest1.png" /><!-- -->
 We could get this table into R with the following manual steps: highlighting the text, copying it into Excel, saving it as a csv, and reading it into R.</p>
 <p>Or, we could write a few lines of webscraping code to have R do that for us!</p>
 <p>In this simple example, it’s probably faster to do it manually than have R do it for us. And this table is unlikely to change much in the future.</p>
@@ -371,7 +374,7 @@ We could get this table into R with the following manual steps: highlighting the
 <p>But what we really care about, for our purposes, is the html code that creates that page.</p>
 <p>In our web browser, if we right-click anywhere on the page and select “view source” from the popup menu, we can see the source code. Or you can just copy this into Google Chrome: <a href="view-source:https://www.bls.gov/ces/naics/" class="uri">view-source:https://www.bls.gov/ces/naics/</a>.</p>
 <p>Here’s a picture of what some of the source code looks like.</p>
-<p><img src="images/rvest2.png" width="1125" />
+<p><img src="images/rvest2.png" /><!-- -->
 We’ll use those HTML tags – things like <code>&lt;div&gt;</code> and <code>&lt;a&gt;</code> and <code>&lt;table&gt;</code> – to grab the info we need.</p>
 <p>Okay, step 1.</p>
 <p>Let’s write a bit of code to tell R to go to the URL for the page and ingest all of that HTML code. In the code below, we’re starting with our URL and using the read_html() function from rvest to ingest all of the page html, storing it as an object called naics_industry.</p>
@@ -388,11 +391,11 @@ We’ll use those HTML tags – things like <code>&lt;div&gt;</code> and <code>&
 <p>If you’re running this code in R Studio, in our environment window at right, you’ll see naics_industry as a “list of 2.”</p>
 <p>This is not a dataframe, it’s a different type of data structure a “nested list.”</p>
 <p>If we click on the name “naics_industry” in our environment window, we can see that it’s pulled in the html and shown us the general page structure. Nested within the <code>&lt;html&gt;</code> tag is the <code>&lt;head&gt;</code> and <code>&lt;body&gt;</code>, the two fundamental sections of most web pages. We’re going to pull information out of the <code>&lt;body&gt;</code> tag in a bit.</p>
-<p><img src="images/rvest3.png" width="374" /></p>
+<p><img src="images/rvest3.png" /><!-- --></p>
 <p>Now, our task is to just pull out the section of the html that contains the information we need.</p>
 <p>But which part do we need from that mess of html code? To figure that out, we can go back to the page in a web browser like chrome, and use built in developer tools to “inspect” the html code underlying the page.</p>
 <p>On the page, find the data we want to grab – “Table 2. NAICS Sectors” - and right click on the word “Sector” in the column header of the table. That will bring up a dropdown menu. Select “Inspect,” which will pop up a window called the “element inspector” that shows us where different elements on the page are located, what html tags created those elements, and other info.</p>
-<p><img src="images/rvest4.png" width="1211" /></p>
+<p><img src="images/rvest4.png" /><!-- --></p>
 <p>The entire table that we want of naics sectors is actually contained inside an html <code>&lt;table&gt;</code>. It has a header row <code>&lt;thead&gt;</code> that contains the column names and a <code>&lt;tbody&gt;</code> that contains one row <code>&lt;tr&gt;</code> per industry sector code.</p>
 <p>Because it’s inside of a table, and not some other kind of element (like a <code>&lt;div&gt;</code>), rvest has a special function for easily extracting and converting html tables, called html_table(). This function extracts all six html tables on the page, only one of which we actually want</p>
 <div class="sourceCode" id="cb244"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb244-1"><a href="scraping-data-with-rvest.html#cb244-1" aria-hidden="true" tabindex="-1"></a><span class="co"># read in the html and extract all the tables</span></span>
@@ -473,16 +476,16 @@ We’ll use those HTML tags – things like <code>&lt;div&gt;</code> and <code>&
 ## 4 10-11     01              Data Type Code           01 through 83</code></pre>
 <p>In the environment window at right, look at naics_industry. Note that it’s now a “list of 6.”</p>
 <p>Click on it to open it up. It should look like this.</p>
-<p><img src="images/rvest5.png" width="798" />
+<p><img src="images/rvest5.png" /><!-- -->
 This gets a little complicated, but what you’re seeing here is a nested list that contains six different data frames – also called tibbles – one for each table that exists on the web page we scraped.</p>
 <p>They’re numbered 1 to 6. The first 1 has 4 rows and 3 columns, the second has 21 rows and 2 columns, and so on.</p>
 <p>To examine what’s in each dataframe, mouse over the right edge (next to the word columns) on each row, and click the little scroll icon. The icon will be hidden until you mouse over it.</p>
 <p>Click on the scroll icon for the first dataframe examine it.</p>
-<p><img src="images/rvest6.png" width="606" /></p>
+<p><img src="images/rvest6.png" /><!-- --></p>
 <p>That’s not the one we want!</p>
 <p>Let’s try clicking on the scroll icon for row 2.</p>
-<p><img src="images/rvest7.png" width="847" /></p>
-<p>That’s more like it! So, all we need to do now is to store that single dataframe as an object, and get rid of the rest. We can do that with this code, which says "keep only the second dataframe from our nested list. If we wanted to keep the third one, we’d change the number 2 to number 3.</p>
+<p><img src="images/rvest7.png" /><!-- --></p>
+<p>That’s more like it! So, all we need to do now is to store that single dataframe as an object, and get rid of the rest. We can do that with this code, which says “keep only the second dataframe from our nested list. If we wanted to keep the third one, we’d change the number 2 to number 3.</p>
 <div class="sourceCode" id="cb246"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb246-1"><a href="scraping-data-with-rvest.html#cb246-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Read in all html from table, store all tables on page as nested list of dataframes.</span></span>
 <span id="cb246-2"><a href="scraping-data-with-rvest.html#cb246-2" aria-hidden="true" tabindex="-1"></a>naics_industry  <span class="ot">&lt;-</span> naics_url <span class="sc">%&gt;%</span></span>
 <span id="cb246-3"><a href="scraping-data-with-rvest.html#cb246-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read_html</span>() <span class="sc">%&gt;%</span></span>
@@ -561,7 +564,6 @@ This gets a little complicated, but what you’re seeing here is a nested list t
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
-<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
 <script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
@@ -602,7 +604,7 @@ gitbook.start({
 },
 "download": ["datajournalism.pdf", "datajournalism.epub"],
 "search": {
-"engine": "lunr",
+"engine": "fuse",
 "options": null
 },
 "toc": {

@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>Chapter 16 Advanced rvest | Data Journalism with R and the Tidyverse</title>
   <meta name="description" content="This is a book built on a very opinionated philosophy for journalism students doing data journalism in R with replicable methods." />
-  <meta name="generator" content="bookdown 0.23 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
 
   <meta property="og:title" content="Chapter 16 Advanced rvest | Data Journalism with R and the Tidyverse" />
   <meta property="og:type" content="book" />
@@ -24,7 +24,7 @@
 <meta name="author" content="Matt Waite (original author); updated by Derek Willis and Sean Mussenden" />
 
 
-<meta name="date" content="2021-10-22" />
+<meta name="date" content="2021-11-01" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -33,8 +33,9 @@
   
 <link rel="prev" href="scraping-data-with-rvest.html"/>
 <link rel="next" href="intro-to-apis-the-census.html"/>
-<script src="libs/header-attrs-2.10/header-attrs.js"></script>
+<script src="libs/header-attrs-2.11/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
@@ -50,12 +51,11 @@
 
 
 
-
 <link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
 <script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
-<script src="libs/htmlwidgets-1.5.3/htmlwidgets.js"></script>
+<script src="libs/htmlwidgets-1.5.4/htmlwidgets.js"></script>
 <link href="libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
-<script src="libs/datatables-binding-0.18/datatables.js"></script>
+<script src="libs/datatables-binding-0.19/datatables.js"></script>
 <link href="libs/dt-core-1.10.20/css/jquery.dataTables.min.css" rel="stylesheet" />
 <link href="libs/dt-core-1.10.20/css/jquery.dataTables.extra.css" rel="stylesheet" />
 <script src="libs/dt-core-1.10.20/js/jquery.dataTables.min.js"></script>
@@ -252,7 +252,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </ul></li>
 <li class="chapter" data-level="19" data-path="visualizing-your-data-for-publication.html"><a href="visualizing-your-data-for-publication.html"><i class="fa fa-check"></i><b>19</b> Visualizing your data for publication</a>
 <ul>
-<li class="chapter" data-level="19.1" data-path="visualizing-your-data-for-publication.html"><a href="visualizing-your-data-for-publication.html#datawrapper"><i class="fa fa-check"></i><b>19.1</b> Datawrapper</a></li>
+<li class="chapter" data-level="19.1" data-path="visualizing-your-data-for-publication.html"><a href="visualizing-your-data-for-publication.html#datawrapper"><i class="fa fa-check"></i><b>19.1</b> Datawrapper</a>
+<ul>
+<li class="chapter" data-level="19.1.1" data-path="visualizing-your-data-for-publication.html"><a href="visualizing-your-data-for-publication.html#making-a-map"><i class="fa fa-check"></i><b>19.1.1</b> Making a Map</a></li>
+</ul></li>
 </ul></li>
 <li class="chapter" data-level="20" data-path="geographic-data-basics.html"><a href="geographic-data-basics.html"><i class="fa fa-check"></i><b>20</b> Geographic data basics</a>
 <ul>
@@ -377,14 +380,14 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ## 20 92     Public Administration</code></pre>
 <p>We’ll use this table to help us get to our end goal: a single dataframe with the number of employees in each industry sector.</p>
 <p>It will look like this when we’re done.</p>
-<p><img src="images/advrvest1a.png" width="588" /></p>
+<p><img src="images/advrvest1a.png" /><!-- --></p>
 <p>Unfortunately, that information doesn’t exist in a single tidy table on a single page we can scrape all at once. We’re going to have to scrape it from lots of different pages, and build it ourselves.</p>
 <p>Let’s next take a look at the web page that has detailed employment information for one of our sectors, 22, Mining, Quarrying, and Oil and Gas Extraction.</p>
 <p>We can find it here: <a href="https://www.bls.gov/iag/tgs/iag22.htm">https://www.bls.gov/iag/tgs/iag22.htm</a>.</p>
 <p>A few scrolls down the page, there’s a table that has employee statistics.</p>
 <p>The table is called “Employment and Unemployment.” There’s a row in the tabled for “Employment, all employees (seasonally adjusted).” And in that row, there’s a value for the number of employees – in thousands – in June 2021.</p>
 <p>The table shows that for the mining sector, it was 538.6 – or 538,600 – in June 2021. That’s the value we want to ingest in R.</p>
-<p><img src="images/advrvest1.png" width="1078" /></p>
+<p><img src="images/advrvest1.png" /><!-- --></p>
 <p>We don’t just want it for mining. We want it for all sectors!</p>
 <p>But we’ll start by writing code just to get it from this one sector page, then modify that code to get it from every sector’s page</p>
 <p>First, let’s define the URL of the page we want to get the information from.</p>
@@ -408,7 +411,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>We can use the web inspector in our web browser (Chrome) to figure out where the table is located.</p>
 <p>Go to the web page and right click on the word “Data Series” in the table, then pick “inspect” to pull up the menu.</p>
 <p>Notice two things. First, all of this information is contained in a proper html <code>&lt;table&gt;</code>. And that table has an id property of “iag22emp1.” Designers use these IDs to help style the page, to target certain elements with CSS. We can use it to scrape.</p>
-<p><img src="images/advrvest2.png" width="1071" />
+<p><img src="images/advrvest2.png" /><!-- -->
 Recall that in the last chapter, when we used the html_table() function, it pulled in every single table on the page, six in total.</p>
 <p>Here, we can use that id property to pick out just the table we want, and leave all the others behind.
 We do that with a new function from rvest called html_element(), employing a bit of information about that element stored in what’s called the <a href="https://en.wikipedia.org/wiki/XPath">xpath</a>. Xpath is a query language that helps us write programs that target specific parts of web pages.</p>
@@ -848,9 +851,9 @@ First, we need to build a list of URLs to loop through in a “for loop.” We c
 ##   &lt;chr&gt;  &lt;chr&gt;                                      &lt;chr&gt;        &lt;chr&gt;          
 ## 1 11     Agriculture, Forestry, Fishing and Hunting https://www… iag11emp1      
 ## # A tibble: 1 × 4
-##   sector description                                   sector_url sector_xpath_id
-##   &lt;chr&gt;  &lt;chr&gt;                                         &lt;chr&gt;      &lt;chr&gt;          
-## 1 21     Mining, Quarrying, and Oil and Gas Extraction https://w… iag21emp1      
+##   sector description                    sector_url               sector_xpath_id
+##   &lt;chr&gt;  &lt;chr&gt;                          &lt;chr&gt;                    &lt;chr&gt;          
+## 1 21     Mining, Quarrying, and Oil an… https://www.bls.gov/iag… iag21emp1      
 ## # A tibble: 1 × 4
 ##   sector description sector_url                            sector_xpath_id
 ##   &lt;chr&gt;  &lt;chr&gt;       &lt;chr&gt;                                 &lt;chr&gt;          
@@ -880,17 +883,17 @@ First, we need to build a list of URLs to loop through in a “for loop.” We c
 ##   &lt;chr&gt;  &lt;chr&gt;       &lt;chr&gt;                                 &lt;chr&gt;          
 ## 1 51     Information https://www.bls.gov/iag/tgs/iag51.htm iag51emp1      
 ## # A tibble: 1 × 4
-##   sector description           sector_url                            sector_xpath_id
-##   &lt;chr&gt;  &lt;chr&gt;                 &lt;chr&gt;                                 &lt;chr&gt;          
-## 1 52     Finance and Insurance https://www.bls.gov/iag/tgs/iag52.htm iag52emp1      
+##   sector description           sector_url                        sector_xpath_id
+##   &lt;chr&gt;  &lt;chr&gt;                 &lt;chr&gt;                             &lt;chr&gt;          
+## 1 52     Finance and Insurance https://www.bls.gov/iag/tgs/iag5… iag52emp1      
 ## # A tibble: 1 × 4
 ##   sector description                        sector_url           sector_xpath_id
 ##   &lt;chr&gt;  &lt;chr&gt;                              &lt;chr&gt;                &lt;chr&gt;          
 ## 1 53     Real Estate and Rental and Leasing https://www.bls.gov… iag53emp1      
 ## # A tibble: 1 × 4
-##   sector description                                      sector_url sector_xpath_id
-##   &lt;chr&gt;  &lt;chr&gt;                                            &lt;chr&gt;      &lt;chr&gt;          
-## 1 54     Professional, Scientific, and Technical Services https://w… iag54emp1      
+##   sector description                     sector_url              sector_xpath_id
+##   &lt;chr&gt;  &lt;chr&gt;                           &lt;chr&gt;                   &lt;chr&gt;          
+## 1 54     Professional, Scientific, and … https://www.bls.gov/ia… iag54emp1      
 ## # A tibble: 1 × 4
 ##   sector description                             sector_url      sector_xpath_id
 ##   &lt;chr&gt;  &lt;chr&gt;                                   &lt;chr&gt;           &lt;chr&gt;          
@@ -900,9 +903,9 @@ First, we need to build a list of URLs to loop through in a “for loop.” We c
 ##   &lt;chr&gt;  &lt;chr&gt;                              &lt;chr&gt;                &lt;chr&gt;          
 ## 1 56     Administrative and Support and Wa… https://www.bls.gov… iag56emp1      
 ## # A tibble: 1 × 4
-##   sector description          sector_url                            sector_xpath_id
-##   &lt;chr&gt;  &lt;chr&gt;                &lt;chr&gt;                                 &lt;chr&gt;          
-## 1 61     Educational Services https://www.bls.gov/iag/tgs/iag61.htm iag61emp1      
+##   sector description          sector_url                         sector_xpath_id
+##   &lt;chr&gt;  &lt;chr&gt;                &lt;chr&gt;                              &lt;chr&gt;          
+## 1 61     Educational Services https://www.bls.gov/iag/tgs/iag61… iag61emp1      
 ## # A tibble: 1 × 4
 ##   sector description                       sector_url            sector_xpath_id
 ##   &lt;chr&gt;  &lt;chr&gt;                             &lt;chr&gt;                 &lt;chr&gt;          
@@ -916,9 +919,9 @@ First, we need to build a list of URLs to loop through in a “for loop.” We c
 ##   &lt;chr&gt;  &lt;chr&gt;                           &lt;chr&gt;                   &lt;chr&gt;          
 ## 1 72     Accommodation and Food Services https://www.bls.gov/ia… iag72emp1      
 ## # A tibble: 1 × 4
-##   sector description                                   sector_url sector_xpath_id
-##   &lt;chr&gt;  &lt;chr&gt;                                         &lt;chr&gt;      &lt;chr&gt;          
-## 1 81     Other Services (except Public Administration) https://w… iag81emp1</code></pre>
+##   sector description                    sector_url               sector_xpath_id
+##   &lt;chr&gt;  &lt;chr&gt;                          &lt;chr&gt;                    &lt;chr&gt;          
+## 1 81     Other Services (except Public… https://www.bls.gov/iag… iag81emp1</code></pre>
 <p>We’re almost to the part where we can go out and fetch the html we need. Before we do that, let’s store as part of our loop an object called “url,” which contains the URL of the page for each sector.</p>
 <p>The syntax with the dollar sign is a little funky, but “each_row_df$sector_url” says “from the each_row_df dataframe, grab the information in the sector_url column.” Because the column has only one row, there’s one value.</p>
 <p>We’re going to do something simliar with the xpath for our employment table by using the information in the sector_xpath_id column.</p>
@@ -1377,9 +1380,9 @@ First, we need to build a list of URLs to loop through in a “for loop.” We c
 <span id="cb317-30"><a href="advanced-rvest.html#cb317-30" aria-hidden="true" tabindex="-1"></a>      </span>
 <span id="cb317-31"><a href="advanced-rvest.html#cb317-31" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <pre><code>## # A tibble: 1 × 10
-##   data_series       backdata jun_2021 jul_2021 aug_2021 sep_2021 sector description
-##   &lt;chr&gt;             &lt;lgl&gt;    &lt;chr&gt;    &lt;chr&gt;    &lt;chr&gt;    &lt;chr&gt;    &lt;chr&gt;  &lt;chr&gt;      
-## 1 Unemployment rate NA       7.5%     7.6%     5.7%     5.0%     11     Agricultur…
+##   data_series  backdata jun_2021 jul_2021 aug_2021 sep_2021 sector description  
+##   &lt;chr&gt;        &lt;lgl&gt;    &lt;chr&gt;    &lt;chr&gt;    &lt;chr&gt;    &lt;chr&gt;    &lt;chr&gt;  &lt;chr&gt;        
+## 1 Unemploymen… NA       7.5%     7.6%     5.7%     5.0%     11     Agriculture,…
 ## # … with 2 more variables: sector_url &lt;chr&gt;, sector_xpath_id &lt;chr&gt;
 ## # A tibble: 1 × 10
 ##   data_series   backdata jun_2021 jul_2021 aug_2021 sep_2021 sector description 
@@ -1653,9 +1656,9 @@ First, we need to build a list of URLs to loop through in a “for loop.” We c
 <p>The value for “Agriculture, Forestry, Fishing and Hunting” seems suspiciously low, compared with the other values.</p>
 <p>Let’s figure out why.</p>
 <p>Here’s the table on the mining sector page: <a href="https://www.bls.gov/iag/tgs/iag21.htm">https://www.bls.gov/iag/tgs/iag21.htm</a></p>
-<p><img src="images/advrvest3.png" width="883" />
+<p><img src="images/advrvest3.png" /><!-- -->
 And here’s the table for the agriculture sector.</p>
-<p><img src="images/advrvest4.png" width="872" />
+<p><img src="images/advrvest4.png" /><!-- -->
 Unlike mining – and every other sector page (I checked each page) – the agriculture page is structured differently.</p>
 <p>In the second row of this table, it has the unemployment rate. Nowhere on the page can we find information on the number of employees. We would need to do additional research to track down a valid number if we plan on using this table, but for now we’re going to replace it with an NA using na_if.</p>
 <div class="sourceCode" id="cb323"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb323-1"><a href="advanced-rvest.html#cb323-1" aria-hidden="true" tabindex="-1"></a><span class="co"># remove the suspicious value for agriculture. </span></span>
@@ -1701,7 +1704,6 @@ Unlike mining – and every other sector page (I checked each page) – the agri
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
-<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
 <script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
@@ -1742,7 +1744,7 @@ gitbook.start({
 },
 "download": ["datajournalism.pdf", "datajournalism.epub"],
 "search": {
-"engine": "lunr",
+"engine": "fuse",
 "options": null
 },
 "toc": {

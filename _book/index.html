@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>Data Journalism with R and the Tidyverse</title>
   <meta name="description" content="This is a book built on a very opinionated philosophy for journalism students doing data journalism in R with replicable methods." />
-  <meta name="generator" content="bookdown 0.23 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
 
   <meta property="og:title" content="Data Journalism with R and the Tidyverse" />
   <meta property="og:type" content="book" />
@@ -24,7 +24,7 @@
 <meta name="author" content="Matt Waite (original author); updated by Derek Willis and Sean Mussenden" />
 
 
-<meta name="date" content="2021-10-22" />
+<meta name="date" content="2021-11-01" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -33,8 +33,9 @@
   
 
 <link rel="next" href="public-records.html"/>
-<script src="libs/header-attrs-2.10/header-attrs.js"></script>
+<script src="libs/header-attrs-2.11/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
@@ -50,12 +51,11 @@
 
 
 
-
 <link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
 <script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
-<script src="libs/htmlwidgets-1.5.3/htmlwidgets.js"></script>
+<script src="libs/htmlwidgets-1.5.4/htmlwidgets.js"></script>
 <link href="libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
-<script src="libs/datatables-binding-0.18/datatables.js"></script>
+<script src="libs/datatables-binding-0.19/datatables.js"></script>
 <link href="libs/dt-core-1.10.20/css/jquery.dataTables.min.css" rel="stylesheet" />
 <link href="libs/dt-core-1.10.20/css/jquery.dataTables.extra.css" rel="stylesheet" />
 <script src="libs/dt-core-1.10.20/js/jquery.dataTables.min.js"></script>
@@ -252,7 +252,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </ul></li>
 <li class="chapter" data-level="19" data-path="visualizing-your-data-for-publication.html"><a href="visualizing-your-data-for-publication.html"><i class="fa fa-check"></i><b>19</b> Visualizing your data for publication</a>
 <ul>
-<li class="chapter" data-level="19.1" data-path="visualizing-your-data-for-publication.html"><a href="visualizing-your-data-for-publication.html#datawrapper"><i class="fa fa-check"></i><b>19.1</b> Datawrapper</a></li>
+<li class="chapter" data-level="19.1" data-path="visualizing-your-data-for-publication.html"><a href="visualizing-your-data-for-publication.html#datawrapper"><i class="fa fa-check"></i><b>19.1</b> Datawrapper</a>
+<ul>
+<li class="chapter" data-level="19.1.1" data-path="visualizing-your-data-for-publication.html"><a href="visualizing-your-data-for-publication.html#making-a-map"><i class="fa fa-check"></i><b>19.1.1</b> Making a Map</a></li>
+</ul></li>
 </ul></li>
 <li class="chapter" data-level="20" data-path="geographic-data-basics.html"><a href="geographic-data-basics.html"><i class="fa fa-check"></i><b>20</b> Geographic data basics</a>
 <ul>
@@ -327,7 +330,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="header">
 <h1 class="title">Data Journalism with R and the Tidyverse</h1>
 <p class="author"><em>Matt Waite (original author); updated by Derek Willis and Sean Mussenden</em></p>
-<p class="date"><em>2021-10-22</em></p>
+<p class="date"><em>2021-11-01</em></p>
 </div>
 <div id="introduction" class="section level1" number="1">
 <h1><span class="header-section-number">Chapter 1</span> Introduction</h1>
@@ -423,7 +426,6 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
-<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
 <script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
@@ -464,7 +466,7 @@ gitbook.start({
 },
 "download": ["datajournalism.pdf", "datajournalism.epub"],
 "search": {
-"engine": "lunr",
+"engine": "fuse",
 "options": null
 },
 "toc": {
