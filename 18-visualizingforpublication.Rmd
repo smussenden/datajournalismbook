@@ -70,7 +70,7 @@ knitr::include_graphics(rep("images/ppp_datawrapper7.png"))
 Let's create a choropleth map - one that shows variations between the total number of approved PPP applications across Maryland counties. First, we'll need to generate that data using our collection of Maryland PPP loans.
 
 ```{r}
-maryland_ppp <- read_rds("data/pre_lab_10.rds")
+maryland_ppp <- read_rds("data/maryland_ppp.rds")
 ```
 
 First, we'll create a dataframe that has county (jurisdiction) level counts of approved applications. Run the following code to do that. There are some mistakes in the data, so we're going to remove those with a filter after doing the counting.
