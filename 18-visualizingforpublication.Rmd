@@ -131,7 +131,6 @@ Now we'll join `md_counties` and `md_fips` together using our new `match_county`
 ```{r}
 md_counties_with_fips <- md_counties %>%
   left_join(md_fips, by=c('project_county_name'='match_county'))
-View(md_counties_with_fips)
 ```
 
 Then we'll write `md_counties_with_fips` to a CSV in the data folder using write_csv:
