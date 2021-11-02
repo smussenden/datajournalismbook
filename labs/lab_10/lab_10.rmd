@@ -13,6 +13,9 @@ knitr::opts_chunk$set(echo = TRUE)
 
 * A Datawrapper account
 * PPP data that is in an RDS file in the `data` folder
+
+## You might need
+
 * A Census API key
 
 ## Load libraries and establish settings
@@ -21,54 +24,39 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Questions
 
-Barber loans per state?
-
-**Q1.** Which state has the most PPP applications per capita (per 100k) from barber shops?
+**Q1.** You've heard that there are some unusual patterns among applicants listing barber shops as their occupation. Which state has the most PPP applications from barber shops, and how many of those are marked as undisbursed? Which state has the most undisbursed applications?
 
 You MUST do the following things when answering this question:
-* Use the PPP loan data, which is in the data folder and is called lab_10.rds.
-* Find the NAICS code that corresponds to barber shops from [this site](https://www.census.gov/naics/).
-* Make a line chart with ggplot that:
-  * has each date in April (i.e. 04-01-20, 04-02-20) labeled on the x axis (and only dates in April, no other month). To clarify, no data for any other month than April 2020 should appear on the chart.
-  * sets the height of the line for any given date -- its y axis value -- to the total number of loans on that date.
-  * has an appropriate title, source, and x and y axis titles.
-  * adds a small circle (called a "point") on the line for dates that had loans. And to the left of each circle/point, shows the number of loans on that date.  I didn't show you how to do this in the prelab, so do some web sleuthing to figure it out!
+* Use the PPP loan data, which is in the data folder and is called `barber_shops.csv`.
+* Using the barber shop PPP applications, write code that generates two dataframes:
+  * one with a total number of applications per state
+  * one with a total number of applications per state where the undisbursed amount is more than 0.
+* Join those dataframes, specifying the join column, and rename the totals columns so that they better describe the values in them.
+* Export the top 10 states to a CSV file using `write_csv`
+* Using the top 10 states, make a bar chart with Datawrapper. What kind of bar chart is up to you, so experiment with a few kinds of bar charts to see what answers the question above in the clearest way. Your chart MUST:
+  * Have a title, description and source that tells readers about the data. The title and description should highlight the most newsworthy or important aspect.
+  * Easily readable labels and values
+  * Enough spacing so that the bars are visually distinct
+  * Use color for contrast and make it clear what each color represents
+* Publish your chart (you may need to confirm your Datawrapper account if you haven't already in order to do this)
+* Put the answer below along with the URL of your chart.
 
-Basically, your chart should look like this image, which will appear when you run the codeblock below.
-
-```{r}
-knitr::include_graphics(rep("images/chart_1.png"))
-```
 **A1.**
 
-**Q2.** What are the top 10 states that got the most PPP loans per 100,000 people? You MUST do the following things when answering this question:
-
-* Make a codeblock below to write your code in.
-* Use the csv of total PPP loans by state in the data folder (state_ppp_all) as your source for total PPP loans by state.  
-* Use the tidycensus API to get a table of total population by state from the American Community Survey (ACS). To do this, you'll use use the alphanumeric variable for total population, which has the following "label" and "concept": "Estimate!!Total:" and "SEX BY AGE".  
-* Use ggplot to make a horizontal bar chart that shows the top 10 states, with the length of the bar determined by the state's total PPP loans per 100,000 people. Give it an appropriate title, source, and x and y axis titles.
-* Make the bars on the chart blue! I didn't show you how to do this in the prelab, so do some web sleuthing to figure it out.  
+**Q2.** Using Datawrapper, make a different (ideally better) version of the chart you made above. To do so, you MUST go back in R and do any calculations or add additional data to make the chart more effective or answer the above question in a different way. Your chart MUST be different in that it cannot be a bar chart showing the counts of total and undisbursed applications by state. It could be a bar chart showing another calculation or metric, or a scatterplot, or some other form. Follow the same general guidelines as above for the chart's visual elements, and publish it and including the URL below, along with an explanation of how this chart is different from the first one and how you decided what to do.
 
 **A2.**
 
-**Q3.**  A scatterplot is a type of chart that helps us see relationships between two variables. One variable goes on the x axis, the other on the y axis.  For each row/observation in our data, a scatterplot puts a circle (or a "point") where the two variables intersect on a grid.
+**Q3.** The online lender Kabbage, Inc. is featured in the ProPublica PPP fake farms story. To show where Kabbage was lending money, make a county-level map that shows the percentage of loans in each county that were Kabbage loans. To do this, make a codeblock and do the following:
 
-Statisticians use scatterplots to show graphically whether one variable is correlated -- related, in a statistical sense -- with another variable.  A classic example is the [relationship between ice cream sales and temperature](https://www.mathsisfun.com/data/scatter-xy-plots.html).  The scatterplot below (press play to load the image) shows that relationship, that an increase in temperature is associated with an increase in ice cream sales. When it's 12C, sales are 200 dollars, and when it's hotter, 25C, sales are 600 dollars.
-
-```{r}
-knitr::include_graphics(rep("images/chart_2.png"))
-```
-
-We're going to use a scatterplot a little differently, to get a visual sense of two key variables: the amount of an approved PPP loan, and the amount that was later forgiven. We'll use it to answer some questions in a broad sense, about loan forgiveness.  This is just a jumping off point for further exploration.
-
-Our questions include: Were there a lot of people who had their loans fully forgiven?  Were there a lot of people who didn't have their loans forgiven? Were there a lot of people who had some of the loan forgiven?
-
-To answer those questions, make a codeblock and do the following:
-
-1. Start with the a subset of the WV ppp loan data we loaded earlier.
-2. Filter the data to examine only those loans less than $25,000.
-3. There are a bunch of NAs in the forgiveness amount column, for the purposes of this assignment only, let's assume those are actually supposed to be 0. So make all the NAs 0.
-4. Make a scatterplot. I didn't show you how to do this, so look it up!
-5. In the answer space below, describe what you see and answer the questions posed above.  In a general sense, what do you think this means?  
+1. Load the `kabbage_counties.csv` and `all_counties.csv` files in the data folder.
+2. Join the two together, specifying the join columns, rename the total columns to represent kabbage loans and total loans and save the output to a new dataframe.
+3. Calculate the percentage of loans in each county that were Kabbage loans and save the output to the existing dataframe. BE SURE TO NOTE THE NUMBER OF ROWS IN THE RESULT.
+4. Load a dataframe of all county fips codes using the `tigris` library, then add a full `fips_code` column that combines the state and county codes into one and creates a new column with the uppercase version of the county name.
+5. Remove ` COUNTY` from that newly created column and save the result to the same dataframe
+6. Join the combined counties data with the fips data, again specifying the join columns, saving it to a new dataframe. BE SURE TO NOTE THE NUMBER OF ROWS IN THE RESULT.
+7. Export the new dataframe to a CSV file
+8. Make a county-level map using that exported CSV file that displays the percentage of Kabbage loans. Style it so that the tooltip displays the county and the percentage, and give the map a title, description and source. Format all percentages shown on the map so that they appear with one decimal point (such as 3.4%). Publish the map.
+9. In the answer space below, provide the URL for your published map and then describe where Kabbage loans are and are not found. Where are they more common? Look specifically at Florida in the data: are there counties on the map where no data is displayed? Why?
 
 **A3.**  
