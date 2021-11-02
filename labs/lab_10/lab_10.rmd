@@ -24,7 +24,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Questions
 
-**Q1.** You've heard that there are some unusual patterns among applicants listing barber shops as their occupation. Which state has the most PPP applications from barber shops, and how many of those are marked as undisbursed? Which state has the most undisbursed applications?
+**Q1.** You got a tip that there are some unusual patterns among applicants listing barber shops as their occupation. Which state has the most PPP applications from barber shops, and how many of those have undisbursed amounts greater than $0? Which state has the most undisbursed applications?
 
 You MUST do the following things when answering this question:
 * Use the PPP loan data, which is in the data folder and is called `barber_shops_ppp.csv`.
