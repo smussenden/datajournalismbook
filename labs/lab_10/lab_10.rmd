@@ -12,7 +12,8 @@ knitr::opts_chunk$set(echo = TRUE)
 ## You will need
 
 * A Datawrapper account
-* PPP data that is in an RDS file in the `data` folder
+* PPP data that is in a CSV file in the `data` folder
+* Other data in CSV files in the `data` folder
 
 ## You might need
 
