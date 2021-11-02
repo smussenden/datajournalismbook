@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>Chapter 12 Data Cleaning Part III: Open Refine | Data Journalism with R and the Tidyverse</title>
   <meta name="description" content="This is a book built on a very opinionated philosophy for journalism students doing data journalism in R with replicable methods." />
-  <meta name="generator" content="bookdown 0.23 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
 
   <meta property="og:title" content="Chapter 12 Data Cleaning Part III: Open Refine | Data Journalism with R and the Tidyverse" />
   <meta property="og:type" content="book" />
@@ -24,7 +24,7 @@
 <meta name="author" content="Matt Waite (original author); updated by Derek Willis and Sean Mussenden" />
 
 
-<meta name="date" content="2021-10-22" />
+<meta name="date" content="2021-11-01" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -33,8 +33,9 @@
   
 <link rel="prev" href="data-cleaning-part-ii-janitor.html"/>
 <link rel="next" href="cleaning-data-part-iv-pdfs.html"/>
-<script src="libs/header-attrs-2.10/header-attrs.js"></script>
+<script src="libs/header-attrs-2.11/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
@@ -50,12 +51,11 @@
 
 
 
-
 <link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
 <script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
-<script src="libs/htmlwidgets-1.5.3/htmlwidgets.js"></script>
+<script src="libs/htmlwidgets-1.5.4/htmlwidgets.js"></script>
 <link href="libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
-<script src="libs/datatables-binding-0.18/datatables.js"></script>
+<script src="libs/datatables-binding-0.19/datatables.js"></script>
 <link href="libs/dt-core-1.10.20/css/jquery.dataTables.min.css" rel="stylesheet" />
 <link href="libs/dt-core-1.10.20/css/jquery.dataTables.extra.css" rel="stylesheet" />
 <script src="libs/dt-core-1.10.20/js/jquery.dataTables.min.js"></script>
@@ -252,7 +252,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </ul></li>
 <li class="chapter" data-level="19" data-path="visualizing-your-data-for-publication.html"><a href="visualizing-your-data-for-publication.html"><i class="fa fa-check"></i><b>19</b> Visualizing your data for publication</a>
 <ul>
-<li class="chapter" data-level="19.1" data-path="visualizing-your-data-for-publication.html"><a href="visualizing-your-data-for-publication.html#datawrapper"><i class="fa fa-check"></i><b>19.1</b> Datawrapper</a></li>
+<li class="chapter" data-level="19.1" data-path="visualizing-your-data-for-publication.html"><a href="visualizing-your-data-for-publication.html#datawrapper"><i class="fa fa-check"></i><b>19.1</b> Datawrapper</a>
+<ul>
+<li class="chapter" data-level="19.1.1" data-path="visualizing-your-data-for-publication.html"><a href="visualizing-your-data-for-publication.html#making-a-map"><i class="fa fa-check"></i><b>19.1.1</b> Making a Map</a></li>
+</ul></li>
 </ul></li>
 <li class="chapter" data-level="20" data-path="geographic-data-basics.html"><a href="geographic-data-basics.html"><i class="fa fa-check"></i><b>20</b> Geographic data basics</a>
 <ul>
@@ -482,41 +485,41 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>For bigger datasets, Open Refine is the way to go. And it has a lot more tools than refinr does (by design).</p>
 <p>After you install it, run it. Open Refine works in the browser, and the app spins up a small web server visible only on your computer to interact with it. A browser will pop up automatically.</p>
 <p>You first have to import your data into a project. Click the choose files button and upload a csv of the Maryland loans.</p>
-<p><img src="images/open1.png" width="833" /></p>
+<p><img src="images/open1.png" /><!-- --></p>
 <p>After your data is loaded into the app, you’ll get a screen to look over what the data looks like. On the top right corner, you’ll see a button to create the project. Click that.</p>
-<p><img src="images/open2.png" width="983" /></p>
+<p><img src="images/open2.png" /><!-- --></p>
 <p>Open Refine has many, many tools. We’re going to use one piece of it, as a tool for data cleaning. To learn how to use it, we’re going to clean the “city” field.</p>
 <p>First, let’s make a copy of the original city column so that we can preserve the original data while cleaning the new one.</p>
 <p>Click the dropdown arrow next to the city column, choose “edit column” &gt; Add column based on this column.</p>
-<p><img src="images/open2a.png" width="1105" />
+<p><img src="images/open2a.png" /><!-- -->
 On the window that pops up, type “city_original” in the “new column name” field. Then hit the OK button.</p>
-<p><img src="images/open2b.png" width="755" /></p>
+<p><img src="images/open2b.png" /><!-- --></p>
 <p>Now, let’s get to work cleaning the city column.</p>
 <p>Next to the city field name, click the down arrow, then facet, then text facet.</p>
-<p><img src="images/open3.png" width="982" /></p>
+<p><img src="images/open3.png" /><!-- --></p>
 <p>After that, a new box will appear on the left. It tells us how many unique cities there are: 1,977. And, there’s a button on the right of the box that says Cluster.</p>
-<p><img src="images/open4.png" width="971" /></p>
+<p><img src="images/open4.png" /><!-- --></p>
 <p>Click the cluster button. A new window will pop up, a tool to help us identify things that need to be cleaned, and quickly clean them.</p>
-<p><img src="images/open5.png" width="1016" /></p>
+<p><img src="images/open5.png" /><!-- --></p>
 <p>The default “method” used is a clustering algorithim called “key collision,” using the fingerprint function. This is the same method we used with the refinr package above.</p>
 <p>At the top, you’ll see which method was used, and how many clusters that algorithm identified. There are several different methods, each of which work slightly differently and produce different results.</p>
-<p><img src="images/open6.png" width="1006" /></p>
+<p><img src="images/open6.png" /><!-- --></p>
 <p>Then, below that, you can see what those clusters are. Right away, we can see how useful this program is. It identified 9,903 rows that have some variation on “Silver Spring” in the city field: Silver Spring, SILVER SPRING, silver spring, Silver spring, silver Spring and so on. It proposed changing them all to “Silver Spring.”</p>
 <p>Using human judgement, you can say if you agree with the cluster. If you do, click the “merge” checkbox. When it merges, the new result will be what it says in New Cell Value. Most often, that’s the row with the most common result.</p>
-<p><img src="images/open7.png" width="996" /></p>
+<p><img src="images/open7.png" /><!-- --></p>
 <p>Now begins the fun part: You have to look at all 533 clusters found and decide if they are indeed valid. The key collision method is very good, and very conservative. You’ll find that most of them are usually valid.</p>
 <p>Be careful! If you merge two things that aren’t supposed to be together, it will change your data in a way that could lead to inaccurate results.</p>
 <p>When you’re done, click Merge Selected and Re-Cluster.</p>
-<p><img src="images/open8.png" width="1009" /></p>
+<p><img src="images/open8.png" /><!-- --></p>
 <p>If any new clusters come up, evaluate them. Repeat until either no clusters come up or the clusters that do come up are ones you reject.</p>
 <p>Now. Try a new method, maybe the “nearest neighbor levenshtein” method. Notice that it finds even more variations of Silver Spring, using a slightly different approach.</p>
-<p><img src="images/open9.png" width="1006" /></p>
+<p><img src="images/open9.png" /><!-- --></p>
 <p>Rinse and repeat.</p>
 <p>You’ll keep doing this, and if the dataset is reasonably clean, you’ll find the end.</p>
 <p>When you’re finished cleaning, click “Merge Selected &amp; Close.”</p>
-<p><img src="images/open10.png" width="998" /></p>
+<p><img src="images/open10.png" /><!-- --></p>
 <p>Then, export the data as a csv so you can load it back into R.</p>
-<p><img src="images/open11.png" width="462" /></p>
+<p><img src="images/open11.png" /><!-- --></p>
 <p>A question for all data analysts – if the dataset is bad enough, can it ever be cleaned?</p>
 <p>There’s no good answer. You have to find it yourself.</p>
 
@@ -532,7 +535,6 @@ On the window that pops up, type “city_original” in the “new column name�
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
-<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
 <script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
@@ -573,7 +575,7 @@ gitbook.start({
 },
 "download": ["datajournalism.pdf", "datajournalism.epub"],
 "search": {
-"engine": "lunr",
+"engine": "fuse",
 "options": null
 },
 "toc": {

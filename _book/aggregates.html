@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>Chapter 6 Aggregates | Data Journalism with R and the Tidyverse</title>
   <meta name="description" content="This is a book built on a very opinionated philosophy for journalism students doing data journalism in R with replicable methods." />
-  <meta name="generator" content="bookdown 0.23 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
 
   <meta property="og:title" content="Chapter 6 Aggregates | Data Journalism with R and the Tidyverse" />
   <meta property="og:type" content="book" />
@@ -24,7 +24,7 @@
 <meta name="author" content="Matt Waite (original author); updated by Derek Willis and Sean Mussenden" />
 
 
-<meta name="date" content="2021-10-22" />
+<meta name="date" content="2021-11-01" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -33,8 +33,9 @@
   
 <link rel="prev" href="data-structures-and-types.html"/>
 <link rel="next" href="mutating-data.html"/>
-<script src="libs/header-attrs-2.10/header-attrs.js"></script>
+<script src="libs/header-attrs-2.11/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
@@ -50,12 +51,11 @@
 
 
 
-
 <link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
 <script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
-<script src="libs/htmlwidgets-1.5.3/htmlwidgets.js"></script>
+<script src="libs/htmlwidgets-1.5.4/htmlwidgets.js"></script>
 <link href="libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
-<script src="libs/datatables-binding-0.18/datatables.js"></script>
+<script src="libs/datatables-binding-0.19/datatables.js"></script>
 <link href="libs/dt-core-1.10.20/css/jquery.dataTables.min.css" rel="stylesheet" />
 <link href="libs/dt-core-1.10.20/css/jquery.dataTables.extra.css" rel="stylesheet" />
 <script src="libs/dt-core-1.10.20/js/jquery.dataTables.min.js"></script>
@@ -252,7 +252,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </ul></li>
 <li class="chapter" data-level="19" data-path="visualizing-your-data-for-publication.html"><a href="visualizing-your-data-for-publication.html"><i class="fa fa-check"></i><b>19</b> Visualizing your data for publication</a>
 <ul>
-<li class="chapter" data-level="19.1" data-path="visualizing-your-data-for-publication.html"><a href="visualizing-your-data-for-publication.html#datawrapper"><i class="fa fa-check"></i><b>19.1</b> Datawrapper</a></li>
+<li class="chapter" data-level="19.1" data-path="visualizing-your-data-for-publication.html"><a href="visualizing-your-data-for-publication.html#datawrapper"><i class="fa fa-check"></i><b>19.1</b> Datawrapper</a>
+<ul>
+<li class="chapter" data-level="19.1.1" data-path="visualizing-your-data-for-publication.html"><a href="visualizing-your-data-for-publication.html#making-a-map"><i class="fa fa-check"></i><b>19.1.1</b> Making a Map</a></li>
+</ul></li>
 </ul></li>
 <li class="chapter" data-level="20" data-path="geographic-data-basics.html"><a href="geographic-data-basics.html"><i class="fa fa-check"></i><b>20</b> Geographic data basics</a>
 <ul>
@@ -350,8 +353,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="aggregates.html#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code></pre></div>
 <pre><code>## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──</code></pre>
 <pre><code>## ✓ ggplot2 3.3.5     ✓ purrr   0.3.4
-## ✓ tibble  3.1.3     ✓ stringr 1.4.0
-## ✓ tidyr   1.1.3     ✓ forcats 0.5.1</code></pre>
+## ✓ tibble  3.1.5     ✓ stringr 1.4.0
+## ✓ tidyr   1.1.4     ✓ forcats 0.5.1</code></pre>
 <pre><code>## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
 ## x dplyr::filter() masks stats::filter()
 ## x dplyr::lag()    masks stats::lag()</code></pre>
@@ -643,18 +646,18 @@ A recipe to make pizza is a kind of function. We might call it <strong>make_pizz
 <div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="aggregates.html#cb39-1" aria-hidden="true" tabindex="-1"></a>ppp_maryland_loans <span class="sc">%&gt;%</span></span>
 <span id="cb39-2"><a href="aggregates.html#cb39-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(amount))</span></code></pre></div>
 <pre><code>## # A tibble: 195,856 × 63
-##          id name  slug  amount state address city  zip   naics_code business_type
-##       &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;  &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;      &lt;dbl&gt; &lt;chr&gt;        
-##  1 93757930 GSE … gse-… 1   e7 MD    1332 L… Syke… 21784     333318 Corporation  
-##  2 93757929 GMS … gms-… 1   e7 MD    PO Box… OAKL… 21550     212112 Corporation  
-##  3 93757932 LEME… leme… 1   e7 MD    8184 L… ELKR… 2107…     722513 Subchapter S…
-##  4 93757931 MISS… miss… 1   e7 MD    7750 G… Glen… 21061     722511 Limited  Lia…
-##  5 93757928 PT N… pt-n… 1   e7 MD    501 Fa… Tows… 21286     621340 Limited  Lia…
-##  6 93757933 SMAR… smar… 9.51e6 MD    1997 A… ANNA… 2140…     541611 Limited  Lia…
-##  7 93757934 SILV… silv… 9.50e6 MD    12276 … ROCK… 2085…     722511 Limited  Lia…
-##  8 93757935 D.A.… d-a-… 9.22e6 MD    1330 M… LAUR… 20708     238220 Limited  Lia…
-##  9 93757936 VISI… visi… 9.14e6 MD    530 Mc… Glen… 21061     517311 Subchapter S…
-## 10 93757937 YOUN… youn… 9.11e6 MD    303 W … Balt… 2120…     813410 501(c)3 – No…
+##         id name  slug  amount state address city  zip   naics_code business_type
+##      &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;  &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;      &lt;dbl&gt; &lt;chr&gt;        
+##  1  9.38e7 GSE … gse-… 1   e7 MD    1332 L… Syke… 21784     333318 Corporation  
+##  2  9.38e7 GMS … gms-… 1   e7 MD    PO Box… OAKL… 21550     212112 Corporation  
+##  3  9.38e7 LEME… leme… 1   e7 MD    8184 L… ELKR… 2107…     722513 Subchapter S…
+##  4  9.38e7 MISS… miss… 1   e7 MD    7750 G… Glen… 21061     722511 Limited  Lia…
+##  5  9.38e7 PT N… pt-n… 1   e7 MD    501 Fa… Tows… 21286     621340 Limited  Lia…
+##  6  9.38e7 SMAR… smar… 9.51e6 MD    1997 A… ANNA… 2140…     541611 Limited  Lia…
+##  7  9.38e7 SILV… silv… 9.50e6 MD    12276 … ROCK… 2085…     722511 Limited  Lia…
+##  8  9.38e7 D.A.… d-a-… 9.22e6 MD    1330 M… LAUR… 20708     238220 Limited  Lia…
+##  9  9.38e7 VISI… visi… 9.14e6 MD    530 Mc… Glen… 21061     517311 Subchapter S…
+## 10  9.38e7 YOUN… youn… 9.11e6 MD    303 W … Balt… 2120…     813410 501(c)3 – No…
 ## # … with 195,846 more rows, and 53 more variables: race &lt;chr&gt;, gender &lt;chr&gt;,
 ## #   veteran &lt;chr&gt;, non_profit &lt;lgl&gt;, jobs_retained &lt;dbl&gt;, date_approved &lt;date&gt;,
 ## #   lender &lt;chr&gt;, congressional_district &lt;chr&gt;, loan_range_sort_key &lt;lgl&gt;,
@@ -676,7 +679,6 @@ A recipe to make pizza is a kind of function. We might call it <strong>make_pizz
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
-<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
 <script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
@@ -717,7 +719,7 @@ gitbook.start({
 },
 "download": ["datajournalism.pdf", "datajournalism.epub"],
 "search": {
-"engine": "lunr",
+"engine": "fuse",
 "options": null
 },
 "toc": {

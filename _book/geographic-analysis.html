@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>Chapter 21 Geographic analysis | Data Journalism with R and the Tidyverse</title>
   <meta name="description" content="This is a book built on a very opinionated philosophy for journalism students doing data journalism in R with replicable methods." />
-  <meta name="generator" content="bookdown 0.23 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
 
   <meta property="og:title" content="Chapter 21 Geographic analysis | Data Journalism with R and the Tidyverse" />
   <meta property="og:type" content="book" />
@@ -24,7 +24,7 @@
 <meta name="author" content="Matt Waite (original author); updated by Derek Willis and Sean Mussenden" />
 
 
-<meta name="date" content="2021-10-22" />
+<meta name="date" content="2021-11-01" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -33,8 +33,9 @@
   
 <link rel="prev" href="geographic-data-basics.html"/>
 <link rel="next" href="automating-analysis.html"/>
-<script src="libs/header-attrs-2.10/header-attrs.js"></script>
+<script src="libs/header-attrs-2.11/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
@@ -50,12 +51,11 @@
 
 
 
-
 <link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
 <script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
-<script src="libs/htmlwidgets-1.5.3/htmlwidgets.js"></script>
+<script src="libs/htmlwidgets-1.5.4/htmlwidgets.js"></script>
 <link href="libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
-<script src="libs/datatables-binding-0.18/datatables.js"></script>
+<script src="libs/datatables-binding-0.19/datatables.js"></script>
 <link href="libs/dt-core-1.10.20/css/jquery.dataTables.min.css" rel="stylesheet" />
 <link href="libs/dt-core-1.10.20/css/jquery.dataTables.extra.css" rel="stylesheet" />
 <script src="libs/dt-core-1.10.20/js/jquery.dataTables.min.js"></script>
@@ -252,7 +252,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </ul></li>
 <li class="chapter" data-level="19" data-path="visualizing-your-data-for-publication.html"><a href="visualizing-your-data-for-publication.html"><i class="fa fa-check"></i><b>19</b> Visualizing your data for publication</a>
 <ul>
-<li class="chapter" data-level="19.1" data-path="visualizing-your-data-for-publication.html"><a href="visualizing-your-data-for-publication.html#datawrapper"><i class="fa fa-check"></i><b>19.1</b> Datawrapper</a></li>
+<li class="chapter" data-level="19.1" data-path="visualizing-your-data-for-publication.html"><a href="visualizing-your-data-for-publication.html#datawrapper"><i class="fa fa-check"></i><b>19.1</b> Datawrapper</a>
+<ul>
+<li class="chapter" data-level="19.1.1" data-path="visualizing-your-data-for-publication.html"><a href="visualizing-your-data-for-publication.html#making-a-map"><i class="fa fa-check"></i><b>19.1.1</b> Making a Map</a></li>
+</ul></li>
 </ul></li>
 <li class="chapter" data-level="20" data-path="geographic-data-basics.html"><a href="geographic-data-basics.html"><i class="fa fa-check"></i><b>20</b> Geographic data basics</a>
 <ul>
@@ -328,10 +331,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h1><span class="header-section-number">Chapter 21</span> Geographic analysis</h1>
 <p>In the previous chapter, we looked at Nebraska’s hospitals and used layers to show where hospitals on a map of Nebraska’s counties. Let’s go little further.</p>
 <p>First, we get caught up to where we were last time.</p>
-<div class="sourceCode" id="cb394"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb394-1"><a href="geographic-analysis.html#cb394-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb394-2"><a href="geographic-analysis.html#cb394-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
-<span id="cb394-3"><a href="geographic-analysis.html#cb394-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(janitor)</span>
-<span id="cb394-4"><a href="geographic-analysis.html#cb394-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(scales)</span></code></pre></div>
+<div class="sourceCode" id="cb408"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb408-1"><a href="geographic-analysis.html#cb408-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb408-2"><a href="geographic-analysis.html#cb408-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
+<span id="cb408-3"><a href="geographic-analysis.html#cb408-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(janitor)</span>
+<span id="cb408-4"><a href="geographic-analysis.html#cb408-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(scales)</span></code></pre></div>
 <pre><code>## 
 ## Attaching package: &#39;scales&#39;</code></pre>
 <pre><code>## The following object is masked from &#39;package:purrr&#39;:
@@ -340,30 +343,30 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <pre><code>## The following object is masked from &#39;package:readr&#39;:
 ## 
 ##     col_factor</code></pre>
-<div class="sourceCode" id="cb398"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb398-1"><a href="geographic-analysis.html#cb398-1" aria-hidden="true" tabindex="-1"></a>hospitals <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="st">&quot;data/Hospitals/Hospitals.shp&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb412"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb412-1"><a href="geographic-analysis.html#cb412-1" aria-hidden="true" tabindex="-1"></a>hospitals <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="st">&quot;data/Hospitals/Hospitals.shp&quot;</span>)</span></code></pre></div>
 <pre><code>## Reading layer `Hospitals&#39; from data source 
-##   `/Users/smussenden/Desktop/git_repos/classes/datajournalismbook/data/Hospitals/Hospitals.shp&#39; 
+##   `/Users/smussend/Desktop/git_repos/datajournalismbook/data/Hospitals/Hospitals.shp&#39; 
 ##   using driver `ESRI Shapefile&#39;
 ## Simple feature collection with 7581 features and 32 fields
 ## Geometry type: POINT
 ## Dimension:     XY
 ## Bounding box:  xmin: -176.6403 ymin: -14.29024 xmax: 145.7245 ymax: 71.29285
 ## Geodetic CRS:  WGS 84</code></pre>
-<div class="sourceCode" id="cb400"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb400-1"><a href="geographic-analysis.html#cb400-1" aria-hidden="true" tabindex="-1"></a>ne <span class="ot">&lt;-</span> hospitals <span class="sc">%&gt;%</span> <span class="fu">filter</span>(STATE <span class="sc">==</span> <span class="st">&quot;NE&quot;</span>)</span></code></pre></div>
-<div class="sourceCode" id="cb401"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb401-1"><a href="geographic-analysis.html#cb401-1" aria-hidden="true" tabindex="-1"></a>nehospitals <span class="ot">&lt;-</span> ne <span class="sc">%&gt;%</span> <span class="fu">filter</span>(TYPE <span class="sc">==</span> <span class="st">&quot;CRITICAL ACCESS&quot;</span> <span class="sc">|</span> TYPE <span class="sc">==</span> <span class="st">&quot;GENERAL ACUTE CARE&quot;</span>) <span class="sc">%&gt;%</span> <span class="fu">filter</span>(STATUS <span class="sc">==</span> <span class="st">&quot;OPEN&quot;</span>)</span></code></pre></div>
-<div class="sourceCode" id="cb402"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb402-1"><a href="geographic-analysis.html#cb402-1" aria-hidden="true" tabindex="-1"></a>counties <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="st">&quot;data/cb_2018_us_county_5m/cb_2018_us_county_5m.shp&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb414"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb414-1"><a href="geographic-analysis.html#cb414-1" aria-hidden="true" tabindex="-1"></a>ne <span class="ot">&lt;-</span> hospitals <span class="sc">%&gt;%</span> <span class="fu">filter</span>(STATE <span class="sc">==</span> <span class="st">&quot;NE&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb415"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb415-1"><a href="geographic-analysis.html#cb415-1" aria-hidden="true" tabindex="-1"></a>nehospitals <span class="ot">&lt;-</span> ne <span class="sc">%&gt;%</span> <span class="fu">filter</span>(TYPE <span class="sc">==</span> <span class="st">&quot;CRITICAL ACCESS&quot;</span> <span class="sc">|</span> TYPE <span class="sc">==</span> <span class="st">&quot;GENERAL ACUTE CARE&quot;</span>) <span class="sc">%&gt;%</span> <span class="fu">filter</span>(STATUS <span class="sc">==</span> <span class="st">&quot;OPEN&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb416"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb416-1"><a href="geographic-analysis.html#cb416-1" aria-hidden="true" tabindex="-1"></a>counties <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="st">&quot;data/cb_2018_us_county_5m/cb_2018_us_county_5m.shp&quot;</span>)</span></code></pre></div>
 <pre><code>## Reading layer `cb_2018_us_county_5m&#39; from data source 
-##   `/Users/smussenden/Desktop/git_repos/classes/datajournalismbook/data/cb_2018_us_county_5m/cb_2018_us_county_5m.shp&#39; 
+##   `/Users/smussend/Desktop/git_repos/datajournalismbook/data/cb_2018_us_county_5m/cb_2018_us_county_5m.shp&#39; 
 ##   using driver `ESRI Shapefile&#39;
 ## Simple feature collection with 3233 features and 9 fields
 ## Geometry type: MULTIPOLYGON
 ## Dimension:     XY
 ## Bounding box:  xmin: -179.1473 ymin: -14.55255 xmax: 179.7785 ymax: 71.35256
 ## Geodetic CRS:  NAD83</code></pre>
-<div class="sourceCode" id="cb404"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb404-1"><a href="geographic-analysis.html#cb404-1" aria-hidden="true" tabindex="-1"></a>necounties <span class="ot">&lt;-</span> counties <span class="sc">%&gt;%</span> <span class="fu">filter</span>(STATEFP <span class="sc">==</span> <span class="st">&quot;31&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb418"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb418-1"><a href="geographic-analysis.html#cb418-1" aria-hidden="true" tabindex="-1"></a>necounties <span class="ot">&lt;-</span> counties <span class="sc">%&gt;%</span> <span class="fu">filter</span>(STATEFP <span class="sc">==</span> <span class="st">&quot;31&quot;</span>)</span></code></pre></div>
 <p>Now that we’re in the same place as last time, let’s start asking questions of this data. For starters: how many hopsital beds are there in each county?</p>
 <p>At first, we can look at the <code>nehospitals</code> data and see there’s a <code>COUNTY</code> field that would make for an easy group and summarize.</p>
-<div class="sourceCode" id="cb405"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb405-1"><a href="geographic-analysis.html#cb405-1" aria-hidden="true" tabindex="-1"></a>nehospitals <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(COUNTY) <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(<span class="at">total_beds=</span><span class="fu">sum</span>(BEDS))</span></code></pre></div>
+<div class="sourceCode" id="cb419"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb419-1"><a href="geographic-analysis.html#cb419-1" aria-hidden="true" tabindex="-1"></a>nehospitals <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(COUNTY) <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(<span class="at">total_beds=</span><span class="fu">sum</span>(BEDS))</span></code></pre></div>
 <pre><code>## Simple feature collection with 67 features and 2 fields
 ## Geometry type: GEOMETRY
 ## Dimension:     XY
@@ -388,18 +391,18 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>What we really want to do with this data is join the number of beds in each county to the county map, and then shade those counties by the number of beds. It’s a style of map called a cloropleth map. You’ve seen them before.</p>
 <p>To do that, we need to make a dataframe. In our our hospitals data, we have a field called COUNTYFIPS that is identical to the GEOID in the counties data – it’s the merging of the state fips and the county fips to make a unique number for each county. So in one query, we need to convert our <code>sf</code> file to a dataframe, filter out the -999 hospital, group it by the COUNTY and COUNTYFIPS and then, to save us some hassle, we’re going to rename that COUNTYFIPS field to GEOID which makes our join easier. And, as one last convenience, we’re going to drop the geometry, because that too will cause confusion.</p>
 <p>Follow? No worries if you didn’t. Each step by itself is simple, and they add up together.</p>
-<div class="sourceCode" id="cb407"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb407-1"><a href="geographic-analysis.html#cb407-1" aria-hidden="true" tabindex="-1"></a>nebedcount <span class="ot">&lt;-</span> </span>
-<span id="cb407-2"><a href="geographic-analysis.html#cb407-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>(</span>
-<span id="cb407-3"><a href="geographic-analysis.html#cb407-3" aria-hidden="true" tabindex="-1"></a>    nehospitals <span class="sc">%&gt;%</span> </span>
-<span id="cb407-4"><a href="geographic-analysis.html#cb407-4" aria-hidden="true" tabindex="-1"></a>      <span class="fu">filter</span>(BEDS <span class="sc">!=</span> <span class="sc">-</span><span class="dv">999</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb407-5"><a href="geographic-analysis.html#cb407-5" aria-hidden="true" tabindex="-1"></a>      <span class="fu">group_by</span>(COUNTY, COUNTYFIPS) <span class="sc">%&gt;%</span> </span>
-<span id="cb407-6"><a href="geographic-analysis.html#cb407-6" aria-hidden="true" tabindex="-1"></a>      <span class="fu">summarize</span>(<span class="at">total_beds =</span> <span class="fu">sum</span>(BEDS)</span>
-<span id="cb407-7"><a href="geographic-analysis.html#cb407-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span> </span>
-<span id="cb407-8"><a href="geographic-analysis.html#cb407-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rename</span>(<span class="at">GEOID =</span> COUNTYFIPS)) <span class="sc">%&gt;%</span> </span>
-<span id="cb407-9"><a href="geographic-analysis.html#cb407-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>geometry)</span></code></pre></div>
+<div class="sourceCode" id="cb421"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb421-1"><a href="geographic-analysis.html#cb421-1" aria-hidden="true" tabindex="-1"></a>nebedcount <span class="ot">&lt;-</span> </span>
+<span id="cb421-2"><a href="geographic-analysis.html#cb421-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>(</span>
+<span id="cb421-3"><a href="geographic-analysis.html#cb421-3" aria-hidden="true" tabindex="-1"></a>    nehospitals <span class="sc">%&gt;%</span> </span>
+<span id="cb421-4"><a href="geographic-analysis.html#cb421-4" aria-hidden="true" tabindex="-1"></a>      <span class="fu">filter</span>(BEDS <span class="sc">!=</span> <span class="sc">-</span><span class="dv">999</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb421-5"><a href="geographic-analysis.html#cb421-5" aria-hidden="true" tabindex="-1"></a>      <span class="fu">group_by</span>(COUNTY, COUNTYFIPS) <span class="sc">%&gt;%</span> </span>
+<span id="cb421-6"><a href="geographic-analysis.html#cb421-6" aria-hidden="true" tabindex="-1"></a>      <span class="fu">summarize</span>(<span class="at">total_beds =</span> <span class="fu">sum</span>(BEDS)</span>
+<span id="cb421-7"><a href="geographic-analysis.html#cb421-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span> </span>
+<span id="cb421-8"><a href="geographic-analysis.html#cb421-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rename</span>(<span class="at">GEOID =</span> COUNTYFIPS)) <span class="sc">%&gt;%</span> </span>
+<span id="cb421-9"><a href="geographic-analysis.html#cb421-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>geometry)</span></code></pre></div>
 <pre><code>## `summarise()` has grouped output by &#39;COUNTY&#39;. You can override using the `.groups` argument.</code></pre>
 <p>Let’s take a look at what we got:</p>
-<div class="sourceCode" id="cb409"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb409-1"><a href="geographic-analysis.html#cb409-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(nebedcount)</span></code></pre></div>
+<div class="sourceCode" id="cb423"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb423-1"><a href="geographic-analysis.html#cb423-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(nebedcount)</span></code></pre></div>
 <pre><code>##      COUNTY GEOID total_beds
 ## 1     ADAMS 31001        161
 ## 2  ANTELOPE 31003         25
@@ -409,21 +412,21 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ## 6     BROWN 31017         23</code></pre>
 <p>Pretty simple. Three columns: COUNTY, GEOID and total_beds.</p>
 <p>Now using what we learned in the joining chapter, we can combine them with our counties data.</p>
-<div class="sourceCode" id="cb411"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb411-1"><a href="geographic-analysis.html#cb411-1" aria-hidden="true" tabindex="-1"></a>nehospbycounty <span class="ot">&lt;-</span> necounties <span class="sc">%&gt;%</span> <span class="fu">left_join</span>(nebedcount, <span class="at">by=</span><span class="st">&quot;GEOID&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb425"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb425-1"><a href="geographic-analysis.html#cb425-1" aria-hidden="true" tabindex="-1"></a>nehospbycounty <span class="ot">&lt;-</span> necounties <span class="sc">%&gt;%</span> <span class="fu">left_join</span>(nebedcount, <span class="at">by=</span><span class="st">&quot;GEOID&quot;</span>)</span></code></pre></div>
 <p>We can ignore that warning.</p>
 <p>Now we can map it. What’s going to change here is we’re going to add a fill to our aes in our geom_sf.</p>
-<div class="sourceCode" id="cb412"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb412-1"><a href="geographic-analysis.html#cb412-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> </span>
-<span id="cb412-2"><a href="geographic-analysis.html#cb412-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data=</span>nehospbycounty, <span class="fu">aes</span>(<span class="at">fill=</span>total_beds)) <span class="sc">+</span> </span>
-<span id="cb412-3"><a href="geographic-analysis.html#cb412-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div>
-<p><img src="datajournalism_files/figure-html/unnamed-chunk-238-1.png" width="672" /></p>
+<div class="sourceCode" id="cb426"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb426-1"><a href="geographic-analysis.html#cb426-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> </span>
+<span id="cb426-2"><a href="geographic-analysis.html#cb426-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data=</span>nehospbycounty, <span class="fu">aes</span>(<span class="at">fill=</span>total_beds)) <span class="sc">+</span> </span>
+<span id="cb426-3"><a href="geographic-analysis.html#cb426-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div>
+<p><img src="datajournalism_files/figure-html/unnamed-chunk-249-1.png" width="672" /></p>
 <p>We get what we expect … it’s not ideal. We can’t really tell a difference between anything outside of Douglas and Lancaster counties. So we can add a scale in here. This one is called viridis, and it makes a more visibile color ramp. And since we have a large disparity between Douglas County and pretty much everywhere else, we’ll make the scale exponential.</p>
-<div class="sourceCode" id="cb413"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb413-1"><a href="geographic-analysis.html#cb413-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> </span>
-<span id="cb413-2"><a href="geographic-analysis.html#cb413-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data=</span>nehospbycounty, <span class="fu">aes</span>(<span class="at">fill=</span>total_beds)) <span class="sc">+</span> </span>
-<span id="cb413-3"><a href="geographic-analysis.html#cb413-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
-<span id="cb413-4"><a href="geographic-analysis.html#cb413-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_c</span>(<span class="at">option =</span> <span class="st">&quot;plasma&quot;</span>, <span class="at">trans =</span> <span class="st">&quot;sqrt&quot;</span>)</span></code></pre></div>
-<p><img src="datajournalism_files/figure-html/unnamed-chunk-239-1.png" width="672" /></p>
+<div class="sourceCode" id="cb427"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb427-1"><a href="geographic-analysis.html#cb427-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> </span>
+<span id="cb427-2"><a href="geographic-analysis.html#cb427-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data=</span>nehospbycounty, <span class="fu">aes</span>(<span class="at">fill=</span>total_beds)) <span class="sc">+</span> </span>
+<span id="cb427-3"><a href="geographic-analysis.html#cb427-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
+<span id="cb427-4"><a href="geographic-analysis.html#cb427-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_c</span>(<span class="at">option =</span> <span class="st">&quot;plasma&quot;</span>, <span class="at">trans =</span> <span class="st">&quot;sqrt&quot;</span>)</span></code></pre></div>
+<p><img src="datajournalism_files/figure-html/unnamed-chunk-250-1.png" width="672" /></p>
 <p>So there’s the map. How about a list:</p>
-<div class="sourceCode" id="cb414"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb414-1"><a href="geographic-analysis.html#cb414-1" aria-hidden="true" tabindex="-1"></a>nebedcount <span class="sc">%&gt;%</span> <span class="fu">select</span>(COUNTY, total_beds) <span class="sc">%&gt;%</span> <span class="fu">arrange</span>(<span class="fu">desc</span>(total_beds)) </span></code></pre></div>
+<div class="sourceCode" id="cb428"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb428-1"><a href="geographic-analysis.html#cb428-1" aria-hidden="true" tabindex="-1"></a>nebedcount <span class="sc">%&gt;%</span> <span class="fu">select</span>(COUNTY, total_beds) <span class="sc">%&gt;%</span> <span class="fu">arrange</span>(<span class="fu">desc</span>(total_beds)) </span></code></pre></div>
 <pre><code>##          COUNTY total_beds
 ## 1       DOUGLAS       2479
 ## 2     LANCASTER        984
@@ -493,47 +496,47 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ## 66       GARDEN         10
 ## 67      KEARNEY         10</code></pre>
 <p>So there’s a lot of hosptial beds in Omaha (DOUGLAS) and Lincoln (LANCASTER). Some quick math shows there 3,463 beds in those two counties. How many beds are in the rest of the state combined?</p>
-<div class="sourceCode" id="cb416"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb416-1"><a href="geographic-analysis.html#cb416-1" aria-hidden="true" tabindex="-1"></a>nebedcount <span class="sc">%&gt;%</span> <span class="fu">filter</span>(COUNTY <span class="sc">!=</span> <span class="st">&quot;DOUGLAS&quot;</span> <span class="sc">&amp;</span> COUNTY <span class="sc">!=</span> <span class="st">&quot;LANCASTER&quot;</span>) <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(<span class="fu">sum</span>(total_beds))</span></code></pre></div>
+<div class="sourceCode" id="cb430"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb430-1"><a href="geographic-analysis.html#cb430-1" aria-hidden="true" tabindex="-1"></a>nebedcount <span class="sc">%&gt;%</span> <span class="fu">filter</span>(COUNTY <span class="sc">!=</span> <span class="st">&quot;DOUGLAS&quot;</span> <span class="sc">&amp;</span> COUNTY <span class="sc">!=</span> <span class="st">&quot;LANCASTER&quot;</span>) <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(<span class="fu">sum</span>(total_beds))</span></code></pre></div>
 <pre><code>##   sum(total_beds)
 ## 1            2586</code></pre>
 <p>How many total beds?</p>
-<div class="sourceCode" id="cb418"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb418-1"><a href="geographic-analysis.html#cb418-1" aria-hidden="true" tabindex="-1"></a>nebedcount <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(<span class="fu">sum</span>(total_beds))</span></code></pre></div>
+<div class="sourceCode" id="cb432"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb432-1"><a href="geographic-analysis.html#cb432-1" aria-hidden="true" tabindex="-1"></a>nebedcount <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(<span class="fu">sum</span>(total_beds))</span></code></pre></div>
 <pre><code>##   sum(total_beds)
 ## 1            6049</code></pre>
 <p>So there’s 6,104 beds in the state and 3,463 of them are in Omaha and Lincoln. What perent is that?</p>
-<div class="sourceCode" id="cb420"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb420-1"><a href="geographic-analysis.html#cb420-1" aria-hidden="true" tabindex="-1"></a><span class="dv">3463</span><span class="sc">/</span><span class="dv">6104</span></span></code></pre></div>
+<div class="sourceCode" id="cb434"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb434-1"><a href="geographic-analysis.html#cb434-1" aria-hidden="true" tabindex="-1"></a><span class="dv">3463</span><span class="sc">/</span><span class="dv">6104</span></span></code></pre></div>
 <pre><code>## [1] 0.5673329</code></pre>
 <p>According to this data, 57 percent of the state’s hospital beds are in two counties. What about population?</p>
 <div id="why-tidycensus-is-so-useful" class="section level2" number="21.1">
 <h2><span class="header-section-number">21.1</span> Why tidycensus is so useful</h2>
 <p>Most of the time when we’re looking at population questions, we’re looking at Census data. So what percent of people live in Lancaster and Douglas counties?</p>
-<div class="sourceCode" id="cb422"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb422-1"><a href="geographic-analysis.html#cb422-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidycensus)</span></code></pre></div>
+<div class="sourceCode" id="cb436"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb436-1"><a href="geographic-analysis.html#cb436-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidycensus)</span></code></pre></div>
 <p>In this case, the population variable we’re looking for is Total Population, which is <code>B01003_001</code> and we’re looking at the county geography. Here’s what that looks like:</p>
-<div class="sourceCode" id="cb423"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb423-1"><a href="geographic-analysis.html#cb423-1" aria-hidden="true" tabindex="-1"></a>nepop <span class="ot">&lt;-</span> <span class="fu">get_acs</span>(<span class="at">geography =</span> <span class="st">&quot;county&quot;</span>, </span>
-<span id="cb423-2"><a href="geographic-analysis.html#cb423-2" aria-hidden="true" tabindex="-1"></a>              <span class="at">variables =</span> <span class="fu">c</span>(<span class="at">population =</span> <span class="st">&quot;B01003_001&quot;</span>), </span>
-<span id="cb423-3"><a href="geographic-analysis.html#cb423-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">state =</span> <span class="st">&quot;NE&quot;</span>, </span>
-<span id="cb423-4"><a href="geographic-analysis.html#cb423-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">year =</span> <span class="dv">2018</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb437"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb437-1"><a href="geographic-analysis.html#cb437-1" aria-hidden="true" tabindex="-1"></a>nepop <span class="ot">&lt;-</span> <span class="fu">get_acs</span>(<span class="at">geography =</span> <span class="st">&quot;county&quot;</span>, </span>
+<span id="cb437-2"><a href="geographic-analysis.html#cb437-2" aria-hidden="true" tabindex="-1"></a>              <span class="at">variables =</span> <span class="fu">c</span>(<span class="at">population =</span> <span class="st">&quot;B01003_001&quot;</span>), </span>
+<span id="cb437-3"><a href="geographic-analysis.html#cb437-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">state =</span> <span class="st">&quot;NE&quot;</span>, </span>
+<span id="cb437-4"><a href="geographic-analysis.html#cb437-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">year =</span> <span class="dv">2018</span>)</span></code></pre></div>
 <pre><code>## Getting data from the 2014-2018 5-year ACS</code></pre>
 <p>First we can filter FOR Douglas OR Lancaster using the | character:</p>
-<div class="sourceCode" id="cb425"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb425-1"><a href="geographic-analysis.html#cb425-1" aria-hidden="true" tabindex="-1"></a>nepop <span class="sc">%&gt;%</span> <span class="fu">filter</span>(NAME <span class="sc">==</span> <span class="st">&quot;Lancaster County, Nebraska&quot;</span> <span class="sc">|</span> NAME <span class="sc">==</span> <span class="st">&quot;Douglas County, Nebraska&quot;</span>) <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(<span class="fu">sum</span>(estimate))</span></code></pre></div>
+<div class="sourceCode" id="cb439"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb439-1"><a href="geographic-analysis.html#cb439-1" aria-hidden="true" tabindex="-1"></a>nepop <span class="sc">%&gt;%</span> <span class="fu">filter</span>(NAME <span class="sc">==</span> <span class="st">&quot;Lancaster County, Nebraska&quot;</span> <span class="sc">|</span> NAME <span class="sc">==</span> <span class="st">&quot;Douglas County, Nebraska&quot;</span>) <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(<span class="fu">sum</span>(estimate))</span></code></pre></div>
 <pre><code>## # A tibble: 1 × 1
 ##   `sum(estimate)`
 ##             &lt;dbl&gt;
 ## 1          865086</code></pre>
 <p>Now without them:</p>
-<div class="sourceCode" id="cb427"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb427-1"><a href="geographic-analysis.html#cb427-1" aria-hidden="true" tabindex="-1"></a>nepop <span class="sc">%&gt;%</span> <span class="fu">filter</span>(NAME <span class="sc">!=</span> <span class="st">&quot;Lancaster County, Nebraska&quot;</span> <span class="sc">|</span> NAME <span class="sc">!=</span> <span class="st">&quot;Douglas County, Nebraska&quot;</span>) <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(<span class="fu">sum</span>(estimate))</span></code></pre></div>
+<div class="sourceCode" id="cb441"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb441-1"><a href="geographic-analysis.html#cb441-1" aria-hidden="true" tabindex="-1"></a>nepop <span class="sc">%&gt;%</span> <span class="fu">filter</span>(NAME <span class="sc">!=</span> <span class="st">&quot;Lancaster County, Nebraska&quot;</span> <span class="sc">|</span> NAME <span class="sc">!=</span> <span class="st">&quot;Douglas County, Nebraska&quot;</span>) <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(<span class="fu">sum</span>(estimate))</span></code></pre></div>
 <pre><code>## # A tibble: 1 × 1
 ##   `sum(estimate)`
 ##             &lt;dbl&gt;
 ## 1         1904760</code></pre>
 <p>All together now:</p>
-<div class="sourceCode" id="cb429"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb429-1"><a href="geographic-analysis.html#cb429-1" aria-hidden="true" tabindex="-1"></a>nepop <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(<span class="fu">sum</span>(estimate))</span></code></pre></div>
+<div class="sourceCode" id="cb443"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb443-1"><a href="geographic-analysis.html#cb443-1" aria-hidden="true" tabindex="-1"></a>nepop <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(<span class="fu">sum</span>(estimate))</span></code></pre></div>
 <pre><code>## # A tibble: 1 × 1
 ##   `sum(estimate)`
 ##             &lt;dbl&gt;
 ## 1         1904760</code></pre>
 <p>And the percentage:</p>
-<div class="sourceCode" id="cb431"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb431-1"><a href="geographic-analysis.html#cb431-1" aria-hidden="true" tabindex="-1"></a><span class="dv">865086</span><span class="sc">/</span><span class="dv">1904760</span></span></code></pre></div>
+<div class="sourceCode" id="cb445"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb445-1"><a href="geographic-analysis.html#cb445-1" aria-hidden="true" tabindex="-1"></a><span class="dv">865086</span><span class="sc">/</span><span class="dv">1904760</span></span></code></pre></div>
 <pre><code>## [1] 0.4541706</code></pre>
 <p>So Omaha and Lincoln represent 57 percent of the hospital beds, but only 45 percent of the population.</p>
 
@@ -549,7 +552,6 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
-<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
 <script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
@@ -590,7 +592,7 @@ gitbook.start({
 },
 "download": ["datajournalism.pdf", "datajournalism.epub"],
 "search": {
-"engine": "lunr",
+"engine": "fuse",
 "options": null
 },
 "toc": {
