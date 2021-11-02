@@ -62,7 +62,7 @@ combined <- barber_shops_ppp_state %>%
 write_csv(combined %>% head(10), "barber_shops.csv")
 ```
 
-**A1.** Illinois, with 11,080 applications, of which 1,713 are undisbursed. Georgia has the most undisbursed applications.
+**A1.** Illinois, with 11,080 applications, of which 1,713 are undisbursed. Georgia has the most undisbursed applications. https://datawrapper.dwcdn.net/Xyail/2/
 
 **Q2.** Using Datawrapper, make a different (ideally better) version of the chart you made above. To do so, you MUST go back in R and do any calculations or add additional data to make the chart more effective or answer the above question in a different way. Your chart MUST be different in that it cannot be a bar chart showing the counts of total and undisbursed applications by state. It could be a bar chart showing another calculation or metric, or a scatterplot, or some other form. Follow the same general guidelines as above for the chart's visual elements, and publish it and including the URL below, along with an explanation of how this chart is different from the first one and how you decided what to do.
 
@@ -77,7 +77,7 @@ write_csv(combined %>% head(10), "barber_shops.csv")
 5. Remove ` COUNTY` from that newly created column and save the result to the same dataframe.
 6. Join the combined counties data with the fips data, again specifying the join columns, saving it to a new dataframe. BE SURE TO NOTE THE NUMBER OF ROWS IN THE RESULT.
 7. Export the new dataframe to a CSV file.
-8. Make a county-level map using that exported CSV file that displays the percentage of Kabbage loans. Style it so that the tooltip displays the county and the percentage, and format all percentages shown on the map so that they appear with one decimal point (such as 3.4%). Follow the same general guidelines as above for the chart's visual elements, and give the map a title, description and source.
+8. Make a county-level map using that exported CSV file that displays the percentage of Kabbage loans. Style it so that the tooltip displays the county and the percentage, and format all percentages shown on the map so that they appear with one decimal point (such as 3.4%). Follow the same general guidelines as above for the chart's visual elements, and give the map a title, description and source. Provide a legend caption and format the percentage in the same way as on the tooltips.
 9. In the answer space below, provide the URL for your published map and then describe where Kabbage loans are and are not found. Where are they more common? Look specifically at Florida in the data: are there counties on the map where no data is displayed? Why?
 
 ```{r}
@@ -105,4 +105,6 @@ kabbage_pct_with_fips <- combined_counties %>%
 write_csv(kabbage_pct_with_fips, 'kabbage_pct_with_fips.csv')
 ```
 
-**A3.**  
+**A3.** https://datawrapper.dwcdn.net/2ZMeV/1/
+
+Kabbage appeared to concentrate its lending in states in the Southeast and Northeast, and virtually ignored states such as California, Nevada, Louisiana and the Dakotas. Alaska's county equivalents did not match in the data, and neither did some counties where the spelling was different (St. Lucie vs. Saint Lucie in Florida, for example).
