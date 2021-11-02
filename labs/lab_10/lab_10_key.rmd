@@ -22,6 +22,12 @@ knitr::opts_chunk$set(echo = TRUE)
 
 **Task** Create a codeblock and load appropriate packages and settings for this lab.
 
+```{r}
+library(tidyverse)
+library(tidycensus)
+library(tigris)
+```
+
 ## Questions
 
 **Q1.** You've heard that there are some unusual patterns among applicants listing barber shops as their occupation. Which state has the most PPP applications from barber shops, and how many of those are marked as undisbursed? Which state has the most undisbursed applications?
