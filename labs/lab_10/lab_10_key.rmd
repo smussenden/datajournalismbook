@@ -38,7 +38,7 @@ You MUST do the following things when answering this question:
   * one with a total number of applications per state
   * one with a total number of applications per state where the undisbursed amount is more than 0.
 * Join those dataframes, specifying the join column, and rename the totals columns so that they better describe the values in them.
-* Export the top 10 states to a CSV file using `write_csv`
+* Export the top 10 states (in terms of total number of applications) to a CSV file using `write_csv`
 * Using the top 10 states, make a bar chart with Datawrapper. What kind of bar chart is up to you, so experiment with a few kinds of bar charts to see what answers the question above in the clearest way. Your chart MUST:
   * Have a title, description and source that tells readers about the data. The title and description should highlight the most newsworthy or important aspect.
   * Easily readable labels and values
@@ -70,7 +70,7 @@ write_csv(combined %>% head(10), "barber_shops.csv")
 
 **A1.** Illinois, with 11,080 applications, of which 1,713 are undisbursed. Georgia has the most undisbursed applications. https://datawrapper.dwcdn.net/Xyail/2/
 
-**Q2.** Using Datawrapper, make a different (ideally better) version of the chart you made above. To do so, you MUST go back in R and do any calculations or add additional data to make the chart more effective or answer the above question in a different way. Your chart MUST be different in that it cannot be a bar chart showing the counts of total and undisbursed applications by state. It could be a bar chart showing another calculation or metric, or a scatterplot, or some other form. Follow the same general guidelines as above for the chart's visual elements, and publish it and including the URL below, along with an explanation of how this chart is different from the first one and how you decided what to do.
+**Q2.** Using Datawrapper, make a different (ideally better) version of the chart you made above. TO BE CLEAR: this new graphic should show information about states and loans with undisbursed amounts, so don't, for example, focus on a single state. To do this, you MUST go back in R and do any calculations or add additional data to make the chart more effective or answer the above question in a different way. Your chart MUST be different in that it cannot be a bar chart showing the counts of total and undisbursed applications by state. It could be a bar chart showing another calculation or metric, or a scatterplot, or some other form. Follow the same general guidelines as above for the chart's visual elements, and publish it and including the URL below, along with an explanation of how this chart is different from the first one and how you decided what to do.
 
 **A2.** [Several different paths here, including expanding the CSV to include all states and doing a scatterplot, or calculating a percentage and making a different bar chart, or doing a per capita chart using Census population data]
 
