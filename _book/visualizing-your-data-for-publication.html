@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>Chapter 19 Visualizing your data for publication | Data Journalism with R and the Tidyverse</title>
   <meta name="description" content="This is a book built on a very opinionated philosophy for journalism students doing data journalism in R with replicable methods." />
-  <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.23 and GitBook 2.6.7" />
 
   <meta property="og:title" content="Chapter 19 Visualizing your data for publication | Data Journalism with R and the Tidyverse" />
   <meta property="og:type" content="book" />
@@ -24,7 +24,7 @@
 <meta name="author" content="Matt Waite (original author); updated by Derek Willis and Sean Mussenden" />
 
 
-<meta name="date" content="2021-11-01" />
+<meta name="date" content="2021-11-07" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -33,9 +33,8 @@
   
 <link rel="prev" href="visualizing-your-data-for-reporting.html"/>
 <link rel="next" href="geographic-data-basics.html"/>
-<script src="libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="libs/header-attrs-2.10/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
@@ -51,11 +50,12 @@
 
 
 
+
 <link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
 <script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
-<script src="libs/htmlwidgets-1.5.4/htmlwidgets.js"></script>
+<script src="libs/htmlwidgets-1.5.3/htmlwidgets.js"></script>
 <link href="libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
-<script src="libs/datatables-binding-0.19/datatables.js"></script>
+<script src="libs/datatables-binding-0.18/datatables.js"></script>
 <link href="libs/dt-core-1.10.20/css/jquery.dataTables.min.css" rel="stylesheet" />
 <link href="libs/dt-core-1.10.20/css/jquery.dataTables.extra.css" rel="stylesheet" />
 <script src="libs/dt-core-1.10.20/js/jquery.dataTables.min.js"></script>
@@ -261,10 +261,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <ul>
 <li class="chapter" data-level="20.1" data-path="geographic-data-basics.html"><a href="geographic-data-basics.html#importing-and-viewing-data"><i class="fa fa-check"></i><b>20.1</b> Importing and viewing data</a></li>
 </ul></li>
-<li class="chapter" data-level="21" data-path="geographic-analysis.html"><a href="geographic-analysis.html"><i class="fa fa-check"></i><b>21</b> Geographic analysis</a>
-<ul>
-<li class="chapter" data-level="21.1" data-path="geographic-analysis.html"><a href="geographic-analysis.html#why-tidycensus-is-so-useful"><i class="fa fa-check"></i><b>21.1</b> Why tidycensus is so useful</a></li>
-</ul></li>
+<li class="chapter" data-level="21" data-path="geographic-analysis.html"><a href="geographic-analysis.html"><i class="fa fa-check"></i><b>21</b> Geographic analysis</a></li>
 <li class="chapter" data-level="22" data-path="automating-analysis.html"><a href="automating-analysis.html"><i class="fa fa-check"></i><b>22</b> Automating analysis</a>
 <ul>
 <li class="chapter" data-level="22.1" data-path="automating-analysis.html"><a href="automating-analysis.html#automating-downloads-an-imports"><i class="fa fa-check"></i><b>22.1</b> Automating downloads an imports</a></li>
@@ -358,19 +355,19 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>Making charts in Datawrapper is preposterously simple, which is the point. There are dozens of chart types, and dozens of options. To get from a csv to a chart to publication is very, very easy.</p>
 <p>First, go to <a href="https://www.datawrapper.de/">datawrapper.de</a> and sign up for an account. It’s free.</p>
 <p>Once logged in, you’ll click on New Chart.</p>
-<p><img src="images/ppp_datawrapper1.png" /><!-- --></p>
+<p><img src="images/ppp_datawrapper1.png" width="677" /></p>
 <p>The first thing we’ll do is upload our CSV that we created before. Click on XLS/CSV and upload the file.</p>
-<p><img src="images/datawrapper2.png" /><!-- --></p>
+<p><img src="images/datawrapper2.png" width="1013" /></p>
 <p>Next up is to check and see what Datawrappper did with our data when we uploaded it. As you can see from the text on the left, if it’s blue, it’s a number. If it’s green, it’s a date. If it’s black, it’s text. Red means there’s a problem. This data is very clean, so it imports cleanly. Click on the “Proceed” button.</p>
-<p><img src="images/ppp_datawrapper3.png" /><!-- -->
+<p><img src="images/ppp_datawrapper3.png" width="1193" />
 Now we make a chart. Bar chart comes up by default, which is good, because with totals, that’s what we have.</p>
 <p>Click on Refine. The first option we want to change is the Number Format, because we have currency figures to display and we want to make it as easy as possible for readers to understand what we’re displaying. Datawrapper has an excellent reference for its <a href="https://academy.datawrapper.de/article/207-custom-number-formats-that-you-can-display-in-datawrapper">custom formats</a> that you can consult. Let’s choose <code>$0.[00]a</code>, which adds a dollar sign and abbreviates larger amounts:</p>
-<p><img src="images/ppp_datawrapper4.png" /><!-- --></p>
+<p><img src="images/ppp_datawrapper4.png" width="550" /></p>
 <p>Now we need to annotate our charts. Every chart needs a title, a source line and a credit line. Most need chatter (called description here). Click on the “Annotate” tab to get started.</p>
 <p>Really think about the title and description: the title is like a headline and the description is provides some additional context. Another way to think about it: the title is the most important lesson from the graphic, and the description could be the next most important lesson or could provide more context to the title.</p>
-<p><img src="images/ppp_datawrapper5.png" /><!-- --></p>
+<p><img src="images/ppp_datawrapper5.png" width="1134" /></p>
 <p>To publish, we click the “Publish &amp; Embed” tab. Some publication systems allow for the embedding of HTML into a post or a story. Some don’t. The only way to know is to ask someone at your publication. Every publication system on the planet, though, can publish an image. So there’s always a way to export your chart as a PNG file, which you can upload like any photo.</p>
-<p><img src="images/ppp_datawrapper7.png" /><!-- --></p>
+<p><img src="images/ppp_datawrapper7.png" width="752" /></p>
 <div id="making-a-map" class="section level3" number="19.1.1">
 <h3><span class="header-section-number">19.1.1</span> Making a Map</h3>
 <p>Let’s create a choropleth map - one that shows variations between the total number of approved PPP applications across Maryland counties. First, we’ll need to generate that data using our collection of Maryland PPP loans.</p>
@@ -385,11 +382,8 @@ Now we make a chart. Bar chart comes up by default, which is good, because with 
 <span id="cb382-3"><a href="visualizing-your-data-for-publication.html#cb382-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(<span class="at">count=</span><span class="fu">n</span>()) <span class="sc">%&gt;%</span></span>
 <span id="cb382-4"><a href="visualizing-your-data-for-publication.html#cb382-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(count <span class="sc">&gt;</span> <span class="dv">6</span>)</span></code></pre></div>
 <p>In order to make a map, we need to be able to tell Datawrapper that a certain column contains geographic information (besides the name of the county). The easiest way to do that for U.S. maps is to use something called a <a href="https://www.census.gov/programs-surveys/geography/guidance/geo-identifiers.html">FIPS Code</a>. You should read about them so you understand what they are, and think of them as a unique identifier for some geographical entity like a state or county. Our maryland_ppp dataframe doesn’t have a FIPS code for each county, but this is a solved problem thanks to the Tigris library. Let’s install it:</p>
-<div class="sourceCode" id="cb383"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb383-1"><a href="visualizing-your-data-for-publication.html#cb383-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&#39;tigris&#39;</span>,<span class="at">repos =</span> <span class="st">&quot;http://cran.us.r-project.org&quot;</span>)</span></code></pre></div>
-<pre><code>## 
-## The downloaded binary packages are in
-##  /var/folders/30/plwff7gs4pl690d6qqldbj8m0000gq/T//RtmpvLAiAc/downloaded_packages</code></pre>
-<div class="sourceCode" id="cb385"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb385-1"><a href="visualizing-your-data-for-publication.html#cb385-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tigris)</span></code></pre></div>
+<div class="sourceCode" id="cb383"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb383-1"><a href="visualizing-your-data-for-publication.html#cb383-1" aria-hidden="true" tabindex="-1"></a><span class="co">#install.packages(&#39;tigris&#39;,repos = &quot;http://cran.us.r-project.org&quot;)</span></span>
+<span id="cb383-2"><a href="visualizing-your-data-for-publication.html#cb383-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tigris)</span></code></pre></div>
 <pre><code>## To enable 
 ## caching of data, set `options(tigris_use_cache = TRUE)` in your R script or .Rprofile.</code></pre>
 <pre><code>## 
@@ -398,31 +392,31 @@ Now we make a chart. Bar chart comes up by default, which is good, because with 
 ## 
 ##     fips_codes</code></pre>
 <p>Once we’ve done that, we have access to a dataframe containing all fips codes. Let’s isolate the Maryland codes:</p>
-<div class="sourceCode" id="cb389"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb389-1"><a href="visualizing-your-data-for-publication.html#cb389-1" aria-hidden="true" tabindex="-1"></a>all_fips <span class="ot">&lt;-</span> fips_codes <span class="sc">%&gt;%</span> <span class="fu">as_tibble</span>()</span>
-<span id="cb389-2"><a href="visualizing-your-data-for-publication.html#cb389-2" aria-hidden="true" tabindex="-1"></a>md_fips <span class="ot">&lt;-</span> all_fips <span class="sc">%&gt;%</span> <span class="fu">filter</span>(state <span class="sc">==</span> <span class="st">&#39;MD&#39;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb387"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb387-1"><a href="visualizing-your-data-for-publication.html#cb387-1" aria-hidden="true" tabindex="-1"></a>all_fips <span class="ot">&lt;-</span> fips_codes <span class="sc">%&gt;%</span> <span class="fu">as_tibble</span>()</span>
+<span id="cb387-2"><a href="visualizing-your-data-for-publication.html#cb387-2" aria-hidden="true" tabindex="-1"></a>md_fips <span class="ot">&lt;-</span> all_fips <span class="sc">%&gt;%</span> <span class="fu">filter</span>(state <span class="sc">==</span> <span class="st">&#39;MD&#39;</span>)</span></code></pre></div>
 <p>Looks good, but there are two issues: Datawrapper expects a 5-digit FIPS code (the state code plus the county code, so “24001” for Allegany County) and the county names don’t match the <code>project_county_name</code> in the PPP data. Let’s fix the first issue - adding a full FIPS code based on its components using the function <code>str_c</code>, which concatenates multiple strings:</p>
-<div class="sourceCode" id="cb390"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb390-1"><a href="visualizing-your-data-for-publication.html#cb390-1" aria-hidden="true" tabindex="-1"></a>md_fips <span class="ot">&lt;-</span> md_fips <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">fips_code =</span> <span class="fu">str_c</span>(state_code, county_code))</span></code></pre></div>
+<div class="sourceCode" id="cb388"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb388-1"><a href="visualizing-your-data-for-publication.html#cb388-1" aria-hidden="true" tabindex="-1"></a>md_fips <span class="ot">&lt;-</span> md_fips <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">fips_code =</span> <span class="fu">str_c</span>(state_code, county_code))</span></code></pre></div>
 <p>Now we’ll deal with the county names in <code>md_counties</code>. They are all caps and contain no punctuation, we could:</p>
 <ol style="list-style-type: decimal">
 <li>Change counties in <code>md_counties</code> to match <code>md_fips</code></li>
 <li>Change counties in <code>md_fips</code> to match <code>md_counties</code></li>
 </ol>
-<p>Let’s do the latter. We’ll use mutate to create an uppercase version of the name, remove ” COUNTY”, replace the quotemarks with nothing and change St. Mary’s so it matches the PPP data:</p>
+<p>Let’s do the latter. We’ll use mutate to create an uppercase version of the name, remove " COUNTY", replace the quotemarks with nothing and change St. Mary’s so it matches the PPP data:</p>
 <p>Change the county names in <code>md_fips</code></p>
-<div class="sourceCode" id="cb391"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb391-1"><a href="visualizing-your-data-for-publication.html#cb391-1" aria-hidden="true" tabindex="-1"></a>md_fips <span class="ot">&lt;-</span> md_fips <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">match_county =</span> <span class="fu">str_to_upper</span>(county)) <span class="sc">%&gt;%</span></span>
-<span id="cb391-2"><a href="visualizing-your-data-for-publication.html#cb391-2" aria-hidden="true" tabindex="-1"></a>   <span class="fu">mutate</span>(<span class="at">match_county =</span> <span class="fu">str_replace</span>(match_county, <span class="st">&#39; COUNTY&#39;</span>, <span class="st">&#39;&#39;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb391-3"><a href="visualizing-your-data-for-publication.html#cb391-3" aria-hidden="true" tabindex="-1"></a>   <span class="fu">mutate</span>(<span class="at">match_county =</span> <span class="fu">str_replace</span>(match_county, <span class="st">&quot;&#39;&quot;</span>, <span class="st">&quot;&quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb391-4"><a href="visualizing-your-data-for-publication.html#cb391-4" aria-hidden="true" tabindex="-1"></a>   <span class="fu">mutate</span>(<span class="at">match_county =</span> <span class="fu">str_replace</span>(match_county, <span class="st">&quot;ST. MARY&quot;</span>, <span class="st">&quot;SAINT MARY&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb389"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb389-1"><a href="visualizing-your-data-for-publication.html#cb389-1" aria-hidden="true" tabindex="-1"></a>md_fips <span class="ot">&lt;-</span> md_fips <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">match_county =</span> <span class="fu">str_to_upper</span>(county)) <span class="sc">%&gt;%</span></span>
+<span id="cb389-2"><a href="visualizing-your-data-for-publication.html#cb389-2" aria-hidden="true" tabindex="-1"></a>   <span class="fu">mutate</span>(<span class="at">match_county =</span> <span class="fu">str_replace</span>(match_county, <span class="st">&#39; COUNTY&#39;</span>, <span class="st">&#39;&#39;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb389-3"><a href="visualizing-your-data-for-publication.html#cb389-3" aria-hidden="true" tabindex="-1"></a>   <span class="fu">mutate</span>(<span class="at">match_county =</span> <span class="fu">str_replace</span>(match_county, <span class="st">&quot;&#39;&quot;</span>, <span class="st">&quot;&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb389-4"><a href="visualizing-your-data-for-publication.html#cb389-4" aria-hidden="true" tabindex="-1"></a>   <span class="fu">mutate</span>(<span class="at">match_county =</span> <span class="fu">str_replace</span>(match_county, <span class="st">&quot;ST. MARY&quot;</span>, <span class="st">&quot;SAINT MARY&quot;</span>))</span></code></pre></div>
 <p>Now we’ll join <code>md_counties</code> and <code>md_fips</code> together using our new <code>match_county</code> column:</p>
-<div class="sourceCode" id="cb392"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb392-1"><a href="visualizing-your-data-for-publication.html#cb392-1" aria-hidden="true" tabindex="-1"></a>md_counties_with_fips <span class="ot">&lt;-</span> md_counties <span class="sc">%&gt;%</span></span>
-<span id="cb392-2"><a href="visualizing-your-data-for-publication.html#cb392-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(md_fips, <span class="at">by=</span><span class="fu">c</span>(<span class="st">&#39;project_county_name&#39;</span><span class="ot">=</span><span class="st">&#39;match_county&#39;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb390"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb390-1"><a href="visualizing-your-data-for-publication.html#cb390-1" aria-hidden="true" tabindex="-1"></a>md_counties_with_fips <span class="ot">&lt;-</span> md_counties <span class="sc">%&gt;%</span></span>
+<span id="cb390-2"><a href="visualizing-your-data-for-publication.html#cb390-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(md_fips, <span class="at">by=</span><span class="fu">c</span>(<span class="st">&#39;project_county_name&#39;</span><span class="ot">=</span><span class="st">&#39;match_county&#39;</span>))</span></code></pre></div>
 <p>Then we’ll write <code>md_counties_with_fips</code> to a CSV in the data folder using write_csv:</p>
-<div class="sourceCode" id="cb393"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb393-1"><a href="visualizing-your-data-for-publication.html#cb393-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(md_counties_with_fips, <span class="st">&quot;data/md_counties.csv&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb391"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb391-1"><a href="visualizing-your-data-for-publication.html#cb391-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(md_counties_with_fips, <span class="st">&quot;data/md_counties.csv&quot;</span>)</span></code></pre></div>
 <p>Go back to Datawrapper and click on “New Map.” Click on “Choropleth map” and then choose “USA &gt;&gt; Counties (2018)” for the map base and click the Proceed button.</p>
 <p>Now we can upload the <code>md_counties.csv</code> file we just saved using the Upload File button. It should look like the following image:</p>
-<p><img src="images/ppp_datawrapper8.png" /><!-- --></p>
+<p><img src="images/ppp_datawrapper8.png" width="584" /></p>
 <p>We’ll need to make sure that Datawrapper understands what the data is and where the FIPS code is. Click on the “Match” tab and make sure that yours looks like the image below:</p>
-<p><img src="images/ppp_datawrapper9.png" /><!-- --></p>
+<p><img src="images/ppp_datawrapper9.png" width="488" /></p>
 <p>Click the “Proceed” button (you should have to click it twice, since the first time it will tell you that there’s no data for 3,199 counties - the rest of the U.S.). That will take you to the Visualize tab.</p>
 <p>You’ll see that the map currently is of the whole nation, and we only have Maryland data. Let’s fix that.</p>
 <p>Look for “Hide regions without data” under Appearance, and click the slider icon to enable that feature. You should see a map zoomed into Maryland with some counties in various colors.</p>
@@ -446,6 +440,7 @@ Now we make a chart. Bar chart comes up by default, which is good, because with 
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
 <script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
@@ -486,7 +481,7 @@ gitbook.start({
 },
 "download": ["datajournalism.pdf", "datajournalism.epub"],
 "search": {
-"engine": "fuse",
+"engine": "lunr",
 "options": null
 },
 "toc": {

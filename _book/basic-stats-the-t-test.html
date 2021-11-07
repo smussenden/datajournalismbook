@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>Chapter 24 Basic Stats: The T-Test | Data Journalism with R and the Tidyverse</title>
   <meta name="description" content="This is a book built on a very opinionated philosophy for journalism students doing data journalism in R with replicable methods." />
-  <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.23 and GitBook 2.6.7" />
 
   <meta property="og:title" content="Chapter 24 Basic Stats: The T-Test | Data Journalism with R and the Tidyverse" />
   <meta property="og:type" content="book" />
@@ -24,7 +24,7 @@
 <meta name="author" content="Matt Waite (original author); updated by Derek Willis and Sean Mussenden" />
 
 
-<meta name="date" content="2021-11-01" />
+<meta name="date" content="2021-11-07" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -33,9 +33,8 @@
   
 <link rel="prev" href="automating-geographic-analysis.html"/>
 <link rel="next" href="an-intro-to-text-analysis.html"/>
-<script src="libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="libs/header-attrs-2.10/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
@@ -51,11 +50,12 @@
 
 
 
+
 <link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
 <script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
-<script src="libs/htmlwidgets-1.5.4/htmlwidgets.js"></script>
+<script src="libs/htmlwidgets-1.5.3/htmlwidgets.js"></script>
 <link href="libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
-<script src="libs/datatables-binding-0.19/datatables.js"></script>
+<script src="libs/datatables-binding-0.18/datatables.js"></script>
 <link href="libs/dt-core-1.10.20/css/jquery.dataTables.min.css" rel="stylesheet" />
 <link href="libs/dt-core-1.10.20/css/jquery.dataTables.extra.css" rel="stylesheet" />
 <script src="libs/dt-core-1.10.20/js/jquery.dataTables.min.js"></script>
@@ -261,10 +261,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <ul>
 <li class="chapter" data-level="20.1" data-path="geographic-data-basics.html"><a href="geographic-data-basics.html#importing-and-viewing-data"><i class="fa fa-check"></i><b>20.1</b> Importing and viewing data</a></li>
 </ul></li>
-<li class="chapter" data-level="21" data-path="geographic-analysis.html"><a href="geographic-analysis.html"><i class="fa fa-check"></i><b>21</b> Geographic analysis</a>
-<ul>
-<li class="chapter" data-level="21.1" data-path="geographic-analysis.html"><a href="geographic-analysis.html#why-tidycensus-is-so-useful"><i class="fa fa-check"></i><b>21.1</b> Why tidycensus is so useful</a></li>
-</ul></li>
+<li class="chapter" data-level="21" data-path="geographic-analysis.html"><a href="geographic-analysis.html"><i class="fa fa-check"></i><b>21</b> Geographic analysis</a></li>
 <li class="chapter" data-level="22" data-path="automating-analysis.html"><a href="automating-analysis.html"><i class="fa fa-check"></i><b>22</b> Automating analysis</a>
 <ul>
 <li class="chapter" data-level="22.1" data-path="automating-analysis.html"><a href="automating-analysis.html#automating-downloads-an-imports"><i class="fa fa-check"></i><b>22.1</b> Automating downloads an imports</a></li>
@@ -340,11 +337,11 @@ If you’re interested I how effective social distancing is working, a good surr
 <p>So, is it?</p>
 <p>Let’s find out. Can we see signs of Lincoln hunkering down in LPD data?</p>
 <p>We’re fortunate here. We can get <a href="http://opendata.lincoln.ne.gov/datasets/lpd-dispatch-records">daily updated calls for service data from the Lincoln Open Data Portal</a>. So download the spreadsheet version (which is really a csv) and load some libraries.</p>
-<div class="sourceCode" id="cb519"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb519-1"><a href="basic-stats-the-t-test.html#cb519-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb519-2"><a href="basic-stats-the-t-test.html#cb519-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span>
-<span id="cb519-3"><a href="basic-stats-the-t-test.html#cb519-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(janitor)</span></code></pre></div>
+<div class="sourceCode" id="cb527"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb527-1"><a href="basic-stats-the-t-test.html#cb527-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb527-2"><a href="basic-stats-the-t-test.html#cb527-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span>
+<span id="cb527-3"><a href="basic-stats-the-t-test.html#cb527-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(janitor)</span></code></pre></div>
 <p>And now load the data.</p>
-<div class="sourceCode" id="cb520"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb520-1"><a href="basic-stats-the-t-test.html#cb520-1" aria-hidden="true" tabindex="-1"></a>calls <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;data/LPD_Dispatch_Records.csv&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb528"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb528-1"><a href="basic-stats-the-t-test.html#cb528-1" aria-hidden="true" tabindex="-1"></a>calls <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;data/LPD_Dispatch_Records.csv&quot;</span>)</span></code></pre></div>
 <pre><code>## Rows: 378324 Columns: 15</code></pre>
 <pre><code>## ── Column specification ────────────────────────────────────────────────────────
 ## Delimiter: &quot;,&quot;
@@ -354,13 +351,13 @@ If you’re interested I how effective social distancing is working, a good surr
 ## ℹ Use `spec()` to retrieve the full column specification for this data.
 ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
 <p>The first issue we need to address is that the dates don’t import as dates. So we need to fix RPT_Date to make it a date. Lubridate to the rescue.</p>
-<div class="sourceCode" id="cb524"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb524-1"><a href="basic-stats-the-t-test.html#cb524-1" aria-hidden="true" tabindex="-1"></a>calls <span class="ot">&lt;-</span> calls <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">RPT_Date =</span> <span class="fu">ymd</span>(RPT_Date))</span></code></pre></div>
+<div class="sourceCode" id="cb532"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb532-1"><a href="basic-stats-the-t-test.html#cb532-1" aria-hidden="true" tabindex="-1"></a>calls <span class="ot">&lt;-</span> calls <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">RPT_Date =</span> <span class="fu">ymd</span>(RPT_Date))</span></code></pre></div>
 <pre><code>## Warning: 13 failed to parse.</code></pre>
 <p>For purposes of this work, we can live without the 13 (they don’t occur when we’re interested in).</p>
 <p>First, let’s just visualize regular call volumes and see: Does the end of the line drop sharply, indicating people are socially distancing?</p>
-<div class="sourceCode" id="cb526"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb526-1"><a href="basic-stats-the-t-test.html#cb526-1" aria-hidden="true" tabindex="-1"></a>calls <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(RPT_Date) <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(<span class="at">total=</span><span class="fu">n</span>()) <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>() <span class="sc">+</span> <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x=</span>RPT_Date, <span class="at">y=</span>total))</span></code></pre></div>
+<div class="sourceCode" id="cb534"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb534-1"><a href="basic-stats-the-t-test.html#cb534-1" aria-hidden="true" tabindex="-1"></a>calls <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(RPT_Date) <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(<span class="at">total=</span><span class="fu">n</span>()) <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>() <span class="sc">+</span> <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x=</span>RPT_Date, <span class="at">y=</span>total))</span></code></pre></div>
 <pre><code>## Warning: Removed 1 row(s) containing missing values (geom_path).</code></pre>
-<p><img src="datajournalism_files/figure-html/unnamed-chunk-306-1.png" width="672" /></p>
+<p><img src="datajournalism_files/figure-html/unnamed-chunk-300-1.png" width="672" /></p>
 <p>Short answer? No. Longer answer? It’s obvious that Lincoln has a seasonality to crime. It generally is low over the dead of winter and rises as it gets warmer, peaking during early football season (no surprise there) and dropping back down as winter sets in. So to make this useful, we should only compare dates in this March to previous March dates. Then we eliminate the seasonality issue.</p>
 <p>So we’re going to do some filtering here. The following block is broken down like this:</p>
 <ol style="list-style-type: decimal">
@@ -371,14 +368,14 @@ If you’re interested I how effective social distancing is working, a good surr
 <li>Last, but not least, cutting out April dates in this dataset. Just going to look at March.</li>
 </ol>
 <p>And we’ll put it all in a dataframe called <code>calldays</code>.</p>
-<div class="sourceCode" id="cb528"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb528-1"><a href="basic-stats-the-t-test.html#cb528-1" aria-hidden="true" tabindex="-1"></a>calldays <span class="ot">&lt;-</span> calls <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="fu">month</span>(RPT_Date) <span class="sc">==</span> <span class="dv">3</span>) <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(RPT_Date) <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(<span class="at">total_calls =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">TimePeriod =</span> <span class="fu">case_when</span>(</span>
-<span id="cb528-2"><a href="basic-stats-the-t-test.html#cb528-2" aria-hidden="true" tabindex="-1"></a>  RPT_Date <span class="sc">&lt;</span> <span class="fu">as.Date</span>(<span class="st">&quot;2020-03-16&quot;</span>) <span class="sc">~</span> <span class="st">&quot;Previous&quot;</span>,</span>
-<span id="cb528-3"><a href="basic-stats-the-t-test.html#cb528-3" aria-hidden="true" tabindex="-1"></a>  RPT_Date <span class="sc">&gt;=</span> <span class="fu">as.Date</span>(<span class="st">&quot;2020-03-16&quot;</span>) <span class="sc">~</span> <span class="st">&quot;Current&quot;</span>,</span>
-<span id="cb528-4"><a href="basic-stats-the-t-test.html#cb528-4" aria-hidden="true" tabindex="-1"></a>)) <span class="sc">%&gt;%</span> <span class="fu">filter</span>(RPT_Date <span class="sc">&lt;</span> <span class="fu">as.Date</span>(<span class="st">&quot;2020-04-01&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb536"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb536-1"><a href="basic-stats-the-t-test.html#cb536-1" aria-hidden="true" tabindex="-1"></a>calldays <span class="ot">&lt;-</span> calls <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="fu">month</span>(RPT_Date) <span class="sc">==</span> <span class="dv">3</span>) <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(RPT_Date) <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(<span class="at">total_calls =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">TimePeriod =</span> <span class="fu">case_when</span>(</span>
+<span id="cb536-2"><a href="basic-stats-the-t-test.html#cb536-2" aria-hidden="true" tabindex="-1"></a>  RPT_Date <span class="sc">&lt;</span> <span class="fu">as.Date</span>(<span class="st">&quot;2020-03-16&quot;</span>) <span class="sc">~</span> <span class="st">&quot;Previous&quot;</span>,</span>
+<span id="cb536-3"><a href="basic-stats-the-t-test.html#cb536-3" aria-hidden="true" tabindex="-1"></a>  RPT_Date <span class="sc">&gt;=</span> <span class="fu">as.Date</span>(<span class="st">&quot;2020-03-16&quot;</span>) <span class="sc">~</span> <span class="st">&quot;Current&quot;</span>,</span>
+<span id="cb536-4"><a href="basic-stats-the-t-test.html#cb536-4" aria-hidden="true" tabindex="-1"></a>)) <span class="sc">%&gt;%</span> <span class="fu">filter</span>(RPT_Date <span class="sc">&lt;</span> <span class="fu">as.Date</span>(<span class="st">&quot;2020-04-01&quot;</span>))</span></code></pre></div>
 <p>To test if the current period of time is different from previous March days, we’re going to use something called a t-test. A t-test simply asks if two sample means are different – is the average between sample A different from the mean of sample B. It looks at the variability in the data and boils it down to a p-value. The p-value tells us if it’s statistically significant or not. Simply put: If our value is below .05, it’s statistically significant and the two means are different. If it’s above .05, then the differences between the two numbers are not meaningful – it could just be random chance that they’re different.</p>
 <p><a href="https://conjointly.com/kb/statistical-student-t-test/">More on the t-test here</a>. Worth reading.</p>
 <p>In R, a <code>t.test</code> is a base R function, owing to it being a statistical language. So were going to look at <code>total_calls</code> split between <code>TimePeriod</code>s. Here’s the code. We’ll interpret the output below.</p>
-<div class="sourceCode" id="cb529"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb529-1"><a href="basic-stats-the-t-test.html#cb529-1" aria-hidden="true" tabindex="-1"></a><span class="fu">t.test</span>(total_calls <span class="sc">~</span> TimePeriod, <span class="at">data =</span> calldays)</span></code></pre></div>
+<div class="sourceCode" id="cb537"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb537-1"><a href="basic-stats-the-t-test.html#cb537-1" aria-hidden="true" tabindex="-1"></a><span class="fu">t.test</span>(total_calls <span class="sc">~</span> TimePeriod, <span class="at">data =</span> calldays)</span></code></pre></div>
 <pre><code>## 
 ##  Welch Two Sample t-test
 ## 
@@ -397,7 +394,7 @@ If you’re interested I how effective social distancing is working, a good surr
 <p>But you need only look outside your house to realize the world is different. So how is it that calls to Lincoln police aren’t?</p>
 <p>As they say, the devil is in the details.</p>
 <p>Let’s use <code>janitor</code>’s <code>tabyl</code> function to get a look at what kind of call groups we can look at.</p>
-<div class="sourceCode" id="cb531"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb531-1"><a href="basic-stats-the-t-test.html#cb531-1" aria-hidden="true" tabindex="-1"></a>calls <span class="sc">%&gt;%</span> <span class="fu">filter</span>(RPT_Date <span class="sc">&gt;=</span> <span class="fu">as.Date</span>(<span class="st">&quot;2020-03-01&quot;</span>)) <span class="sc">%&gt;%</span> <span class="fu">tabyl</span>(CFS_LEGEND)</span></code></pre></div>
+<div class="sourceCode" id="cb539"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb539-1"><a href="basic-stats-the-t-test.html#cb539-1" aria-hidden="true" tabindex="-1"></a>calls <span class="sc">%&gt;%</span> <span class="fu">filter</span>(RPT_Date <span class="sc">&gt;=</span> <span class="fu">as.Date</span>(<span class="st">&quot;2020-03-01&quot;</span>)) <span class="sc">%&gt;%</span> <span class="fu">tabyl</span>(CFS_LEGEND)</span></code></pre></div>
 <pre><code>##                  CFS_LEGEND    n      percent
 ##                    ACCIDENT  585 0.0641166155
 ##                       ALARM  221 0.0242218325
@@ -437,12 +434,12 @@ If you’re interested I how effective social distancing is working, a good surr
 ##             WEAPONS OFFENSE   17 0.0018632179</code></pre>
 <p>Let’s first look at disturbances, one of the first big call types on that list. Disturbances, for those of you who have always stayed on the right side of the law, are anything where the police get called out to and people are acting the fool. Arguments between neighbors? Disturbance. Terrible racket coming from the back yard down the way? Disturbance. So it’s pretty generic and it happens a lot.</p>
 <p>To look specifically at a crime, we’re going to take what we did before and add a filter into it, and we’ll name the dataframe what we’re looking at.</p>
-<div class="sourceCode" id="cb533"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb533-1"><a href="basic-stats-the-t-test.html#cb533-1" aria-hidden="true" tabindex="-1"></a>disturbance <span class="ot">&lt;-</span> calls <span class="sc">%&gt;%</span> <span class="fu">filter</span>(CFS_LEGEND <span class="sc">==</span> <span class="st">&quot;DISTURBANCE&quot;</span>) <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="fu">month</span>(RPT_Date) <span class="sc">==</span> <span class="dv">3</span>) <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(RPT_Date) <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(<span class="at">total_calls =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">TimePeriod =</span> <span class="fu">case_when</span>(</span>
-<span id="cb533-2"><a href="basic-stats-the-t-test.html#cb533-2" aria-hidden="true" tabindex="-1"></a>  RPT_Date <span class="sc">&lt;</span> <span class="fu">as.Date</span>(<span class="st">&quot;2020-03-16&quot;</span>) <span class="sc">~</span> <span class="st">&quot;Previous&quot;</span>,</span>
-<span id="cb533-3"><a href="basic-stats-the-t-test.html#cb533-3" aria-hidden="true" tabindex="-1"></a>  RPT_Date <span class="sc">&gt;=</span> <span class="fu">as.Date</span>(<span class="st">&quot;2020-03-16&quot;</span>) <span class="sc">~</span> <span class="st">&quot;Current&quot;</span>,</span>
-<span id="cb533-4"><a href="basic-stats-the-t-test.html#cb533-4" aria-hidden="true" tabindex="-1"></a>)) <span class="sc">%&gt;%</span> <span class="fu">filter</span>(RPT_Date <span class="sc">&lt;</span> <span class="fu">as.Date</span>(<span class="st">&quot;2020-04-01&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb541"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb541-1"><a href="basic-stats-the-t-test.html#cb541-1" aria-hidden="true" tabindex="-1"></a>disturbance <span class="ot">&lt;-</span> calls <span class="sc">%&gt;%</span> <span class="fu">filter</span>(CFS_LEGEND <span class="sc">==</span> <span class="st">&quot;DISTURBANCE&quot;</span>) <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="fu">month</span>(RPT_Date) <span class="sc">==</span> <span class="dv">3</span>) <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(RPT_Date) <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(<span class="at">total_calls =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">TimePeriod =</span> <span class="fu">case_when</span>(</span>
+<span id="cb541-2"><a href="basic-stats-the-t-test.html#cb541-2" aria-hidden="true" tabindex="-1"></a>  RPT_Date <span class="sc">&lt;</span> <span class="fu">as.Date</span>(<span class="st">&quot;2020-03-16&quot;</span>) <span class="sc">~</span> <span class="st">&quot;Previous&quot;</span>,</span>
+<span id="cb541-3"><a href="basic-stats-the-t-test.html#cb541-3" aria-hidden="true" tabindex="-1"></a>  RPT_Date <span class="sc">&gt;=</span> <span class="fu">as.Date</span>(<span class="st">&quot;2020-03-16&quot;</span>) <span class="sc">~</span> <span class="st">&quot;Current&quot;</span>,</span>
+<span id="cb541-4"><a href="basic-stats-the-t-test.html#cb541-4" aria-hidden="true" tabindex="-1"></a>)) <span class="sc">%&gt;%</span> <span class="fu">filter</span>(RPT_Date <span class="sc">&lt;</span> <span class="fu">as.Date</span>(<span class="st">&quot;2020-04-01&quot;</span>))</span></code></pre></div>
 <p>Then we can do our t-test.</p>
-<div class="sourceCode" id="cb534"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb534-1"><a href="basic-stats-the-t-test.html#cb534-1" aria-hidden="true" tabindex="-1"></a><span class="fu">t.test</span>(total_calls <span class="sc">~</span> TimePeriod, <span class="at">data =</span> disturbance)</span></code></pre></div>
+<div class="sourceCode" id="cb542"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb542-1"><a href="basic-stats-the-t-test.html#cb542-1" aria-hidden="true" tabindex="-1"></a><span class="fu">t.test</span>(total_calls <span class="sc">~</span> TimePeriod, <span class="at">data =</span> disturbance)</span></code></pre></div>
 <pre><code>## 
 ##  Welch Two Sample t-test
 ## 
@@ -456,11 +453,11 @@ If you’re interested I how effective social distancing is working, a good surr
 ##               56.06667               48.85185</code></pre>
 <p>So what does this say? Typically, you’d see 48.85 disturbances a day on average before coronavirus. Now? 56. Is that a significant difference? According to our p-value of 0.0138, it is. So police are going to more disturbances than usual.</p>
 <p>What about traffic calls?</p>
-<div class="sourceCode" id="cb536"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb536-1"><a href="basic-stats-the-t-test.html#cb536-1" aria-hidden="true" tabindex="-1"></a>traffic <span class="ot">&lt;-</span> calls <span class="sc">%&gt;%</span> <span class="fu">filter</span>(CFS_LEGEND <span class="sc">==</span> <span class="st">&quot;TRAFFIC&quot;</span>) <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="fu">month</span>(RPT_Date) <span class="sc">==</span> <span class="dv">3</span>) <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(RPT_Date) <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(<span class="at">total_calls =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">TimePeriod =</span> <span class="fu">case_when</span>(</span>
-<span id="cb536-2"><a href="basic-stats-the-t-test.html#cb536-2" aria-hidden="true" tabindex="-1"></a>  RPT_Date <span class="sc">&lt;</span> <span class="fu">as.Date</span>(<span class="st">&quot;2020-03-16&quot;</span>) <span class="sc">~</span> <span class="st">&quot;Previous&quot;</span>,</span>
-<span id="cb536-3"><a href="basic-stats-the-t-test.html#cb536-3" aria-hidden="true" tabindex="-1"></a>  RPT_Date <span class="sc">&gt;=</span> <span class="fu">as.Date</span>(<span class="st">&quot;2020-03-16&quot;</span>) <span class="sc">~</span> <span class="st">&quot;Current&quot;</span>,</span>
-<span id="cb536-4"><a href="basic-stats-the-t-test.html#cb536-4" aria-hidden="true" tabindex="-1"></a>)) <span class="sc">%&gt;%</span> <span class="fu">filter</span>(RPT_Date <span class="sc">&lt;</span> <span class="fu">as.Date</span>(<span class="st">&quot;2020-04-01&quot;</span>))</span></code></pre></div>
-<div class="sourceCode" id="cb537"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb537-1"><a href="basic-stats-the-t-test.html#cb537-1" aria-hidden="true" tabindex="-1"></a><span class="fu">t.test</span>(total_calls <span class="sc">~</span> TimePeriod, <span class="at">data =</span> traffic)</span></code></pre></div>
+<div class="sourceCode" id="cb544"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb544-1"><a href="basic-stats-the-t-test.html#cb544-1" aria-hidden="true" tabindex="-1"></a>traffic <span class="ot">&lt;-</span> calls <span class="sc">%&gt;%</span> <span class="fu">filter</span>(CFS_LEGEND <span class="sc">==</span> <span class="st">&quot;TRAFFIC&quot;</span>) <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="fu">month</span>(RPT_Date) <span class="sc">==</span> <span class="dv">3</span>) <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(RPT_Date) <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(<span class="at">total_calls =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">TimePeriod =</span> <span class="fu">case_when</span>(</span>
+<span id="cb544-2"><a href="basic-stats-the-t-test.html#cb544-2" aria-hidden="true" tabindex="-1"></a>  RPT_Date <span class="sc">&lt;</span> <span class="fu">as.Date</span>(<span class="st">&quot;2020-03-16&quot;</span>) <span class="sc">~</span> <span class="st">&quot;Previous&quot;</span>,</span>
+<span id="cb544-3"><a href="basic-stats-the-t-test.html#cb544-3" aria-hidden="true" tabindex="-1"></a>  RPT_Date <span class="sc">&gt;=</span> <span class="fu">as.Date</span>(<span class="st">&quot;2020-03-16&quot;</span>) <span class="sc">~</span> <span class="st">&quot;Current&quot;</span>,</span>
+<span id="cb544-4"><a href="basic-stats-the-t-test.html#cb544-4" aria-hidden="true" tabindex="-1"></a>)) <span class="sc">%&gt;%</span> <span class="fu">filter</span>(RPT_Date <span class="sc">&lt;</span> <span class="fu">as.Date</span>(<span class="st">&quot;2020-04-01&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb545"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb545-1"><a href="basic-stats-the-t-test.html#cb545-1" aria-hidden="true" tabindex="-1"></a><span class="fu">t.test</span>(total_calls <span class="sc">~</span> TimePeriod, <span class="at">data =</span> traffic)</span></code></pre></div>
 <pre><code>## 
 ##  Welch Two Sample t-test
 ## 
@@ -474,11 +471,11 @@ If you’re interested I how effective social distancing is working, a good surr
 ##               23.33333               32.05556</code></pre>
 <p>Typically get about 32 calls a day, now 23. That’s a big difference, and a statistically significant one.</p>
 <p>How about car accidents?</p>
-<div class="sourceCode" id="cb539"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb539-1"><a href="basic-stats-the-t-test.html#cb539-1" aria-hidden="true" tabindex="-1"></a>accident <span class="ot">&lt;-</span> calls <span class="sc">%&gt;%</span> <span class="fu">filter</span>(CFS_LEGEND <span class="sc">==</span> <span class="st">&quot;ACCIDENT&quot;</span>) <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="fu">month</span>(RPT_Date) <span class="sc">==</span> <span class="dv">3</span>) <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(RPT_Date) <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(<span class="at">total_calls =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">TimePeriod =</span> <span class="fu">case_when</span>(</span>
-<span id="cb539-2"><a href="basic-stats-the-t-test.html#cb539-2" aria-hidden="true" tabindex="-1"></a>  RPT_Date <span class="sc">&lt;</span> <span class="fu">as.Date</span>(<span class="st">&quot;2020-03-16&quot;</span>) <span class="sc">~</span> <span class="st">&quot;Previous&quot;</span>,</span>
-<span id="cb539-3"><a href="basic-stats-the-t-test.html#cb539-3" aria-hidden="true" tabindex="-1"></a>  RPT_Date <span class="sc">&gt;=</span> <span class="fu">as.Date</span>(<span class="st">&quot;2020-03-16&quot;</span>) <span class="sc">~</span> <span class="st">&quot;Current&quot;</span>,</span>
-<span id="cb539-4"><a href="basic-stats-the-t-test.html#cb539-4" aria-hidden="true" tabindex="-1"></a>)) <span class="sc">%&gt;%</span> <span class="fu">filter</span>(RPT_Date <span class="sc">&lt;</span> <span class="fu">as.Date</span>(<span class="st">&quot;2020-04-01&quot;</span>))</span></code></pre></div>
-<div class="sourceCode" id="cb540"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb540-1"><a href="basic-stats-the-t-test.html#cb540-1" aria-hidden="true" tabindex="-1"></a><span class="fu">t.test</span>(total_calls <span class="sc">~</span> TimePeriod, <span class="at">data =</span> accident)</span></code></pre></div>
+<div class="sourceCode" id="cb547"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb547-1"><a href="basic-stats-the-t-test.html#cb547-1" aria-hidden="true" tabindex="-1"></a>accident <span class="ot">&lt;-</span> calls <span class="sc">%&gt;%</span> <span class="fu">filter</span>(CFS_LEGEND <span class="sc">==</span> <span class="st">&quot;ACCIDENT&quot;</span>) <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="fu">month</span>(RPT_Date) <span class="sc">==</span> <span class="dv">3</span>) <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(RPT_Date) <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(<span class="at">total_calls =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">TimePeriod =</span> <span class="fu">case_when</span>(</span>
+<span id="cb547-2"><a href="basic-stats-the-t-test.html#cb547-2" aria-hidden="true" tabindex="-1"></a>  RPT_Date <span class="sc">&lt;</span> <span class="fu">as.Date</span>(<span class="st">&quot;2020-03-16&quot;</span>) <span class="sc">~</span> <span class="st">&quot;Previous&quot;</span>,</span>
+<span id="cb547-3"><a href="basic-stats-the-t-test.html#cb547-3" aria-hidden="true" tabindex="-1"></a>  RPT_Date <span class="sc">&gt;=</span> <span class="fu">as.Date</span>(<span class="st">&quot;2020-03-16&quot;</span>) <span class="sc">~</span> <span class="st">&quot;Current&quot;</span>,</span>
+<span id="cb547-4"><a href="basic-stats-the-t-test.html#cb547-4" aria-hidden="true" tabindex="-1"></a>)) <span class="sc">%&gt;%</span> <span class="fu">filter</span>(RPT_Date <span class="sc">&lt;</span> <span class="fu">as.Date</span>(<span class="st">&quot;2020-04-01&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb548"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb548-1"><a href="basic-stats-the-t-test.html#cb548-1" aria-hidden="true" tabindex="-1"></a><span class="fu">t.test</span>(total_calls <span class="sc">~</span> TimePeriod, <span class="at">data =</span> accident)</span></code></pre></div>
 <pre><code>## 
 ##  Welch Two Sample t-test
 ## 
@@ -495,11 +492,11 @@ If you’re interested I how effective social distancing is working, a good surr
 <div id="what-else-should-we-look-at" class="section level2" number="24.2">
 <h2><span class="header-section-number">24.2</span> What else should we look at?</h2>
 <p>With a little magic using <code>tidyr</code> to transform the data (<a href="http://mattwaite.github.io/sports/transforming-data.html">learn more about that here</a>), we can get a peek at other call groups worth exploring.</p>
-<div class="sourceCode" id="cb542"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb542-1"><a href="basic-stats-the-t-test.html#cb542-1" aria-hidden="true" tabindex="-1"></a>calls <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="fu">month</span>(RPT_Date) <span class="sc">==</span> <span class="dv">3</span>) <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(RPT_Date, CFS_LEGEND) <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(<span class="at">total_calls =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">TimePeriod =</span> <span class="fu">case_when</span>(</span>
-<span id="cb542-2"><a href="basic-stats-the-t-test.html#cb542-2" aria-hidden="true" tabindex="-1"></a>  RPT_Date <span class="sc">&lt;</span> <span class="fu">as.Date</span>(<span class="st">&quot;2020-03-16&quot;</span>) <span class="sc">~</span> <span class="st">&quot;Previous&quot;</span>,</span>
-<span id="cb542-3"><a href="basic-stats-the-t-test.html#cb542-3" aria-hidden="true" tabindex="-1"></a>  RPT_Date <span class="sc">&gt;=</span> <span class="fu">as.Date</span>(<span class="st">&quot;2020-03-16&quot;</span>) <span class="sc">~</span> <span class="st">&quot;Current&quot;</span>,</span>
-<span id="cb542-4"><a href="basic-stats-the-t-test.html#cb542-4" aria-hidden="true" tabindex="-1"></a>)) <span class="sc">%&gt;%</span> <span class="fu">filter</span>(RPT_Date <span class="sc">&lt;</span> <span class="fu">as.Date</span>(<span class="st">&quot;2020-04-01&quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb542-5"><a href="basic-stats-the-t-test.html#cb542-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(TimePeriod, CFS_LEGEND) <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(<span class="at">avg_calls =</span> <span class="fu">mean</span>(total_calls)) <span class="sc">%&gt;%</span> <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> <span class="st">&quot;TimePeriod&quot;</span>, <span class="at">values_from =</span> <span class="st">&quot;avg_calls&quot;</span>) <span class="sc">%&gt;%</span> <span class="fu">na.omit</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb550"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb550-1"><a href="basic-stats-the-t-test.html#cb550-1" aria-hidden="true" tabindex="-1"></a>calls <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="fu">month</span>(RPT_Date) <span class="sc">==</span> <span class="dv">3</span>) <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(RPT_Date, CFS_LEGEND) <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(<span class="at">total_calls =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">TimePeriod =</span> <span class="fu">case_when</span>(</span>
+<span id="cb550-2"><a href="basic-stats-the-t-test.html#cb550-2" aria-hidden="true" tabindex="-1"></a>  RPT_Date <span class="sc">&lt;</span> <span class="fu">as.Date</span>(<span class="st">&quot;2020-03-16&quot;</span>) <span class="sc">~</span> <span class="st">&quot;Previous&quot;</span>,</span>
+<span id="cb550-3"><a href="basic-stats-the-t-test.html#cb550-3" aria-hidden="true" tabindex="-1"></a>  RPT_Date <span class="sc">&gt;=</span> <span class="fu">as.Date</span>(<span class="st">&quot;2020-03-16&quot;</span>) <span class="sc">~</span> <span class="st">&quot;Current&quot;</span>,</span>
+<span id="cb550-4"><a href="basic-stats-the-t-test.html#cb550-4" aria-hidden="true" tabindex="-1"></a>)) <span class="sc">%&gt;%</span> <span class="fu">filter</span>(RPT_Date <span class="sc">&lt;</span> <span class="fu">as.Date</span>(<span class="st">&quot;2020-04-01&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb550-5"><a href="basic-stats-the-t-test.html#cb550-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(TimePeriod, CFS_LEGEND) <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(<span class="at">avg_calls =</span> <span class="fu">mean</span>(total_calls)) <span class="sc">%&gt;%</span> <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> <span class="st">&quot;TimePeriod&quot;</span>, <span class="at">values_from =</span> <span class="st">&quot;avg_calls&quot;</span>) <span class="sc">%&gt;%</span> <span class="fu">na.omit</span>()</span></code></pre></div>
 <pre><code>## `summarise()` has grouped output by &#39;RPT_Date&#39;. You can override using the `.groups` argument.</code></pre>
 <pre><code>## `summarise()` has grouped output by &#39;TimePeriod&#39;. You can override using the `.groups` argument.</code></pre>
 <pre><code>## # A tibble: 35 × 3
@@ -531,6 +528,7 @@ If you’re interested I how effective social distancing is working, a good surr
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
 <script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
@@ -571,7 +569,7 @@ gitbook.start({
 },
 "download": ["datajournalism.pdf", "datajournalism.epub"],
 "search": {
-"engine": "fuse",
+"engine": "lunr",
 "options": null
 },
 "toc": {

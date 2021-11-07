@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>Chapter 21 Geographic analysis | Data Journalism with R and the Tidyverse</title>
   <meta name="description" content="This is a book built on a very opinionated philosophy for journalism students doing data journalism in R with replicable methods." />
-  <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.23 and GitBook 2.6.7" />
 
   <meta property="og:title" content="Chapter 21 Geographic analysis | Data Journalism with R and the Tidyverse" />
   <meta property="og:type" content="book" />
@@ -24,7 +24,7 @@
 <meta name="author" content="Matt Waite (original author); updated by Derek Willis and Sean Mussenden" />
 
 
-<meta name="date" content="2021-11-01" />
+<meta name="date" content="2021-11-07" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -33,9 +33,8 @@
   
 <link rel="prev" href="geographic-data-basics.html"/>
 <link rel="next" href="automating-analysis.html"/>
-<script src="libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="libs/header-attrs-2.10/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
@@ -51,11 +50,12 @@
 
 
 
+
 <link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
 <script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
-<script src="libs/htmlwidgets-1.5.4/htmlwidgets.js"></script>
+<script src="libs/htmlwidgets-1.5.3/htmlwidgets.js"></script>
 <link href="libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
-<script src="libs/datatables-binding-0.19/datatables.js"></script>
+<script src="libs/datatables-binding-0.18/datatables.js"></script>
 <link href="libs/dt-core-1.10.20/css/jquery.dataTables.min.css" rel="stylesheet" />
 <link href="libs/dt-core-1.10.20/css/jquery.dataTables.extra.css" rel="stylesheet" />
 <script src="libs/dt-core-1.10.20/js/jquery.dataTables.min.js"></script>
@@ -261,10 +261,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <ul>
 <li class="chapter" data-level="20.1" data-path="geographic-data-basics.html"><a href="geographic-data-basics.html#importing-and-viewing-data"><i class="fa fa-check"></i><b>20.1</b> Importing and viewing data</a></li>
 </ul></li>
-<li class="chapter" data-level="21" data-path="geographic-analysis.html"><a href="geographic-analysis.html"><i class="fa fa-check"></i><b>21</b> Geographic analysis</a>
-<ul>
-<li class="chapter" data-level="21.1" data-path="geographic-analysis.html"><a href="geographic-analysis.html#why-tidycensus-is-so-useful"><i class="fa fa-check"></i><b>21.1</b> Why tidycensus is so useful</a></li>
-</ul></li>
+<li class="chapter" data-level="21" data-path="geographic-analysis.html"><a href="geographic-analysis.html"><i class="fa fa-check"></i><b>21</b> Geographic analysis</a></li>
 <li class="chapter" data-level="22" data-path="automating-analysis.html"><a href="automating-analysis.html"><i class="fa fa-check"></i><b>22</b> Automating analysis</a>
 <ul>
 <li class="chapter" data-level="22.1" data-path="automating-analysis.html"><a href="automating-analysis.html#automating-downloads-an-imports"><i class="fa fa-check"></i><b>22.1</b> Automating downloads an imports</a></li>
@@ -329,218 +326,704 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
             <section class="normal" id="section-">
 <div id="geographic-analysis" class="section level1" number="21">
 <h1><span class="header-section-number">Chapter 21</span> Geographic analysis</h1>
-<p>In the previous chapter, we looked at Nebraska’s hospitals and used layers to show where hospitals on a map of Nebraska’s counties. Let’s go little further.</p>
-<p>First, we get caught up to where we were last time.</p>
-<div class="sourceCode" id="cb408"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb408-1"><a href="geographic-analysis.html#cb408-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb408-2"><a href="geographic-analysis.html#cb408-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
-<span id="cb408-3"><a href="geographic-analysis.html#cb408-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(janitor)</span>
-<span id="cb408-4"><a href="geographic-analysis.html#cb408-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(scales)</span></code></pre></div>
-<pre><code>## 
-## Attaching package: &#39;scales&#39;</code></pre>
-<pre><code>## The following object is masked from &#39;package:purrr&#39;:
-## 
-##     discard</code></pre>
-<pre><code>## The following object is masked from &#39;package:readr&#39;:
-## 
-##     col_factor</code></pre>
-<div class="sourceCode" id="cb412"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb412-1"><a href="geographic-analysis.html#cb412-1" aria-hidden="true" tabindex="-1"></a>hospitals <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="st">&quot;data/Hospitals/Hospitals.shp&quot;</span>)</span></code></pre></div>
+<p>In the previous chapter, we looked at Maryland’s hospitals and used layers to show where hospitals sit on a map of Maryland’s counties, and to show a bit of a pattern regarding concentration of the largest hospitals. Let’s go little further.</p>
+<p>First, let’s load the libraries we’ll need. We’re also going to load tidycensus and set an API key for tidycensus.</p>
+<div class="sourceCode" id="cb415"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb415-1"><a href="geographic-analysis.html#cb415-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb415-2"><a href="geographic-analysis.html#cb415-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
+<span id="cb415-3"><a href="geographic-analysis.html#cb415-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(janitor)</span>
+<span id="cb415-4"><a href="geographic-analysis.html#cb415-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidycensus)</span>
+<span id="cb415-5"><a href="geographic-analysis.html#cb415-5" aria-hidden="true" tabindex="-1"></a><span class="fu">census_api_key</span>(<span class="st">&quot;549950d36c22ff16455fe196bbbd01d63cfbe6cf&quot;</span>)</span></code></pre></div>
+<pre><code>## To install your API key for use in future sessions, run this function with `install = TRUE`.</code></pre>
+<p>And now let’s load the dataframe of hospital information from the previous chapter, and filter for the 50 General Acute Care hospitals in Maryland.</p>
+<div class="sourceCode" id="cb417"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb417-1"><a href="geographic-analysis.html#cb417-1" aria-hidden="true" tabindex="-1"></a>md_hospitals <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="st">&quot;data/Hospitals/Hospitals.shp&quot;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb417-2"><a href="geographic-analysis.html#cb417-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(STATE <span class="sc">==</span> <span class="st">&quot;MD&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb417-3"><a href="geographic-analysis.html#cb417-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(TYPE <span class="sc">==</span> <span class="st">&quot;GENERAL ACUTE CARE&quot;</span>)</span></code></pre></div>
 <pre><code>## Reading layer `Hospitals&#39; from data source 
-##   `/Users/smussend/Desktop/git_repos/datajournalismbook/data/Hospitals/Hospitals.shp&#39; 
+##   `/Users/smussenden/Desktop/git_repos/classes/datajournalismbook/data/Hospitals/Hospitals.shp&#39; 
 ##   using driver `ESRI Shapefile&#39;
 ## Simple feature collection with 7581 features and 32 fields
 ## Geometry type: POINT
 ## Dimension:     XY
 ## Bounding box:  xmin: -176.6403 ymin: -14.29024 xmax: 145.7245 ymax: 71.29285
 ## Geodetic CRS:  WGS 84</code></pre>
-<div class="sourceCode" id="cb414"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb414-1"><a href="geographic-analysis.html#cb414-1" aria-hidden="true" tabindex="-1"></a>ne <span class="ot">&lt;-</span> hospitals <span class="sc">%&gt;%</span> <span class="fu">filter</span>(STATE <span class="sc">==</span> <span class="st">&quot;NE&quot;</span>)</span></code></pre></div>
-<div class="sourceCode" id="cb415"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb415-1"><a href="geographic-analysis.html#cb415-1" aria-hidden="true" tabindex="-1"></a>nehospitals <span class="ot">&lt;-</span> ne <span class="sc">%&gt;%</span> <span class="fu">filter</span>(TYPE <span class="sc">==</span> <span class="st">&quot;CRITICAL ACCESS&quot;</span> <span class="sc">|</span> TYPE <span class="sc">==</span> <span class="st">&quot;GENERAL ACUTE CARE&quot;</span>) <span class="sc">%&gt;%</span> <span class="fu">filter</span>(STATUS <span class="sc">==</span> <span class="st">&quot;OPEN&quot;</span>)</span></code></pre></div>
-<div class="sourceCode" id="cb416"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb416-1"><a href="geographic-analysis.html#cb416-1" aria-hidden="true" tabindex="-1"></a>counties <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="st">&quot;data/cb_2018_us_county_5m/cb_2018_us_county_5m.shp&quot;</span>)</span></code></pre></div>
-<pre><code>## Reading layer `cb_2018_us_county_5m&#39; from data source 
-##   `/Users/smussend/Desktop/git_repos/datajournalismbook/data/cb_2018_us_county_5m/cb_2018_us_county_5m.shp&#39; 
-##   using driver `ESRI Shapefile&#39;
-## Simple feature collection with 3233 features and 9 fields
+<div class="sourceCode" id="cb419"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb419-1"><a href="geographic-analysis.html#cb419-1" aria-hidden="true" tabindex="-1"></a>md_hospitals</span></code></pre></div>
+<pre><code>## Simple feature collection with 50 features and 32 fields
+## Geometry type: POINT
+## Dimension:     XY
+## Bounding box:  xmin: -79.40098 ymin: 37.99756 xmax: -75.21133 ymax: 39.64783
+## Geodetic CRS:  WGS 84
+## First 10 features:
+##    OBJECTID         ID                                     NAME
+## 1       364 0000921287                   JOHNS HOPKINS HOSPITAL
+## 2       365 0001021205                KENNEDY KREIGER INSTITUTE
+## 3       366 0002321202                     MERCY MEDICAL CENTER
+## 4       367 0003721215              SINAI HOSPITAL OF BALTIMORE
+## 5       368 0004121201    UNIVERSITY OF MARYLAND MEDICAL CENTER
+## 6       370 0004821224     JOHNS HOPKINS BAYVIEW MEDICAL CENTER
+## 7       404 0003521742                   MERITUS MEDICAL CENTER
+## 8       443 0001920910                      HOLY CROSS HOSPITAL
+## 9       446 0002520744                 FORT WASHINGTON HOSPITAL
+## 10      473 0004521502 WESTERN MARYLAND REGIONAL MEDICAL CENTER
+##                      ADDRESS            CITY STATE   ZIP          ZIP4
+## 1    600 NORTH  WOLFE STREET       BALTIMORE    MD 21287 NOT AVAILABLE
+## 2             707 N BROADWAY       BALTIMORE    MD 21205 NOT AVAILABLE
+## 3          301 ST PAUL PLACE       BALTIMORE    MD 21202 NOT AVAILABLE
+## 4    2401 WEST BELVEDERE AVE       BALTIMORE    MD 21215 NOT AVAILABLE
+## 5             22 S GREENE ST       BALTIMORE    MD 21201 NOT AVAILABLE
+## 6        4940 EASTERN AVENUE       BALTIMORE    MD 21224 NOT AVAILABLE
+## 7  11116 MEDICAL CAMPUS ROAD      HAGERSTOWN    MD 21742 NOT AVAILABLE
+## 8      1500 FOREST GLEN ROAD   SILVER SPRING    MD 20910 NOT AVAILABLE
+## 9      11711 LIVINGSTON ROAD FORT WASHINGTON    MD 20744 NOT AVAILABLE
+## 10    12500 WILLOWBROOK ROAD      CUMBERLAND    MD 21502 NOT AVAILABLE
+##         TELEPHONE               TYPE STATUS POPULATION          COUNTY
+## 1  (410) 955-9540 GENERAL ACUTE CARE   OPEN        951  BALTIMORE CITY
+## 2  (443) 923-9305 GENERAL ACUTE CARE   OPEN         70  BALTIMORE CITY
+## 3  (410) 332-9237 GENERAL ACUTE CARE   OPEN        281  BALTIMORE CITY
+## 4  (410) 601-5131 GENERAL ACUTE CARE   OPEN        467  BALTIMORE CITY
+## 5  (410) 328-8667 GENERAL ACUTE CARE   OPEN        800  BALTIMORE CITY
+## 6  (410) 550-0123 GENERAL ACUTE CARE   OPEN        477  BALTIMORE CITY
+## 7  (240) 313-9500 GENERAL ACUTE CARE   OPEN        247      WASHINGTON
+## 8  (301) 754-7000 GENERAL ACUTE CARE   OPEN        409      MONTGOMERY
+## 9  (301) 292-7000 GENERAL ACUTE CARE   OPEN         37 PRINCE GEORGE&#39;S
+## 10 (240) 964-2196 GENERAL ACUTE CARE   OPEN        371        ALLEGANY
+##    COUNTYFIPS COUNTRY LATITUDE LONGITUDE NAICS_CODE
+## 1       24510     USA 39.29611 -76.59197     622110
+## 2       24510     USA 39.29928 -76.59282     622110
+## 3       24510     USA 39.29292 -76.61288     622110
+## 4       24510     USA 39.35230 -76.66209     622110
+## 5       24510     USA 39.28791 -76.62493     622110
+## 6       24510     USA 39.29068 -76.54678     622110
+## 7       24043     USA 39.62219 -77.68256     622110
+## 8       24031     USA 39.01472 -77.03574     622110
+## 9       24033     USA 38.72856 -76.99270     622110
+## 10      24001     USA 39.64783 -78.73324     622110
+##                                NAICS_DESC
+## 1  GENERAL MEDICAL AND SURGICAL HOSPITALS
+## 2  GENERAL MEDICAL AND SURGICAL HOSPITALS
+## 3  GENERAL MEDICAL AND SURGICAL HOSPITALS
+## 4  GENERAL MEDICAL AND SURGICAL HOSPITALS
+## 5  GENERAL MEDICAL AND SURGICAL HOSPITALS
+## 6  GENERAL MEDICAL AND SURGICAL HOSPITALS
+## 7  GENERAL MEDICAL AND SURGICAL HOSPITALS
+## 8  GENERAL MEDICAL AND SURGICAL HOSPITALS
+## 9  GENERAL MEDICAL AND SURGICAL HOSPITALS
+## 10 GENERAL MEDICAL AND SURGICAL HOSPITALS
+##                                                         SOURCE
+## 1  http://dhmh.maryland.gov/ohcq/pages/licensee-directory.aspx
+## 2  http://dhmh.maryland.gov/ohcq/pages/licensee-directory.aspx
+## 3  http://dhmh.maryland.gov/ohcq/pages/licensee-directory.aspx
+## 4  http://dhmh.maryland.gov/ohcq/pages/licensee-directory.aspx
+## 5  http://dhmh.maryland.gov/ohcq/pages/licensee-directory.aspx
+## 6  http://dhmh.maryland.gov/ohcq/pages/licensee-directory.aspx
+## 7  http://dhmh.maryland.gov/ohcq/pages/licensee-directory.aspx
+## 8  http://dhmh.maryland.gov/ohcq/pages/licensee-directory.aspx
+## 9  http://dhmh.maryland.gov/ohcq/pages/licensee-directory.aspx
+## 10 http://dhmh.maryland.gov/ohcq/pages/licensee-directory.aspx
+##                  SOURCEDATE    VAL_METHOD                 VAL_DATE
+## 1  2018-08-09T00:00:00.000Z       IMAGERY 2014-02-10T00:00:00.000Z
+## 2  2018-08-09T00:00:00.000Z       IMAGERY 2014-02-10T00:00:00.000Z
+## 3  2018-08-09T00:00:00.000Z       IMAGERY 2014-02-10T00:00:00.000Z
+## 4  2018-08-09T00:00:00.000Z       IMAGERY 2014-02-10T00:00:00.000Z
+## 5  2018-08-09T00:00:00.000Z       IMAGERY 2014-02-10T00:00:00.000Z
+## 6  2018-08-09T00:00:00.000Z IMAGERY/OTHER 2014-02-10T00:00:00.000Z
+## 7  2018-08-09T00:00:00.000Z       IMAGERY 2014-02-10T00:00:00.000Z
+## 8  2018-08-09T00:00:00.000Z       IMAGERY 2014-02-10T00:00:00.000Z
+## 9  2018-08-09T00:00:00.000Z       IMAGERY 2014-02-10T00:00:00.000Z
+## 10 2018-08-09T00:00:00.000Z       IMAGERY 2014-02-10T00:00:00.000Z
+##                                                                                        WEBSITE
+## 1                                                               http://www.hopkinsmedicine.org
+## 2                                                                http://www.kennedykrieger.org
+## 3                                                                       http://www.mdmercy.com
+## 4                                            http://www.lifebridgehealth.org/Sinai/Sinai1.aspx
+## 5                                                       http://www.umms.org/hospitals/ummc.htm
+## 6                                                                http://www.hopkinsbayview.org
+## 7  http://www.meritushealth.com/For-Hospital-Patients-and-Visitors/Meritus-Medical-Center.aspx
+## 8                                                               http://www.holycrosshealth.org
+## 9                                                             http://www.fortwashingtonmc.org/
+## 10                                                                         http://www.wmhs.com
+##         STATE_ID      ALT_NAME ST_FIPS      OWNER TTL_STAFF BEDS
+## 1  NOT AVAILABLE NOT AVAILABLE      24 NON-PROFIT      -999  951
+## 2  NOT AVAILABLE NOT AVAILABLE      24 NON-PROFIT      -999   70
+## 3  NOT AVAILABLE NOT AVAILABLE      24 NON-PROFIT      -999  281
+## 4  NOT AVAILABLE NOT AVAILABLE      24 NON-PROFIT      -999  467
+## 5  NOT AVAILABLE NOT AVAILABLE      24 NON-PROFIT      -999  800
+## 6  NOT AVAILABLE NOT AVAILABLE      24 NON-PROFIT      -999  477
+## 7  NOT AVAILABLE NOT AVAILABLE      24 NON-PROFIT      -999  247
+## 8  NOT AVAILABLE NOT AVAILABLE      24 NON-PROFIT      -999  409
+## 9  NOT AVAILABLE NOT AVAILABLE      24 NON-PROFIT      -999   37
+## 10 NOT AVAILABLE NOT AVAILABLE      24 NON-PROFIT      -999  371
+##                      TRAUMA HELIPAD                   geometry
+## 1  LEVEL I, LEVEL PEDIATRIC       Y POINT (-76.59197 39.29611)
+## 2             NOT AVAILABLE       Y POINT (-76.59282 39.29928)
+## 3             NOT AVAILABLE       N POINT (-76.61288 39.29292)
+## 4                  LEVEL II       Y  POINT (-76.66209 39.3523)
+## 5                      PARC       Y POINT (-76.62493 39.28791)
+## 6                  LEVEL II       Y POINT (-76.54678 39.29068)
+## 7                 LEVEL III       Y POINT (-77.68256 39.62219)
+## 8             NOT AVAILABLE       N POINT (-77.03574 39.01472)
+## 9             NOT AVAILABLE       Y  POINT (-76.9927 38.72856)
+## 10                LEVEL III       Y POINT (-78.73324 39.64783)</code></pre>
+<p>For the rest of this chapter, we’re going to work on building a map that will help us gain insight into geographic patterns in hospital bed availability by county in Maryland. Our question: by examining the number of hospital beds per 100,000 people in each county, what regional geographic patterns can we identify?</p>
+<p>Each hospital exists inside of a county, so we’re going to first calculate the total number of beds in each county. We do this by first converting the md_hospitals data to a standard dataframe (instead of a spatial dataframe) using as_tibble(), then grouping by county and totaling the number of beds. Finally, let’s sort by total_beds to see which county has the most.</p>
+<div class="sourceCode" id="cb421"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb421-1"><a href="geographic-analysis.html#cb421-1" aria-hidden="true" tabindex="-1"></a>md_beds_by_county <span class="ot">&lt;-</span> md_hospitals <span class="sc">%&gt;%</span></span>
+<span id="cb421-2"><a href="geographic-analysis.html#cb421-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb421-3"><a href="geographic-analysis.html#cb421-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(COUNTY) <span class="sc">%&gt;%</span></span>
+<span id="cb421-4"><a href="geographic-analysis.html#cb421-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb421-5"><a href="geographic-analysis.html#cb421-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">total_beds =</span> <span class="fu">sum</span>(BEDS)</span>
+<span id="cb421-6"><a href="geographic-analysis.html#cb421-6" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb421-7"><a href="geographic-analysis.html#cb421-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(total_beds))</span>
+<span id="cb421-8"><a href="geographic-analysis.html#cb421-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb421-9"><a href="geographic-analysis.html#cb421-9" aria-hidden="true" tabindex="-1"></a>md_beds_by_county </span></code></pre></div>
+<pre><code>## # A tibble: 22 × 2
+##    COUNTY          total_beds
+##    &lt;chr&gt;                &lt;dbl&gt;
+##  1 BALTIMORE CITY        4505
+##  2 MONTGOMERY            1298
+##  3 BALTIMORE             1152
+##  4 PRINCE GEORGE&#39;S        789
+##  5 ANNE ARUNDEL           673
+##  6 ALLEGANY               371
+##  7 HOWARD                 331
+##  8 FREDERICK              308
+##  9 WICOMICO               281
+## 10 HARFORD                255
+## # … with 12 more rows</code></pre>
+<p>So, what do we see here? Baltimore City has the most, followed by Montgomery, Baltimore County and Prince George’s. All big counties.</p>
+<p>Next, we’ll go out and get population data for each county from tidycensus. The variable for total population is B01001_001.</p>
+<div class="sourceCode" id="cb423"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb423-1"><a href="geographic-analysis.html#cb423-1" aria-hidden="true" tabindex="-1"></a>md_county_population <span class="ot">&lt;-</span> <span class="fu">get_acs</span>(<span class="at">geography =</span> <span class="st">&quot;county&quot;</span>, </span>
+<span id="cb423-2"><a href="geographic-analysis.html#cb423-2" aria-hidden="true" tabindex="-1"></a>              <span class="at">variables =</span> <span class="fu">c</span>(<span class="at">population =</span> <span class="st">&quot;B01001_001&quot;</span>), </span>
+<span id="cb423-3"><a href="geographic-analysis.html#cb423-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">state =</span> <span class="st">&quot;MD&quot;</span>)</span></code></pre></div>
+<pre><code>## Getting data from the 2015-2019 5-year ACS</code></pre>
+<div class="sourceCode" id="cb425"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb425-1"><a href="geographic-analysis.html#cb425-1" aria-hidden="true" tabindex="-1"></a>md_county_population</span></code></pre></div>
+<pre><code>## # A tibble: 24 × 5
+##    GEOID NAME                          variable   estimate   moe
+##    &lt;chr&gt; &lt;chr&gt;                         &lt;chr&gt;         &lt;dbl&gt; &lt;dbl&gt;
+##  1 24001 Allegany County, Maryland     population    71445    NA
+##  2 24003 Anne Arundel County, Maryland population   571275    NA
+##  3 24005 Baltimore County, Maryland    population   828018    NA
+##  4 24009 Calvert County, Maryland      population    91511    NA
+##  5 24011 Caroline County, Maryland     population    33049    NA
+##  6 24013 Carroll County, Maryland      population   167699    NA
+##  7 24015 Cecil County, Maryland        population   102552    NA
+##  8 24017 Charles County, Maryland      population   159428    NA
+##  9 24019 Dorchester County, Maryland   population    32138    NA
+## 10 24021 Frederick County, Maryland    population   251422    NA
+## # … with 14 more rows</code></pre>
+<p>Ultimately, we’re going to join this county population table with our beds by county table, and then calculate a beds per 100,000 people statistic. But remember, we then want to visualize this data by drawing a county map that helps us pick out trends. Thinking ahead, we know we’ll need a county map shapefile. Fortunately, we can pull this geometry information right from tidycensus at the same time that we pull in the population data by adding “geometry = TRUE” to our get_acs function.</p>
+<div class="sourceCode" id="cb427"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb427-1"><a href="geographic-analysis.html#cb427-1" aria-hidden="true" tabindex="-1"></a>md_county_population <span class="ot">&lt;-</span> <span class="fu">get_acs</span>(<span class="at">geography =</span> <span class="st">&quot;county&quot;</span>, </span>
+<span id="cb427-2"><a href="geographic-analysis.html#cb427-2" aria-hidden="true" tabindex="-1"></a>              <span class="at">variables =</span> <span class="fu">c</span>(<span class="at">population =</span> <span class="st">&quot;B01001_001&quot;</span>), </span>
+<span id="cb427-3"><a href="geographic-analysis.html#cb427-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">state =</span> <span class="st">&quot;MD&quot;</span>,</span>
+<span id="cb427-4"><a href="geographic-analysis.html#cb427-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">geometry =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<pre><code>## Getting data from the 2015-2019 5-year ACS</code></pre>
+<pre><code>## Downloading feature geometry from the Census website.  To cache shapefiles for use in future sessions, set `options(tigris_use_cache = TRUE)`.</code></pre>
+<pre><code>## 
+  |                                                                            
+  |                                                                      |   0%
+  |                                                                            
+  |                                                                      |   1%
+  |                                                                            
+  |=                                                                     |   1%
+  |                                                                            
+  |=                                                                     |   2%
+  |                                                                            
+  |==                                                                    |   2%
+  |                                                                            
+  |==                                                                    |   3%
+  |                                                                            
+  |===                                                                   |   4%
+  |                                                                            
+  |===                                                                   |   5%
+  |                                                                            
+  |====                                                                  |   5%
+  |                                                                            
+  |====                                                                  |   6%
+  |                                                                            
+  |=====                                                                 |   7%
+  |                                                                            
+  |=====                                                                 |   8%
+  |                                                                            
+  |======                                                                |   8%
+  |                                                                            
+  |======                                                                |   9%
+  |                                                                            
+  |=======                                                               |   9%
+  |                                                                            
+  |=======                                                               |  10%
+  |                                                                            
+  |=======                                                               |  11%
+  |                                                                            
+  |========                                                              |  11%
+  |                                                                            
+  |========                                                              |  12%
+  |                                                                            
+  |=========                                                             |  12%
+  |                                                                            
+  |=========                                                             |  13%
+  |                                                                            
+  |==========                                                            |  14%
+  |                                                                            
+  |==========                                                            |  15%
+  |                                                                            
+  |===========                                                           |  15%
+  |                                                                            
+  |===========                                                           |  16%
+  |                                                                            
+  |============                                                          |  17%
+  |                                                                            
+  |============                                                          |  18%
+  |                                                                            
+  |=============                                                         |  18%
+  |                                                                            
+  |=============                                                         |  19%
+  |                                                                            
+  |==============                                                        |  19%
+  |                                                                            
+  |==============                                                        |  20%
+  |                                                                            
+  |==============                                                        |  21%
+  |                                                                            
+  |===============                                                       |  21%
+  |                                                                            
+  |===============                                                       |  22%
+  |                                                                            
+  |================                                                      |  22%
+  |                                                                            
+  |================                                                      |  23%
+  |                                                                            
+  |=================                                                     |  24%
+  |                                                                            
+  |=================                                                     |  25%
+  |                                                                            
+  |==================                                                    |  25%
+  |                                                                            
+  |==================                                                    |  26%
+  |                                                                            
+  |===================                                                   |  27%
+  |                                                                            
+  |===================                                                   |  28%
+  |                                                                            
+  |====================                                                  |  28%
+  |                                                                            
+  |====================                                                  |  29%
+  |                                                                            
+  |=====================                                                 |  29%
+  |                                                                            
+  |=====================                                                 |  30%
+  |                                                                            
+  |======================                                                |  31%
+  |                                                                            
+  |======================                                                |  32%
+  |                                                                            
+  |=======================                                               |  32%
+  |                                                                            
+  |=======================                                               |  33%
+  |                                                                            
+  |========================                                              |  34%
+  |                                                                            
+  |========================                                              |  35%
+  |                                                                            
+  |=========================                                             |  35%
+  |                                                                            
+  |=========================                                             |  36%
+  |                                                                            
+  |==========================                                            |  36%
+  |                                                                            
+  |==========================                                            |  37%
+  |                                                                            
+  |==========================                                            |  38%
+  |                                                                            
+  |===========================                                           |  38%
+  |                                                                            
+  |===========================                                           |  39%
+  |                                                                            
+  |============================                                          |  39%
+  |                                                                            
+  |============================                                          |  40%
+  |                                                                            
+  |============================                                          |  41%
+  |                                                                            
+  |=============================                                         |  41%
+  |                                                                            
+  |=============================                                         |  42%
+  |                                                                            
+  |==============================                                        |  42%
+  |                                                                            
+  |==============================                                        |  43%
+  |                                                                            
+  |===============================                                       |  44%
+  |                                                                            
+  |===============================                                       |  45%
+  |                                                                            
+  |================================                                      |  45%
+  |                                                                            
+  |================================                                      |  46%
+  |                                                                            
+  |=================================                                     |  47%
+  |                                                                            
+  |=================================                                     |  48%
+  |                                                                            
+  |==================================                                    |  48%
+  |                                                                            
+  |==================================                                    |  49%
+  |                                                                            
+  |===================================                                   |  49%
+  |                                                                            
+  |===================================                                   |  50%
+  |                                                                            
+  |===================================                                   |  51%
+  |                                                                            
+  |====================================                                  |  51%
+  |                                                                            
+  |====================================                                  |  52%
+  |                                                                            
+  |=====================================                                 |  52%
+  |                                                                            
+  |=====================================                                 |  53%
+  |                                                                            
+  |======================================                                |  54%
+  |                                                                            
+  |======================================                                |  55%
+  |                                                                            
+  |=======================================                               |  55%
+  |                                                                            
+  |=======================================                               |  56%
+  |                                                                            
+  |========================================                              |  56%
+  |                                                                            
+  |========================================                              |  57%
+  |                                                                            
+  |========================================                              |  58%
+  |                                                                            
+  |=========================================                             |  58%
+  |                                                                            
+  |=========================================                             |  59%
+  |                                                                            
+  |==========================================                            |  60%
+  |                                                                            
+  |==========================================                            |  61%
+  |                                                                            
+  |===========================================                           |  61%
+  |                                                                            
+  |===========================================                           |  62%
+  |                                                                            
+  |============================================                          |  62%
+  |                                                                            
+  |============================================                          |  63%
+  |                                                                            
+  |=============================================                         |  64%
+  |                                                                            
+  |=============================================                         |  65%
+  |                                                                            
+  |==============================================                        |  65%
+  |                                                                            
+  |==============================================                        |  66%
+  |                                                                            
+  |===============================================                       |  67%
+  |                                                                            
+  |===============================================                       |  68%
+  |                                                                            
+  |================================================                      |  68%
+  |                                                                            
+  |================================================                      |  69%
+  |                                                                            
+  |=================================================                     |  70%
+  |                                                                            
+  |=================================================                     |  71%
+  |                                                                            
+  |==================================================                    |  71%
+  |                                                                            
+  |==================================================                    |  72%
+  |                                                                            
+  |===================================================                   |  72%
+  |                                                                            
+  |===================================================                   |  73%
+  |                                                                            
+  |===================================================                   |  74%
+  |                                                                            
+  |====================================================                  |  74%
+  |                                                                            
+  |====================================================                  |  75%
+  |                                                                            
+  |=====================================================                 |  75%
+  |                                                                            
+  |=====================================================                 |  76%
+  |                                                                            
+  |======================================================                |  76%
+  |                                                                            
+  |======================================================                |  77%
+  |                                                                            
+  |=======================================================               |  78%
+  |                                                                            
+  |=======================================================               |  79%
+  |                                                                            
+  |========================================================              |  80%
+  |                                                                            
+  |========================================================              |  81%
+  |                                                                            
+  |=========================================================             |  81%
+  |                                                                            
+  |=========================================================             |  82%
+  |                                                                            
+  |==========================================================            |  82%
+  |                                                                            
+  |==========================================================            |  83%
+  |                                                                            
+  |==========================================================            |  84%
+  |                                                                            
+  |===========================================================           |  84%
+  |                                                                            
+  |===========================================================           |  85%
+  |                                                                            
+  |============================================================          |  85%
+  |                                                                            
+  |============================================================          |  86%
+  |                                                                            
+  |=============================================================         |  87%
+  |                                                                            
+  |=============================================================         |  88%
+  |                                                                            
+  |==============================================================        |  88%
+  |                                                                            
+  |==============================================================        |  89%
+  |                                                                            
+  |===============================================================       |  89%
+  |                                                                            
+  |===============================================================       |  90%
+  |                                                                            
+  |===============================================================       |  91%
+  |                                                                            
+  |================================================================      |  91%
+  |                                                                            
+  |================================================================      |  92%
+  |                                                                            
+  |=================================================================     |  92%
+  |                                                                            
+  |=================================================================     |  93%
+  |                                                                            
+  |==================================================================    |  94%
+  |                                                                            
+  |==================================================================    |  95%
+  |                                                                            
+  |===================================================================   |  95%
+  |                                                                            
+  |===================================================================   |  96%
+  |                                                                            
+  |====================================================================  |  97%
+  |                                                                            
+  |===================================================================== |  98%
+  |                                                                            
+  |===================================================================== |  99%
+  |                                                                            
+  |======================================================================|  99%
+  |                                                                            
+  |======================================================================| 100%</code></pre>
+<div class="sourceCode" id="cb431"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb431-1"><a href="geographic-analysis.html#cb431-1" aria-hidden="true" tabindex="-1"></a>md_county_population</span></code></pre></div>
+<pre><code>## Simple feature collection with 24 features and 5 fields
 ## Geometry type: MULTIPOLYGON
 ## Dimension:     XY
-## Bounding box:  xmin: -179.1473 ymin: -14.55255 xmax: 179.7785 ymax: 71.35256
-## Geodetic CRS:  NAD83</code></pre>
-<div class="sourceCode" id="cb418"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb418-1"><a href="geographic-analysis.html#cb418-1" aria-hidden="true" tabindex="-1"></a>necounties <span class="ot">&lt;-</span> counties <span class="sc">%&gt;%</span> <span class="fu">filter</span>(STATEFP <span class="sc">==</span> <span class="st">&quot;31&quot;</span>)</span></code></pre></div>
-<p>Now that we’re in the same place as last time, let’s start asking questions of this data. For starters: how many hopsital beds are there in each county?</p>
-<p>At first, we can look at the <code>nehospitals</code> data and see there’s a <code>COUNTY</code> field that would make for an easy group and summarize.</p>
-<div class="sourceCode" id="cb419"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb419-1"><a href="geographic-analysis.html#cb419-1" aria-hidden="true" tabindex="-1"></a>nehospitals <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(COUNTY) <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(<span class="at">total_beds=</span><span class="fu">sum</span>(BEDS))</span></code></pre></div>
-<pre><code>## Simple feature collection with 67 features and 2 fields
-## Geometry type: GEOMETRY
+## Bounding box:  xmin: -79.48765 ymin: 37.91172 xmax: -75.04894 ymax: 39.72304
+## Geodetic CRS:  NAD83
+## First 10 features:
+##    GEOID                             NAME   variable estimate moe
+## 1  24035    Queen Anne&#39;s County, Maryland population    49632  NA
+## 2  24005       Baltimore County, Maryland population   828018  NA
+## 3  24003    Anne Arundel County, Maryland population   571275  NA
+## 4  24013         Carroll County, Maryland population   167699  NA
+## 5  24021       Frederick County, Maryland population   251422  NA
+## 6  24039        Somerset County, Maryland population    25729  NA
+## 7  24029            Kent County, Maryland population    19536  NA
+## 8  24047       Worcester County, Maryland population    51765  NA
+## 9  24027          Howard County, Maryland population   318855  NA
+## 10 24033 Prince George&#39;s County, Maryland population   908670  NA
+##                          geometry
+## 1  MULTIPOLYGON (((-76.24918 3...
+## 2  MULTIPOLYGON (((-76.3257 39...
+## 3  MULTIPOLYGON (((-76.84036 3...
+## 4  MULTIPOLYGON (((-77.31151 3...
+## 5  MULTIPOLYGON (((-77.67716 3...
+## 6  MULTIPOLYGON (((-75.95962 3...
+## 7  MULTIPOLYGON (((-76.27737 3...
+## 8  MULTIPOLYGON (((-75.66061 3...
+## 9  MULTIPOLYGON (((-77.18711 3...
+## 10 MULTIPOLYGON (((-77.07995 3...</code></pre>
+<p>We now have a new column, geometry, that contains the “MULTIPOLYGON” data that will draw an outline of each county when we go to draw a map.</p>
+<p>The next step will be to join our population data to our hospital bed data on the county column.</p>
+<p>But there’s a problem. The column in our population data that has county names is called “NAME,” and it has the full name of the county spelled out in title case – first word capitalized and has “County” and “Maryland” in it. The beds data just has the uppercase name of the county. For example, the population data has “Anne Arundel County, Maryland” and the beds data has “ANNE ARUNDEL”</p>
+<div class="sourceCode" id="cb433"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb433-1"><a href="geographic-analysis.html#cb433-1" aria-hidden="true" tabindex="-1"></a>md_county_population</span></code></pre></div>
+<pre><code>## Simple feature collection with 24 features and 5 fields
+## Geometry type: MULTIPOLYGON
 ## Dimension:     XY
-## Bounding box:  xmin: -103.6668 ymin: 40.02644 xmax: -95.60789 ymax: 42.87939
-## Geodetic CRS:  WGS 84
-## # A tibble: 67 × 3
-##    COUNTY    total_beds                                                geometry
-##    &lt;chr&gt;          &lt;dbl&gt;                                          &lt;GEOMETRY [°]&gt;
-##  1 ADAMS            161                              POINT (-98.38807 40.59091)
-##  2 ANTELOPE          25                              POINT (-98.03064 42.13475)
-##  3 BOONE             25                              POINT (-98.00574 41.68304)
-##  4 BOX BUTTE         25                              POINT (-102.8699 42.11684)
-##  5 BOYD              20                              POINT (-98.46849 42.82457)
-##  6 BROWN             23                              POINT (-99.84956 42.54451)
-##  7 BUFFALO          261 MULTIPOINT ((-99.11259 40.68205), (-99.08158 40.70766))
-##  8 BURT              18                              POINT (-96.45918 41.83485)
-##  9 BUTLER            20                              POINT (-97.12253 41.24669)
-## 10 CHASE             22                              POINT (-101.6507 40.52413)
-## # … with 57 more rows</code></pre>
-<p>But look at Thurston County. How does a county have a negative number of hospital beds? When DHS doesn’t know and can’t find it, they put in -999 to indicate unknown. That’s … obivously not good for us, so we need to filter that.</p>
-<p>Also, notice we still get a geometry? That’s because <code>nehospitals</code> isn’t a dataframe – it’s a simple features file. So that geometry is coming with, regardless. Except in this case, it’s useless. It’s a collection of points. It does us no good.</p>
-<p>What we really want to do with this data is join the number of beds in each county to the county map, and then shade those counties by the number of beds. It’s a style of map called a cloropleth map. You’ve seen them before.</p>
-<p>To do that, we need to make a dataframe. In our our hospitals data, we have a field called COUNTYFIPS that is identical to the GEOID in the counties data – it’s the merging of the state fips and the county fips to make a unique number for each county. So in one query, we need to convert our <code>sf</code> file to a dataframe, filter out the -999 hospital, group it by the COUNTY and COUNTYFIPS and then, to save us some hassle, we’re going to rename that COUNTYFIPS field to GEOID which makes our join easier. And, as one last convenience, we’re going to drop the geometry, because that too will cause confusion.</p>
-<p>Follow? No worries if you didn’t. Each step by itself is simple, and they add up together.</p>
-<div class="sourceCode" id="cb421"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb421-1"><a href="geographic-analysis.html#cb421-1" aria-hidden="true" tabindex="-1"></a>nebedcount <span class="ot">&lt;-</span> </span>
-<span id="cb421-2"><a href="geographic-analysis.html#cb421-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>(</span>
-<span id="cb421-3"><a href="geographic-analysis.html#cb421-3" aria-hidden="true" tabindex="-1"></a>    nehospitals <span class="sc">%&gt;%</span> </span>
-<span id="cb421-4"><a href="geographic-analysis.html#cb421-4" aria-hidden="true" tabindex="-1"></a>      <span class="fu">filter</span>(BEDS <span class="sc">!=</span> <span class="sc">-</span><span class="dv">999</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb421-5"><a href="geographic-analysis.html#cb421-5" aria-hidden="true" tabindex="-1"></a>      <span class="fu">group_by</span>(COUNTY, COUNTYFIPS) <span class="sc">%&gt;%</span> </span>
-<span id="cb421-6"><a href="geographic-analysis.html#cb421-6" aria-hidden="true" tabindex="-1"></a>      <span class="fu">summarize</span>(<span class="at">total_beds =</span> <span class="fu">sum</span>(BEDS)</span>
-<span id="cb421-7"><a href="geographic-analysis.html#cb421-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span> </span>
-<span id="cb421-8"><a href="geographic-analysis.html#cb421-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rename</span>(<span class="at">GEOID =</span> COUNTYFIPS)) <span class="sc">%&gt;%</span> </span>
-<span id="cb421-9"><a href="geographic-analysis.html#cb421-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>geometry)</span></code></pre></div>
-<pre><code>## `summarise()` has grouped output by &#39;COUNTY&#39;. You can override using the `.groups` argument.</code></pre>
-<p>Let’s take a look at what we got:</p>
-<div class="sourceCode" id="cb423"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb423-1"><a href="geographic-analysis.html#cb423-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(nebedcount)</span></code></pre></div>
-<pre><code>##      COUNTY GEOID total_beds
-## 1     ADAMS 31001        161
-## 2  ANTELOPE 31003         25
-## 3     BOONE 31011         25
-## 4 BOX BUTTE 31013         25
-## 5      BOYD 31015         20
-## 6     BROWN 31017         23</code></pre>
-<p>Pretty simple. Three columns: COUNTY, GEOID and total_beds.</p>
-<p>Now using what we learned in the joining chapter, we can combine them with our counties data.</p>
-<div class="sourceCode" id="cb425"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb425-1"><a href="geographic-analysis.html#cb425-1" aria-hidden="true" tabindex="-1"></a>nehospbycounty <span class="ot">&lt;-</span> necounties <span class="sc">%&gt;%</span> <span class="fu">left_join</span>(nebedcount, <span class="at">by=</span><span class="st">&quot;GEOID&quot;</span>)</span></code></pre></div>
-<p>We can ignore that warning.</p>
-<p>Now we can map it. What’s going to change here is we’re going to add a fill to our aes in our geom_sf.</p>
-<div class="sourceCode" id="cb426"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb426-1"><a href="geographic-analysis.html#cb426-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> </span>
-<span id="cb426-2"><a href="geographic-analysis.html#cb426-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data=</span>nehospbycounty, <span class="fu">aes</span>(<span class="at">fill=</span>total_beds)) <span class="sc">+</span> </span>
-<span id="cb426-3"><a href="geographic-analysis.html#cb426-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div>
-<p><img src="datajournalism_files/figure-html/unnamed-chunk-249-1.png" width="672" /></p>
-<p>We get what we expect … it’s not ideal. We can’t really tell a difference between anything outside of Douglas and Lancaster counties. So we can add a scale in here. This one is called viridis, and it makes a more visibile color ramp. And since we have a large disparity between Douglas County and pretty much everywhere else, we’ll make the scale exponential.</p>
-<div class="sourceCode" id="cb427"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb427-1"><a href="geographic-analysis.html#cb427-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> </span>
-<span id="cb427-2"><a href="geographic-analysis.html#cb427-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data=</span>nehospbycounty, <span class="fu">aes</span>(<span class="at">fill=</span>total_beds)) <span class="sc">+</span> </span>
-<span id="cb427-3"><a href="geographic-analysis.html#cb427-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
-<span id="cb427-4"><a href="geographic-analysis.html#cb427-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_c</span>(<span class="at">option =</span> <span class="st">&quot;plasma&quot;</span>, <span class="at">trans =</span> <span class="st">&quot;sqrt&quot;</span>)</span></code></pre></div>
-<p><img src="datajournalism_files/figure-html/unnamed-chunk-250-1.png" width="672" /></p>
-<p>So there’s the map. How about a list:</p>
-<div class="sourceCode" id="cb428"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb428-1"><a href="geographic-analysis.html#cb428-1" aria-hidden="true" tabindex="-1"></a>nebedcount <span class="sc">%&gt;%</span> <span class="fu">select</span>(COUNTY, total_beds) <span class="sc">%&gt;%</span> <span class="fu">arrange</span>(<span class="fu">desc</span>(total_beds)) </span></code></pre></div>
-<pre><code>##          COUNTY total_beds
-## 1       DOUGLAS       2479
-## 2     LANCASTER        984
-## 3       BUFFALO        261
-## 4         SARPY        176
-## 5  SCOTTS BLUFF        166
-## 6         ADAMS        161
-## 7          HALL        159
-## 8       MADISON        131
-## 9       LINCOLN        116
-## 10        DODGE         81
-## 11       DAWSON         58
-## 12       PLATTE         51
-## 13         HOLT         43
-## 14       SALINE         43
-## 15       PIERCE         40
-## 16         YORK         38
-## 17         OTOE         36
-## 18       CUSTER         35
-## 19     ANTELOPE         25
-## 20        BOONE         25
-## 21    BOX BUTTE         25
-## 22       CHERRY         25
-## 23     CHEYENNE         25
-## 24       COLFAX         25
-## 25       CUMING         25
-## 26        DAWES         25
-## 27         GAGE         25
-## 28       HOWARD         25
-## 29     NUCKOLLS         25
-## 30       PHELPS         25
-## 31   RED WILLOW         25
-## 32     SHERIDAN         25
-## 33   WASHINGTON         25
-## 34        WAYNE         25
-## 35   RICHARDSON         24
-## 36         ROCK         24
-## 37       SEWARD         24
-## 38        BROWN         23
-## 39         KNOX         23
-## 40        CHASE         22
-## 41     THURSTON         21
-## 42         BOYD         20
-## 43       BUTLER         20
-## 44     FILLMORE         20
-## 45       FURNAS         20
-## 46      MERRICK         20
-## 47      MORRILL         20
-## 48      PERKINS         20
-## 49       HARLAN         19
-## 50        NANCE         19
-## 51       THAYER         19
-## 52         BURT         18
-## 53      JOHNSON         18
-## 54        KEITH         18
-## 55    JEFFERSON         17
-## 56       NEMAHA         16
-## 57         POLK         16
-## 58     SAUNDERS         16
-## 59       VALLEY         16
-## 60        DUNDY         14
-## 61     FRANKLIN         14
-## 62     HAMILTON         14
-## 63      WEBSTER         13
-## 64      KIMBALL         12
-## 65       PAWNEE         11
-## 66       GARDEN         10
-## 67      KEARNEY         10</code></pre>
-<p>So there’s a lot of hosptial beds in Omaha (DOUGLAS) and Lincoln (LANCASTER). Some quick math shows there 3,463 beds in those two counties. How many beds are in the rest of the state combined?</p>
-<div class="sourceCode" id="cb430"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb430-1"><a href="geographic-analysis.html#cb430-1" aria-hidden="true" tabindex="-1"></a>nebedcount <span class="sc">%&gt;%</span> <span class="fu">filter</span>(COUNTY <span class="sc">!=</span> <span class="st">&quot;DOUGLAS&quot;</span> <span class="sc">&amp;</span> COUNTY <span class="sc">!=</span> <span class="st">&quot;LANCASTER&quot;</span>) <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(<span class="fu">sum</span>(total_beds))</span></code></pre></div>
-<pre><code>##   sum(total_beds)
-## 1            2586</code></pre>
-<p>How many total beds?</p>
-<div class="sourceCode" id="cb432"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb432-1"><a href="geographic-analysis.html#cb432-1" aria-hidden="true" tabindex="-1"></a>nebedcount <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(<span class="fu">sum</span>(total_beds))</span></code></pre></div>
-<pre><code>##   sum(total_beds)
-## 1            6049</code></pre>
-<p>So there’s 6,104 beds in the state and 3,463 of them are in Omaha and Lincoln. What perent is that?</p>
-<div class="sourceCode" id="cb434"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb434-1"><a href="geographic-analysis.html#cb434-1" aria-hidden="true" tabindex="-1"></a><span class="dv">3463</span><span class="sc">/</span><span class="dv">6104</span></span></code></pre></div>
-<pre><code>## [1] 0.5673329</code></pre>
-<p>According to this data, 57 percent of the state’s hospital beds are in two counties. What about population?</p>
-<div id="why-tidycensus-is-so-useful" class="section level2" number="21.1">
-<h2><span class="header-section-number">21.1</span> Why tidycensus is so useful</h2>
-<p>Most of the time when we’re looking at population questions, we’re looking at Census data. So what percent of people live in Lancaster and Douglas counties?</p>
-<div class="sourceCode" id="cb436"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb436-1"><a href="geographic-analysis.html#cb436-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidycensus)</span></code></pre></div>
-<p>In this case, the population variable we’re looking for is Total Population, which is <code>B01003_001</code> and we’re looking at the county geography. Here’s what that looks like:</p>
-<div class="sourceCode" id="cb437"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb437-1"><a href="geographic-analysis.html#cb437-1" aria-hidden="true" tabindex="-1"></a>nepop <span class="ot">&lt;-</span> <span class="fu">get_acs</span>(<span class="at">geography =</span> <span class="st">&quot;county&quot;</span>, </span>
-<span id="cb437-2"><a href="geographic-analysis.html#cb437-2" aria-hidden="true" tabindex="-1"></a>              <span class="at">variables =</span> <span class="fu">c</span>(<span class="at">population =</span> <span class="st">&quot;B01003_001&quot;</span>), </span>
-<span id="cb437-3"><a href="geographic-analysis.html#cb437-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">state =</span> <span class="st">&quot;NE&quot;</span>, </span>
-<span id="cb437-4"><a href="geographic-analysis.html#cb437-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">year =</span> <span class="dv">2018</span>)</span></code></pre></div>
-<pre><code>## Getting data from the 2014-2018 5-year ACS</code></pre>
-<p>First we can filter FOR Douglas OR Lancaster using the | character:</p>
-<div class="sourceCode" id="cb439"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb439-1"><a href="geographic-analysis.html#cb439-1" aria-hidden="true" tabindex="-1"></a>nepop <span class="sc">%&gt;%</span> <span class="fu">filter</span>(NAME <span class="sc">==</span> <span class="st">&quot;Lancaster County, Nebraska&quot;</span> <span class="sc">|</span> NAME <span class="sc">==</span> <span class="st">&quot;Douglas County, Nebraska&quot;</span>) <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(<span class="fu">sum</span>(estimate))</span></code></pre></div>
-<pre><code>## # A tibble: 1 × 1
-##   `sum(estimate)`
-##             &lt;dbl&gt;
-## 1          865086</code></pre>
-<p>Now without them:</p>
-<div class="sourceCode" id="cb441"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb441-1"><a href="geographic-analysis.html#cb441-1" aria-hidden="true" tabindex="-1"></a>nepop <span class="sc">%&gt;%</span> <span class="fu">filter</span>(NAME <span class="sc">!=</span> <span class="st">&quot;Lancaster County, Nebraska&quot;</span> <span class="sc">|</span> NAME <span class="sc">!=</span> <span class="st">&quot;Douglas County, Nebraska&quot;</span>) <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(<span class="fu">sum</span>(estimate))</span></code></pre></div>
-<pre><code>## # A tibble: 1 × 1
-##   `sum(estimate)`
-##             &lt;dbl&gt;
-## 1         1904760</code></pre>
-<p>All together now:</p>
-<div class="sourceCode" id="cb443"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb443-1"><a href="geographic-analysis.html#cb443-1" aria-hidden="true" tabindex="-1"></a>nepop <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(<span class="fu">sum</span>(estimate))</span></code></pre></div>
-<pre><code>## # A tibble: 1 × 1
-##   `sum(estimate)`
-##             &lt;dbl&gt;
-## 1         1904760</code></pre>
-<p>And the percentage:</p>
-<div class="sourceCode" id="cb445"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb445-1"><a href="geographic-analysis.html#cb445-1" aria-hidden="true" tabindex="-1"></a><span class="dv">865086</span><span class="sc">/</span><span class="dv">1904760</span></span></code></pre></div>
-<pre><code>## [1] 0.4541706</code></pre>
-<p>So Omaha and Lincoln represent 57 percent of the hospital beds, but only 45 percent of the population.</p>
+## Bounding box:  xmin: -79.48765 ymin: 37.91172 xmax: -75.04894 ymax: 39.72304
+## Geodetic CRS:  NAD83
+## First 10 features:
+##    GEOID                             NAME   variable estimate moe
+## 1  24035    Queen Anne&#39;s County, Maryland population    49632  NA
+## 2  24005       Baltimore County, Maryland population   828018  NA
+## 3  24003    Anne Arundel County, Maryland population   571275  NA
+## 4  24013         Carroll County, Maryland population   167699  NA
+## 5  24021       Frederick County, Maryland population   251422  NA
+## 6  24039        Somerset County, Maryland population    25729  NA
+## 7  24029            Kent County, Maryland population    19536  NA
+## 8  24047       Worcester County, Maryland population    51765  NA
+## 9  24027          Howard County, Maryland population   318855  NA
+## 10 24033 Prince George&#39;s County, Maryland population   908670  NA
+##                          geometry
+## 1  MULTIPOLYGON (((-76.24918 3...
+## 2  MULTIPOLYGON (((-76.3257 39...
+## 3  MULTIPOLYGON (((-76.84036 3...
+## 4  MULTIPOLYGON (((-77.31151 3...
+## 5  MULTIPOLYGON (((-77.67716 3...
+## 6  MULTIPOLYGON (((-75.95962 3...
+## 7  MULTIPOLYGON (((-76.27737 3...
+## 8  MULTIPOLYGON (((-75.66061 3...
+## 9  MULTIPOLYGON (((-77.18711 3...
+## 10 MULTIPOLYGON (((-77.07995 3...</code></pre>
+<div class="sourceCode" id="cb435"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb435-1"><a href="geographic-analysis.html#cb435-1" aria-hidden="true" tabindex="-1"></a>md_beds_by_county</span></code></pre></div>
+<pre><code>## # A tibble: 22 × 2
+##    COUNTY          total_beds
+##    &lt;chr&gt;                &lt;dbl&gt;
+##  1 BALTIMORE CITY        4505
+##  2 MONTGOMERY            1298
+##  3 BALTIMORE             1152
+##  4 PRINCE GEORGE&#39;S        789
+##  5 ANNE ARUNDEL           673
+##  6 ALLEGANY               371
+##  7 HOWARD                 331
+##  8 FREDERICK              308
+##  9 WICOMICO               281
+## 10 HARFORD                255
+## # … with 12 more rows</code></pre>
+<p>If they’re going to join properly, we need to clean one of them up to make it match the other.</p>
+<p>Let’s clean the population table. We’re going to rename the “NAME” column to “COUNTY,” then convert it to uppercase while also removing “, Maryland” and “County.” Next we’ll remove any white spaces after that first cleaning step that, if left in, would prevent a proper join. We’re also going to rename the column that contains the population information from “estimate” to “population” and select only the county name and the population columns, along with the geometry. That leaves us with this tidy table.</p>
+<div class="sourceCode" id="cb437"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb437-1"><a href="geographic-analysis.html#cb437-1" aria-hidden="true" tabindex="-1"></a>md_county_population <span class="ot">&lt;-</span> md_county_population <span class="sc">%&gt;%</span></span>
+<span id="cb437-2"><a href="geographic-analysis.html#cb437-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">COUNTY =</span> NAME) <span class="sc">%&gt;%</span></span>
+<span id="cb437-3"><a href="geographic-analysis.html#cb437-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">COUNTY =</span> <span class="fu">toupper</span>(<span class="fu">str_remove_all</span>(COUNTY,<span class="st">&quot;, Maryland|County&quot;</span>))) <span class="sc">%&gt;%</span></span>
+<span id="cb437-4"><a href="geographic-analysis.html#cb437-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">COUNTY =</span> <span class="fu">str_trim</span>(COUNTY,<span class="at">side=</span><span class="st">&quot;both&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb437-5"><a href="geographic-analysis.html#cb437-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">population =</span> estimate) <span class="sc">%&gt;%</span></span>
+<span id="cb437-6"><a href="geographic-analysis.html#cb437-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(COUNTY, population, geometry)</span>
+<span id="cb437-7"><a href="geographic-analysis.html#cb437-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb437-8"><a href="geographic-analysis.html#cb437-8" aria-hidden="true" tabindex="-1"></a>md_county_population</span></code></pre></div>
+<pre><code>## Simple feature collection with 24 features and 2 fields
+## Geometry type: MULTIPOLYGON
+## Dimension:     XY
+## Bounding box:  xmin: -79.48765 ymin: 37.91172 xmax: -75.04894 ymax: 39.72304
+## Geodetic CRS:  NAD83
+## First 10 features:
+##             COUNTY population                       geometry
+## 1     QUEEN ANNE&#39;S      49632 MULTIPOLYGON (((-76.24918 3...
+## 2        BALTIMORE     828018 MULTIPOLYGON (((-76.3257 39...
+## 3     ANNE ARUNDEL     571275 MULTIPOLYGON (((-76.84036 3...
+## 4          CARROLL     167699 MULTIPOLYGON (((-77.31151 3...
+## 5        FREDERICK     251422 MULTIPOLYGON (((-77.67716 3...
+## 6         SOMERSET      25729 MULTIPOLYGON (((-75.95962 3...
+## 7             KENT      19536 MULTIPOLYGON (((-76.27737 3...
+## 8        WORCESTER      51765 MULTIPOLYGON (((-75.66061 3...
+## 9           HOWARD     318855 MULTIPOLYGON (((-77.18711 3...
+## 10 PRINCE GEORGE&#39;S     908670 MULTIPOLYGON (((-77.07995 3...</code></pre>
+<p>Now we can join them.</p>
+<div class="sourceCode" id="cb439"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb439-1"><a href="geographic-analysis.html#cb439-1" aria-hidden="true" tabindex="-1"></a>md_beds_per_100k <span class="ot">&lt;-</span> md_county_population <span class="sc">%&gt;%</span></span>
+<span id="cb439-2"><a href="geographic-analysis.html#cb439-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(md_beds_by_county)</span></code></pre></div>
+<pre><code>## Joining, by = &quot;COUNTY&quot;</code></pre>
+<div class="sourceCode" id="cb441"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb441-1"><a href="geographic-analysis.html#cb441-1" aria-hidden="true" tabindex="-1"></a>md_beds_per_100k</span></code></pre></div>
+<pre><code>## Simple feature collection with 24 features and 3 fields
+## Geometry type: MULTIPOLYGON
+## Dimension:     XY
+## Bounding box:  xmin: -79.48765 ymin: 37.91172 xmax: -75.04894 ymax: 39.72304
+## Geodetic CRS:  NAD83
+## First 10 features:
+##             COUNTY population total_beds                       geometry
+## 1     QUEEN ANNE&#39;S      49632         NA MULTIPOLYGON (((-76.24918 3...
+## 2        BALTIMORE     828018       1152 MULTIPOLYGON (((-76.3257 39...
+## 3     ANNE ARUNDEL     571275        673 MULTIPOLYGON (((-76.84036 3...
+## 4          CARROLL     167699        189 MULTIPOLYGON (((-77.31151 3...
+## 5        FREDERICK     251422        308 MULTIPOLYGON (((-77.67716 3...
+## 6         SOMERSET      25729         89 MULTIPOLYGON (((-75.95962 3...
+## 7             KENT      19536         26 MULTIPOLYGON (((-76.27737 3...
+## 8        WORCESTER      51765         45 MULTIPOLYGON (((-75.66061 3...
+## 9           HOWARD     318855        331 MULTIPOLYGON (((-77.18711 3...
+## 10 PRINCE GEORGE&#39;S     908670        789 MULTIPOLYGON (((-77.07995 3...</code></pre>
+<p>We have two NAs after we join, for Queen Anne’s County and Carolina County. That’s not an error. There are no General Acute Care hospitals in those counties, according to our data (it’s why our beds table has 22 rows, not 24). So let’s convert those values to 0 using replace_na().</p>
+<div class="sourceCode" id="cb443"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb443-1"><a href="geographic-analysis.html#cb443-1" aria-hidden="true" tabindex="-1"></a>md_beds_per_100k <span class="ot">&lt;-</span> md_county_population <span class="sc">%&gt;%</span></span>
+<span id="cb443-2"><a href="geographic-analysis.html#cb443-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(md_beds_by_county) <span class="sc">%&gt;%</span></span>
+<span id="cb443-3"><a href="geographic-analysis.html#cb443-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">total_beds =</span> <span class="fu">replace_na</span>(total_beds,<span class="dv">0</span>))</span></code></pre></div>
+<pre><code>## Joining, by = &quot;COUNTY&quot;</code></pre>
+<div class="sourceCode" id="cb445"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb445-1"><a href="geographic-analysis.html#cb445-1" aria-hidden="true" tabindex="-1"></a>md_beds_per_100k</span></code></pre></div>
+<pre><code>## Simple feature collection with 24 features and 3 fields
+## Geometry type: MULTIPOLYGON
+## Dimension:     XY
+## Bounding box:  xmin: -79.48765 ymin: 37.91172 xmax: -75.04894 ymax: 39.72304
+## Geodetic CRS:  NAD83
+## First 10 features:
+##             COUNTY population total_beds                       geometry
+## 1     QUEEN ANNE&#39;S      49632          0 MULTIPOLYGON (((-76.24918 3...
+## 2        BALTIMORE     828018       1152 MULTIPOLYGON (((-76.3257 39...
+## 3     ANNE ARUNDEL     571275        673 MULTIPOLYGON (((-76.84036 3...
+## 4          CARROLL     167699        189 MULTIPOLYGON (((-77.31151 3...
+## 5        FREDERICK     251422        308 MULTIPOLYGON (((-77.67716 3...
+## 6         SOMERSET      25729         89 MULTIPOLYGON (((-75.95962 3...
+## 7             KENT      19536         26 MULTIPOLYGON (((-76.27737 3...
+## 8        WORCESTER      51765         45 MULTIPOLYGON (((-75.66061 3...
+## 9           HOWARD     318855        331 MULTIPOLYGON (((-77.18711 3...
+## 10 PRINCE GEORGE&#39;S     908670        789 MULTIPOLYGON (((-77.07995 3...</code></pre>
+<p>Our final step before visualization, let’s calculate the number of beds per 100,000 for each county and sort from highest to lowest to see waht trends we can identify just from the table.</p>
+<div class="sourceCode" id="cb447"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb447-1"><a href="geographic-analysis.html#cb447-1" aria-hidden="true" tabindex="-1"></a>md_beds_per_100k <span class="ot">&lt;-</span> md_county_population <span class="sc">%&gt;%</span></span>
+<span id="cb447-2"><a href="geographic-analysis.html#cb447-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(md_beds_by_county) <span class="sc">%&gt;%</span></span>
+<span id="cb447-3"><a href="geographic-analysis.html#cb447-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">total_beds =</span> <span class="fu">replace_na</span>(total_beds,<span class="dv">0</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb447-4"><a href="geographic-analysis.html#cb447-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">beds_per_100k =</span> total_beds<span class="sc">/</span>population<span class="sc">*</span><span class="dv">100000</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb447-5"><a href="geographic-analysis.html#cb447-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(beds_per_100k))</span></code></pre></div>
+<pre><code>## Joining, by = &quot;COUNTY&quot;</code></pre>
+<div class="sourceCode" id="cb449"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb449-1"><a href="geographic-analysis.html#cb449-1" aria-hidden="true" tabindex="-1"></a>md_beds_per_100k</span></code></pre></div>
+<pre><code>## Simple feature collection with 24 features and 4 fields
+## Geometry type: MULTIPOLYGON
+## Dimension:     XY
+## Bounding box:  xmin: -79.48765 ymin: 37.91172 xmax: -75.04894 ymax: 39.72304
+## Geodetic CRS:  NAD83
+## First 10 features:
+##            COUNTY population total_beds beds_per_100k
+## 1  BALTIMORE CITY     609032       4505      739.6984
+## 2        ALLEGANY      71445        371      519.2806
+## 3          TALBOT      37167        132      355.1538
+## 4        SOMERSET      25729         89      345.9132
+## 5        WICOMICO     102539        281      274.0421
+## 6         GARRETT      29235         55      188.1307
+## 7      WASHINGTON     150109        247      164.5471
+## 8      DORCHESTER      32138         46      143.1327
+## 9       BALTIMORE     828018       1152      139.1274
+## 10           KENT      19536         26      133.0876
+##                          geometry
+## 1  MULTIPOLYGON (((-76.71152 3...
+## 2  MULTIPOLYGON (((-79.06756 3...
+## 3  MULTIPOLYGON (((-76.34647 3...
+## 4  MULTIPOLYGON (((-75.95962 3...
+## 5  MULTIPOLYGON (((-75.92033 3...
+## 6  MULTIPOLYGON (((-79.48765 3...
+## 7  MULTIPOLYGON (((-78.36346 3...
+## 8  MULTIPOLYGON (((-76.06544 3...
+## 9  MULTIPOLYGON (((-76.3257 39...
+## 10 MULTIPOLYGON (((-76.27737 3...</code></pre>
+<p>Let’s take a look at the result of this table. Baltimore City is still up there at the top, even when measuring by beds per 100k. But there are some surpising ones at the top, some of Maryland’s smallest counties! Allegany, Talbot, Somerset may not have that many beds, but they also don’t have a lot of people.</p>
+<p>Okay, now let’s visualize. We’re going to build a choropleth map, with the color of each county – the fill – set according to the number of beds per 100K on a color gradient.</p>
+<div class="sourceCode" id="cb451"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb451-1"><a href="geographic-analysis.html#cb451-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> </span>
+<span id="cb451-2"><a href="geographic-analysis.html#cb451-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data=</span>md_beds_per_100k, <span class="fu">aes</span>(<span class="at">fill=</span>beds_per_100k)) <span class="sc">+</span> </span>
+<span id="cb451-3"><a href="geographic-analysis.html#cb451-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div>
+<p><img src="datajournalism_files/figure-html/unnamed-chunk-252-1.png" width="672" />
+This map is okay, but the color scale makes it hard to draw fine-grained differences. Let’s try applying the magma color scale we learned in the last chapter.</p>
+<div class="sourceCode" id="cb452"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb452-1"><a href="geographic-analysis.html#cb452-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> </span>
+<span id="cb452-2"><a href="geographic-analysis.html#cb452-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data=</span>md_beds_per_100k, <span class="fu">aes</span>(<span class="at">fill=</span>beds_per_100k)) <span class="sc">+</span> </span>
+<span id="cb452-3"><a href="geographic-analysis.html#cb452-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb452-4"><a href="geographic-analysis.html#cb452-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_b</span>(<span class="at">option=</span><span class="st">&quot;magma&quot;</span>) </span></code></pre></div>
+<p><img src="datajournalism_files/figure-html/unnamed-chunk-253-1.png" width="672" />
+The highest ranking counties stand out nicely in this version, but it’s still hard to make out fine-grained differences between counties.</p>
+<p>So let’s change the color scale to a “log” scale, which will help us see those differences a bit more clearly.</p>
+<div class="sourceCode" id="cb453"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb453-1"><a href="geographic-analysis.html#cb453-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> </span>
+<span id="cb453-2"><a href="geographic-analysis.html#cb453-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data=</span>md_beds_per_100k, <span class="fu">aes</span>(<span class="at">fill=</span>beds_per_100k)) <span class="sc">+</span> </span>
+<span id="cb453-3"><a href="geographic-analysis.html#cb453-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb453-4"><a href="geographic-analysis.html#cb453-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_b</span>(<span class="at">option=</span><span class="st">&quot;magma&quot;</span>,<span class="at">trans =</span> <span class="st">&quot;log&quot;</span>) </span></code></pre></div>
+<pre><code>## Warning: Transformation introduced infinite values in discrete y-axis</code></pre>
+<p><img src="datajournalism_files/figure-html/unnamed-chunk-254-1.png" width="672" />
+Some interesting regional patterns finally emerge.</p>
+<p>The Eastern Shore and Western Maryland have more beds per capita than Central Maryland (with the exception of Baltimore City). And Southern Maryland – PG, Charles, Calvert and St. Mary’s – has by far the fewest beds per capita of any other region.</p>
 
-</div>
 </div>
             </section>
 
@@ -552,6 +1035,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
 <script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
@@ -592,7 +1076,7 @@ gitbook.start({
 },
 "download": ["datajournalism.pdf", "datajournalism.epub"],
 "search": {
-"engine": "fuse",
+"engine": "lunr",
 "options": null
 },
 "toc": {

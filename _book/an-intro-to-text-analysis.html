@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>Chapter 25 An intro to text analysis | Data Journalism with R and the Tidyverse</title>
   <meta name="description" content="This is a book built on a very opinionated philosophy for journalism students doing data journalism in R with replicable methods." />
-  <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.23 and GitBook 2.6.7" />
 
   <meta property="og:title" content="Chapter 25 An intro to text analysis | Data Journalism with R and the Tidyverse" />
   <meta property="og:type" content="book" />
@@ -24,7 +24,7 @@
 <meta name="author" content="Matt Waite (original author); updated by Derek Willis and Sean Mussenden" />
 
 
-<meta name="date" content="2021-11-01" />
+<meta name="date" content="2021-11-07" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -33,9 +33,8 @@
   
 <link rel="prev" href="basic-stats-the-t-test.html"/>
 <link rel="next" href="writing-with-numbers.html"/>
-<script src="libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="libs/header-attrs-2.10/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
@@ -51,11 +50,12 @@
 
 
 
+
 <link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
 <script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
-<script src="libs/htmlwidgets-1.5.4/htmlwidgets.js"></script>
+<script src="libs/htmlwidgets-1.5.3/htmlwidgets.js"></script>
 <link href="libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
-<script src="libs/datatables-binding-0.19/datatables.js"></script>
+<script src="libs/datatables-binding-0.18/datatables.js"></script>
 <link href="libs/dt-core-1.10.20/css/jquery.dataTables.min.css" rel="stylesheet" />
 <link href="libs/dt-core-1.10.20/css/jquery.dataTables.extra.css" rel="stylesheet" />
 <script src="libs/dt-core-1.10.20/js/jquery.dataTables.min.js"></script>
@@ -261,10 +261,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <ul>
 <li class="chapter" data-level="20.1" data-path="geographic-data-basics.html"><a href="geographic-data-basics.html#importing-and-viewing-data"><i class="fa fa-check"></i><b>20.1</b> Importing and viewing data</a></li>
 </ul></li>
-<li class="chapter" data-level="21" data-path="geographic-analysis.html"><a href="geographic-analysis.html"><i class="fa fa-check"></i><b>21</b> Geographic analysis</a>
-<ul>
-<li class="chapter" data-level="21.1" data-path="geographic-analysis.html"><a href="geographic-analysis.html#why-tidycensus-is-so-useful"><i class="fa fa-check"></i><b>21.1</b> Why tidycensus is so useful</a></li>
-</ul></li>
+<li class="chapter" data-level="21" data-path="geographic-analysis.html"><a href="geographic-analysis.html"><i class="fa fa-check"></i><b>21</b> Geographic analysis</a></li>
 <li class="chapter" data-level="22" data-path="automating-analysis.html"><a href="automating-analysis.html"><i class="fa fa-check"></i><b>22</b> Automating analysis</a>
 <ul>
 <li class="chapter" data-level="22.1" data-path="automating-analysis.html"><a href="automating-analysis.html#automating-downloads-an-imports"><i class="fa fa-check"></i><b>22.1</b> Automating downloads an imports</a></li>
@@ -333,10 +330,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>What happens when the insights are in unstructured data? Like a block of text?</p>
 <p>Turning unstructured text into data to analyze is a whole course in and of itself – and one worth taking if you’ve got the credit hours – but some simple stuff is in the grasp of basic data analysis.</p>
 <p>To do this, we’ll need a new library – tidytext, which you can guess by the name plays very nicely with the tidyverse. So install it with <code>install.packages("tidytext")</code> and we’ll get rolling.</p>
-<div class="sourceCode" id="cb546"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb546-1"><a href="an-intro-to-text-analysis.html#cb546-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb546-2"><a href="an-intro-to-text-analysis.html#cb546-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidytext)</span>
-<span id="cb546-3"><a href="an-intro-to-text-analysis.html#cb546-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(janitor)</span>
-<span id="cb546-4"><a href="an-intro-to-text-analysis.html#cb546-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span></code></pre></div>
+<div class="sourceCode" id="cb554"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb554-1"><a href="an-intro-to-text-analysis.html#cb554-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb554-2"><a href="an-intro-to-text-analysis.html#cb554-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidytext)</span>
+<span id="cb554-3"><a href="an-intro-to-text-analysis.html#cb554-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(janitor)</span>
+<span id="cb554-4"><a href="an-intro-to-text-analysis.html#cb554-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span></code></pre></div>
 <p>Here’s the question we’re going to go after: What’s changed with campus crime since coronavirus chased everyone off campus?</p>
 <p><a href="https://unl.box.com/s/1reagysljshlxgvhs92bcj7xid1o50ll">Here’s a dataset that has crime data before and after the quarantine started</a>.</p>
 <p>This dataset has some flaws – UNL uses some … interesting … datetime formats and there’s a newline character in the report number field. We can fix all these issues on load with a little creative work.</p>
@@ -348,14 +345,14 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li>Use mutate and <code>lubridate</code> to fix the dates in three fields</li>
 <li>Use <code>gsub</code> to drop the newline character – a newline is <code>\n</code> and the extra slash tells gsub to ignore the next character, meaning don’t read this as a newline, read it as backslash n. </li>
 </ol>
-<div class="sourceCode" id="cb547"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb547-1"><a href="an-intro-to-text-analysis.html#cb547-1" aria-hidden="true" tabindex="-1"></a>unl <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;data/unlcrime_covid.csv&quot;</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb547-2"><a href="an-intro-to-text-analysis.html#cb547-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">clean_names</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb547-3"><a href="an-intro-to-text-analysis.html#cb547-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb547-4"><a href="an-intro-to-text-analysis.html#cb547-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">reported =</span> <span class="fu">mdy_hm</span>(reported), </span>
-<span id="cb547-5"><a href="an-intro-to-text-analysis.html#cb547-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">start_occurred =</span> <span class="fu">mdy_hm</span>(start_occurred), </span>
-<span id="cb547-6"><a href="an-intro-to-text-analysis.html#cb547-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">end_occurred =</span> <span class="fu">mdy_hm</span>(end_occurred), </span>
-<span id="cb547-7"><a href="an-intro-to-text-analysis.html#cb547-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">case =</span> <span class="fu">gsub</span>(<span class="st">&quot;</span><span class="sc">\\</span><span class="st">n&quot;</span>, <span class="st">&quot;&quot;</span>, case)</span>
-<span id="cb547-8"><a href="an-intro-to-text-analysis.html#cb547-8" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
+<div class="sourceCode" id="cb555"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb555-1"><a href="an-intro-to-text-analysis.html#cb555-1" aria-hidden="true" tabindex="-1"></a>unl <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;data/unlcrime_covid.csv&quot;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb555-2"><a href="an-intro-to-text-analysis.html#cb555-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">clean_names</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb555-3"><a href="an-intro-to-text-analysis.html#cb555-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb555-4"><a href="an-intro-to-text-analysis.html#cb555-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">reported =</span> <span class="fu">mdy_hm</span>(reported), </span>
+<span id="cb555-5"><a href="an-intro-to-text-analysis.html#cb555-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">start_occurred =</span> <span class="fu">mdy_hm</span>(start_occurred), </span>
+<span id="cb555-6"><a href="an-intro-to-text-analysis.html#cb555-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">end_occurred =</span> <span class="fu">mdy_hm</span>(end_occurred), </span>
+<span id="cb555-7"><a href="an-intro-to-text-analysis.html#cb555-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">case =</span> <span class="fu">gsub</span>(<span class="st">&quot;</span><span class="sc">\\</span><span class="st">n&quot;</span>, <span class="st">&quot;&quot;</span>, case)</span>
+<span id="cb555-8"><a href="an-intro-to-text-analysis.html#cb555-8" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
 <pre><code>## Rows: 858 Columns: 11</code></pre>
 <pre><code>## ── Column specification ────────────────────────────────────────────────────────
 ## Delimiter: &quot;,&quot;
@@ -365,28 +362,28 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ## ℹ Use `spec()` to retrieve the full column specification for this data.
 ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
 <p>We can see what that all did with head:</p>
-<div class="sourceCode" id="cb551"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb551-1"><a href="an-intro-to-text-analysis.html#cb551-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(unl)</span></code></pre></div>
+<div class="sourceCode" id="cb559"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb559-1"><a href="an-intro-to-text-analysis.html#cb559-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(unl)</span></code></pre></div>
 <pre><code>## # A tibble: 6 × 11
-##   case     incident_code     reported            disposition start_occurred     
-##   &lt;chr&gt;    &lt;chr&gt;             &lt;dttm&gt;              &lt;chr&gt;       &lt;dttm&gt;             
-## 1 19002753 LARCENY - STOLEN… 2019-08-26 11:05:00 Open        2019-08-23 12:00:00
-## 2 19002755 DISTURBANCE - OT… 2019-08-26 11:55:00 Closed      2019-08-25 00:00:00
-## 3 19002757 VANDALISM - OTHER 2019-08-26 13:00:00 Open        2019-08-23 16:00:00
-## 4 19002777 DISTURBANCE - OT… 2019-08-26 13:40:00 Closed      2019-05-04 12:00:00
-## 5 19002762 DISTURBANCE - OT… 2019-08-26 17:03:00 Closed      2019-08-26 17:03:00
-## 6 19002767 STALKING          2019-08-26 19:57:00 Open        2018-10-01 00:00:00
+##   case     incident_code         reported            disposition start_occurred     
+##   &lt;chr&gt;    &lt;chr&gt;                 &lt;dttm&gt;              &lt;chr&gt;       &lt;dttm&gt;             
+## 1 19002753 LARCENY - STOLEN BIKE 2019-08-26 11:05:00 Open        2019-08-23 12:00:00
+## 2 19002755 DISTURBANCE - OTHER   2019-08-26 11:55:00 Closed      2019-08-25 00:00:00
+## 3 19002757 VANDALISM - OTHER     2019-08-26 13:00:00 Open        2019-08-23 16:00:00
+## 4 19002777 DISTURBANCE - OTHER   2019-08-26 13:40:00 Closed      2019-05-04 12:00:00
+## 5 19002762 DISTURBANCE - OTHER   2019-08-26 17:03:00 Closed      2019-08-26 17:03:00
+## 6 19002767 STALKING              2019-08-26 19:57:00 Open        2018-10-01 00:00:00
 ## # … with 6 more variables: end_occurred &lt;dttm&gt;, building &lt;chr&gt;, location &lt;chr&gt;,
 ## #   stolen &lt;dbl&gt;, damaged &lt;dbl&gt;, summary &lt;chr&gt;</code></pre>
 <p>To look at a before and after picture, let’s create two different dataframes – one from January 1 to March 13, the day the University told everyone to go home. Campus that day was pretty empty – few classes actually went on as scheduled, and most students didn’t go to the ones that did.</p>
-<div class="sourceCode" id="cb553"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb553-1"><a href="an-intro-to-text-analysis.html#cb553-1" aria-hidden="true" tabindex="-1"></a>pre2020 <span class="ot">&lt;-</span> unl <span class="sc">%&gt;%</span> <span class="fu">filter</span>(reported <span class="sc">&lt;</span> <span class="st">&quot;2020-03-13&quot;</span> <span class="sc">&amp;</span> reported <span class="sc">&gt;=</span> <span class="st">&quot;2020-01-01&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb561"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb561-1"><a href="an-intro-to-text-analysis.html#cb561-1" aria-hidden="true" tabindex="-1"></a>pre2020 <span class="ot">&lt;-</span> unl <span class="sc">%&gt;%</span> <span class="fu">filter</span>(reported <span class="sc">&lt;</span> <span class="st">&quot;2020-03-13&quot;</span> <span class="sc">&amp;</span> reported <span class="sc">&gt;=</span> <span class="st">&quot;2020-01-01&quot;</span>)</span></code></pre></div>
 <p>And now we’ll take that March 13 and everything after it.</p>
-<div class="sourceCode" id="cb554"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb554-1"><a href="an-intro-to-text-analysis.html#cb554-1" aria-hidden="true" tabindex="-1"></a>post2020 <span class="ot">&lt;-</span> unl <span class="sc">%&gt;%</span> <span class="fu">filter</span>(reported <span class="sc">&gt;=</span> <span class="st">&quot;2020-03-13&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb562"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb562-1"><a href="an-intro-to-text-analysis.html#cb562-1" aria-hidden="true" tabindex="-1"></a>post2020 <span class="ot">&lt;-</span> unl <span class="sc">%&gt;%</span> <span class="fu">filter</span>(reported <span class="sc">&gt;=</span> <span class="st">&quot;2020-03-13&quot;</span>)</span></code></pre></div>
 <p>To answer this question, on the surface, we don’t need to use text analysis to answer this question. We could simply ask what was the most common incident at UNLPD before classes were cancelled and then moved online? Let’s just group it by incident_code, count them up and then get a top ten list. To go a step further, we’ll calculate a percent that the crime represented by dividing the count by the sum of the counts and we’ll use top_n to give us the top 10 incidents.</p>
-<div class="sourceCode" id="cb555"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb555-1"><a href="an-intro-to-text-analysis.html#cb555-1" aria-hidden="true" tabindex="-1"></a>pre2020 <span class="sc">%&gt;%</span> </span>
-<span id="cb555-2"><a href="an-intro-to-text-analysis.html#cb555-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(incident_code) <span class="sc">%&gt;%</span> </span>
-<span id="cb555-3"><a href="an-intro-to-text-analysis.html#cb555-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tally</span>(<span class="at">sort=</span><span class="cn">TRUE</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb555-4"><a href="an-intro-to-text-analysis.html#cb555-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">percent =</span> (n<span class="sc">/</span><span class="fu">sum</span>(n))<span class="sc">*</span><span class="dv">100</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb555-5"><a href="an-intro-to-text-analysis.html#cb555-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">top_n</span>(<span class="dv">10</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb563"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb563-1"><a href="an-intro-to-text-analysis.html#cb563-1" aria-hidden="true" tabindex="-1"></a>pre2020 <span class="sc">%&gt;%</span> </span>
+<span id="cb563-2"><a href="an-intro-to-text-analysis.html#cb563-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(incident_code) <span class="sc">%&gt;%</span> </span>
+<span id="cb563-3"><a href="an-intro-to-text-analysis.html#cb563-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tally</span>(<span class="at">sort=</span><span class="cn">TRUE</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb563-4"><a href="an-intro-to-text-analysis.html#cb563-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">percent =</span> (n<span class="sc">/</span><span class="fu">sum</span>(n))<span class="sc">*</span><span class="dv">100</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb563-5"><a href="an-intro-to-text-analysis.html#cb563-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">top_n</span>(<span class="dv">10</span>)</span></code></pre></div>
 <pre><code>## Selecting by percent</code></pre>
 <pre><code>## # A tibble: 10 × 3
 ##    incident_code                           n percent
@@ -402,11 +399,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ##  9 LARCENY - FROM BUILDING                12    4.36
 ## 10 ALCOHOL - DRUNK                        10    3.64</code></pre>
 <p>So disturbances at the top with 32 of them reported between January 1 and the end. What about after the calamity?</p>
-<div class="sourceCode" id="cb558"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb558-1"><a href="an-intro-to-text-analysis.html#cb558-1" aria-hidden="true" tabindex="-1"></a>post2020 <span class="sc">%&gt;%</span> </span>
-<span id="cb558-2"><a href="an-intro-to-text-analysis.html#cb558-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(incident_code) <span class="sc">%&gt;%</span> </span>
-<span id="cb558-3"><a href="an-intro-to-text-analysis.html#cb558-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tally</span>(<span class="at">sort=</span><span class="cn">TRUE</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb558-4"><a href="an-intro-to-text-analysis.html#cb558-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">percent =</span> (n<span class="sc">/</span><span class="fu">sum</span>(n))<span class="sc">*</span><span class="dv">100</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb558-5"><a href="an-intro-to-text-analysis.html#cb558-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">top_n</span>(<span class="dv">10</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb566"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb566-1"><a href="an-intro-to-text-analysis.html#cb566-1" aria-hidden="true" tabindex="-1"></a>post2020 <span class="sc">%&gt;%</span> </span>
+<span id="cb566-2"><a href="an-intro-to-text-analysis.html#cb566-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(incident_code) <span class="sc">%&gt;%</span> </span>
+<span id="cb566-3"><a href="an-intro-to-text-analysis.html#cb566-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tally</span>(<span class="at">sort=</span><span class="cn">TRUE</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb566-4"><a href="an-intro-to-text-analysis.html#cb566-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">percent =</span> (n<span class="sc">/</span><span class="fu">sum</span>(n))<span class="sc">*</span><span class="dv">100</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb566-5"><a href="an-intro-to-text-analysis.html#cb566-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">top_n</span>(<span class="dv">10</span>)</span></code></pre></div>
 <pre><code>## Selecting by percent</code></pre>
 <pre><code>## # A tibble: 12 × 3
 ##    incident_code                           n percent
@@ -425,11 +422,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ## 12 VANDALISM - OTHER                       2    5.13</code></pre>
 <p>Trespassing. That right there is a story – the most common thing UNLPD has responded to in the few weeks since campus was pretty much closed is trespassing complaints. But really, there’s not much going on here if 5 is the most common, and it’s 12 percent of the total call volume.</p>
 <p>Which begs the question: How many trespassing complaints did university police respond to before coronavirus?</p>
-<div class="sourceCode" id="cb561"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb561-1"><a href="an-intro-to-text-analysis.html#cb561-1" aria-hidden="true" tabindex="-1"></a>pre2020 <span class="sc">%&gt;%</span> </span>
-<span id="cb561-2"><a href="an-intro-to-text-analysis.html#cb561-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(incident_code) <span class="sc">%&gt;%</span> </span>
-<span id="cb561-3"><a href="an-intro-to-text-analysis.html#cb561-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tally</span>(<span class="at">sort=</span><span class="cn">TRUE</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb561-4"><a href="an-intro-to-text-analysis.html#cb561-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">percent =</span> (n<span class="sc">/</span><span class="fu">sum</span>(n))<span class="sc">*</span><span class="dv">100</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb561-5"><a href="an-intro-to-text-analysis.html#cb561-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(incident_code <span class="sc">==</span> <span class="st">&quot;TRESPASSING&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb569"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb569-1"><a href="an-intro-to-text-analysis.html#cb569-1" aria-hidden="true" tabindex="-1"></a>pre2020 <span class="sc">%&gt;%</span> </span>
+<span id="cb569-2"><a href="an-intro-to-text-analysis.html#cb569-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(incident_code) <span class="sc">%&gt;%</span> </span>
+<span id="cb569-3"><a href="an-intro-to-text-analysis.html#cb569-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tally</span>(<span class="at">sort=</span><span class="cn">TRUE</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb569-4"><a href="an-intro-to-text-analysis.html#cb569-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">percent =</span> (n<span class="sc">/</span><span class="fu">sum</span>(n))<span class="sc">*</span><span class="dv">100</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb569-5"><a href="an-intro-to-text-analysis.html#cb569-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(incident_code <span class="sc">==</span> <span class="st">&quot;TRESPASSING&quot;</span>)</span></code></pre></div>
 <pre><code>## # A tibble: 1 × 3
 ##   incident_code     n percent
 ##   &lt;chr&gt;         &lt;int&gt;   &lt;dbl&gt;
@@ -439,17 +436,17 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h2><span class="header-section-number">25.1</span> Going further by analyzing text</h2>
 <p>But notice the summary field at the end of the report? See all that text? There’s a lot of meaning in there. As a reporter, I used to read those reports at different law enforcement agencies every day, looking for news. So it’s a rich stream of data in there. How do we get at it?</p>
 <p>Text analysis attempts to find meaning in unstructured data by breaking apart the words. That’s a bit of an oversimplification, but it’ll do for now. Again, take a class in it. We’re going to take all the words in the summary, break them apart into individual words. Now, it’d doesn’t take a genius to realize if we did that, words like a, the, and, but and others would be at the top. So, we need to remove those. They’re called stop words in text analysis. The tidytext library a dataframe of them. We can import it like this:</p>
-<div class="sourceCode" id="cb563"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb563-1"><a href="an-intro-to-text-analysis.html#cb563-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&quot;stop_words&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb571"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb571-1"><a href="an-intro-to-text-analysis.html#cb571-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&quot;stop_words&quot;</span>)</span></code></pre></div>
 <p>The magic of tidytext is in a function called <code>unnest_tokens</code>, which is going to take the sentence that you read in the summary and break them apart in to words. The way that <code>unnest_tokens</code> works is that we tell it what we want to call the field we’re creating with this breaking apart, then we tell it what we’re breaking apart – what field has all the text in it. For us, that’s the summary.</p>
 <p>Then we’re going to use a dplyr function we haven’t used yet called an <code>anti_join</code>, which filters out any matches. So we’ll `anti_join the stop words and get a list of words that aren’t stop words.</p>
 <p>From there, we can get a simple word frequency by just grouping them together and counting them. We can borrow the percent code from above to get a percent of the words our top 10 words represent.</p>
-<div class="sourceCode" id="cb564"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb564-1"><a href="an-intro-to-text-analysis.html#cb564-1" aria-hidden="true" tabindex="-1"></a>pre2020 <span class="sc">%&gt;%</span> </span>
-<span id="cb564-2"><a href="an-intro-to-text-analysis.html#cb564-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest_tokens</span>(word, summary) <span class="sc">%&gt;%</span> </span>
-<span id="cb564-3"><a href="an-intro-to-text-analysis.html#cb564-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">anti_join</span>(stop_words) <span class="sc">%&gt;%</span> </span>
-<span id="cb564-4"><a href="an-intro-to-text-analysis.html#cb564-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(word) <span class="sc">%&gt;%</span> </span>
-<span id="cb564-5"><a href="an-intro-to-text-analysis.html#cb564-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tally</span>(<span class="at">sort=</span><span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb564-6"><a href="an-intro-to-text-analysis.html#cb564-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">percent =</span> (n<span class="sc">/</span><span class="fu">sum</span>(n))<span class="sc">*</span><span class="dv">100</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb564-7"><a href="an-intro-to-text-analysis.html#cb564-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">top_n</span>(<span class="dv">10</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb572"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb572-1"><a href="an-intro-to-text-analysis.html#cb572-1" aria-hidden="true" tabindex="-1"></a>pre2020 <span class="sc">%&gt;%</span> </span>
+<span id="cb572-2"><a href="an-intro-to-text-analysis.html#cb572-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest_tokens</span>(word, summary) <span class="sc">%&gt;%</span> </span>
+<span id="cb572-3"><a href="an-intro-to-text-analysis.html#cb572-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">anti_join</span>(stop_words) <span class="sc">%&gt;%</span> </span>
+<span id="cb572-4"><a href="an-intro-to-text-analysis.html#cb572-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(word) <span class="sc">%&gt;%</span> </span>
+<span id="cb572-5"><a href="an-intro-to-text-analysis.html#cb572-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tally</span>(<span class="at">sort=</span><span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb572-6"><a href="an-intro-to-text-analysis.html#cb572-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">percent =</span> (n<span class="sc">/</span><span class="fu">sum</span>(n))<span class="sc">*</span><span class="dv">100</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb572-7"><a href="an-intro-to-text-analysis.html#cb572-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">top_n</span>(<span class="dv">10</span>)</span></code></pre></div>
 <pre><code>## Joining, by = &quot;word&quot;</code></pre>
 <pre><code>## Selecting by percent</code></pre>
 <pre><code>## # A tibble: 10 × 3
@@ -466,13 +463,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ##  9 cited         36    1.43
 ## 10 report        36    1.43</code></pre>
 <p>Before the calamity, student, reported and university were your top three by a long ways. What about after?</p>
-<div class="sourceCode" id="cb568"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb568-1"><a href="an-intro-to-text-analysis.html#cb568-1" aria-hidden="true" tabindex="-1"></a>post2020 <span class="sc">%&gt;%</span> </span>
-<span id="cb568-2"><a href="an-intro-to-text-analysis.html#cb568-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest_tokens</span>(word, summary) <span class="sc">%&gt;%</span> </span>
-<span id="cb568-3"><a href="an-intro-to-text-analysis.html#cb568-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">anti_join</span>(stop_words) <span class="sc">%&gt;%</span> </span>
-<span id="cb568-4"><a href="an-intro-to-text-analysis.html#cb568-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(word) <span class="sc">%&gt;%</span> </span>
-<span id="cb568-5"><a href="an-intro-to-text-analysis.html#cb568-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tally</span>(<span class="at">sort=</span><span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb568-6"><a href="an-intro-to-text-analysis.html#cb568-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">percent =</span> (n<span class="sc">/</span><span class="fu">sum</span>(n))<span class="sc">*</span><span class="dv">100</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb568-7"><a href="an-intro-to-text-analysis.html#cb568-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">top_n</span>(<span class="dv">10</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb576"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb576-1"><a href="an-intro-to-text-analysis.html#cb576-1" aria-hidden="true" tabindex="-1"></a>post2020 <span class="sc">%&gt;%</span> </span>
+<span id="cb576-2"><a href="an-intro-to-text-analysis.html#cb576-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest_tokens</span>(word, summary) <span class="sc">%&gt;%</span> </span>
+<span id="cb576-3"><a href="an-intro-to-text-analysis.html#cb576-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">anti_join</span>(stop_words) <span class="sc">%&gt;%</span> </span>
+<span id="cb576-4"><a href="an-intro-to-text-analysis.html#cb576-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(word) <span class="sc">%&gt;%</span> </span>
+<span id="cb576-5"><a href="an-intro-to-text-analysis.html#cb576-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tally</span>(<span class="at">sort=</span><span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb576-6"><a href="an-intro-to-text-analysis.html#cb576-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">percent =</span> (n<span class="sc">/</span><span class="fu">sum</span>(n))<span class="sc">*</span><span class="dv">100</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb576-7"><a href="an-intro-to-text-analysis.html#cb576-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">top_n</span>(<span class="dv">10</span>)</span></code></pre></div>
 <pre><code>## Joining, by = &quot;word&quot;</code></pre>
 <pre><code>## Selecting by percent</code></pre>
 <pre><code>## # A tibble: 13 × 3
@@ -507,16 +504,16 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li>We’ll then group by, count and create a percent just like we did above.</li>
 <li>We’ll then use top_n to give us the top 10 bigrams.</li>
 </ol>
-<div class="sourceCode" id="cb572"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb572-1"><a href="an-intro-to-text-analysis.html#cb572-1" aria-hidden="true" tabindex="-1"></a>pre2020 <span class="sc">%&gt;%</span> </span>
-<span id="cb572-2"><a href="an-intro-to-text-analysis.html#cb572-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest_tokens</span>(bigram, summary, <span class="at">token =</span> <span class="st">&quot;ngrams&quot;</span>, <span class="at">n =</span> <span class="dv">2</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb572-3"><a href="an-intro-to-text-analysis.html#cb572-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate</span>(bigram, <span class="fu">c</span>(<span class="st">&quot;word1&quot;</span>, <span class="st">&quot;word2&quot;</span>), <span class="at">sep =</span> <span class="st">&quot; &quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb572-4"><a href="an-intro-to-text-analysis.html#cb572-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>word1 <span class="sc">%in%</span> stop_words<span class="sc">$</span>word) <span class="sc">%&gt;%</span></span>
-<span id="cb572-5"><a href="an-intro-to-text-analysis.html#cb572-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>word2 <span class="sc">%in%</span> stop_words<span class="sc">$</span>word) <span class="sc">%&gt;%</span> </span>
-<span id="cb572-6"><a href="an-intro-to-text-analysis.html#cb572-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">bigram =</span> <span class="fu">paste</span>(word1, word2, <span class="at">sep=</span><span class="st">&quot; &quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb572-7"><a href="an-intro-to-text-analysis.html#cb572-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(bigram) <span class="sc">%&gt;%</span></span>
-<span id="cb572-8"><a href="an-intro-to-text-analysis.html#cb572-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tally</span>(<span class="at">sort=</span><span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb572-9"><a href="an-intro-to-text-analysis.html#cb572-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">percent =</span> (n<span class="sc">/</span><span class="fu">sum</span>(n))<span class="sc">*</span><span class="dv">100</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb572-10"><a href="an-intro-to-text-analysis.html#cb572-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">top_n</span>(<span class="dv">10</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb580"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb580-1"><a href="an-intro-to-text-analysis.html#cb580-1" aria-hidden="true" tabindex="-1"></a>pre2020 <span class="sc">%&gt;%</span> </span>
+<span id="cb580-2"><a href="an-intro-to-text-analysis.html#cb580-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest_tokens</span>(bigram, summary, <span class="at">token =</span> <span class="st">&quot;ngrams&quot;</span>, <span class="at">n =</span> <span class="dv">2</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb580-3"><a href="an-intro-to-text-analysis.html#cb580-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate</span>(bigram, <span class="fu">c</span>(<span class="st">&quot;word1&quot;</span>, <span class="st">&quot;word2&quot;</span>), <span class="at">sep =</span> <span class="st">&quot; &quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb580-4"><a href="an-intro-to-text-analysis.html#cb580-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>word1 <span class="sc">%in%</span> stop_words<span class="sc">$</span>word) <span class="sc">%&gt;%</span></span>
+<span id="cb580-5"><a href="an-intro-to-text-analysis.html#cb580-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>word2 <span class="sc">%in%</span> stop_words<span class="sc">$</span>word) <span class="sc">%&gt;%</span> </span>
+<span id="cb580-6"><a href="an-intro-to-text-analysis.html#cb580-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">bigram =</span> <span class="fu">paste</span>(word1, word2, <span class="at">sep=</span><span class="st">&quot; &quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb580-7"><a href="an-intro-to-text-analysis.html#cb580-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(bigram) <span class="sc">%&gt;%</span></span>
+<span id="cb580-8"><a href="an-intro-to-text-analysis.html#cb580-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tally</span>(<span class="at">sort=</span><span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb580-9"><a href="an-intro-to-text-analysis.html#cb580-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">percent =</span> (n<span class="sc">/</span><span class="fu">sum</span>(n))<span class="sc">*</span><span class="dv">100</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb580-10"><a href="an-intro-to-text-analysis.html#cb580-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">top_n</span>(<span class="dv">10</span>)</span></code></pre></div>
 <pre><code>## Selecting by percent</code></pre>
 <pre><code>## # A tibble: 10 × 3
 ##    bigram                  n percent
@@ -532,16 +529,16 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ##  9 injury accident        12    1.16
 ## 10 traffic stop           12    1.16</code></pre>
 <p>And we already have a different, more nuanced result. Student and reported were our top two single words. Why? Because they appear together a lot. In pre-calamity reports, student reported was the top bigram. What about after?</p>
-<div class="sourceCode" id="cb575"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb575-1"><a href="an-intro-to-text-analysis.html#cb575-1" aria-hidden="true" tabindex="-1"></a>post2020 <span class="sc">%&gt;%</span> </span>
-<span id="cb575-2"><a href="an-intro-to-text-analysis.html#cb575-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest_tokens</span>(bigram, summary, <span class="at">token =</span> <span class="st">&quot;ngrams&quot;</span>, <span class="at">n =</span> <span class="dv">2</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb575-3"><a href="an-intro-to-text-analysis.html#cb575-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate</span>(bigram, <span class="fu">c</span>(<span class="st">&quot;word1&quot;</span>, <span class="st">&quot;word2&quot;</span>), <span class="at">sep =</span> <span class="st">&quot; &quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb575-4"><a href="an-intro-to-text-analysis.html#cb575-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>word1 <span class="sc">%in%</span> stop_words<span class="sc">$</span>word) <span class="sc">%&gt;%</span></span>
-<span id="cb575-5"><a href="an-intro-to-text-analysis.html#cb575-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>word2 <span class="sc">%in%</span> stop_words<span class="sc">$</span>word) <span class="sc">%&gt;%</span> </span>
-<span id="cb575-6"><a href="an-intro-to-text-analysis.html#cb575-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">bigram =</span> <span class="fu">paste</span>(word1, word2, <span class="at">sep=</span><span class="st">&quot; &quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb575-7"><a href="an-intro-to-text-analysis.html#cb575-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(bigram) <span class="sc">%&gt;%</span></span>
-<span id="cb575-8"><a href="an-intro-to-text-analysis.html#cb575-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tally</span>(<span class="at">sort=</span><span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb575-9"><a href="an-intro-to-text-analysis.html#cb575-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">percent =</span> (n<span class="sc">/</span><span class="fu">sum</span>(n))<span class="sc">*</span><span class="dv">100</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb575-10"><a href="an-intro-to-text-analysis.html#cb575-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">top_n</span>(<span class="dv">10</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb583"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb583-1"><a href="an-intro-to-text-analysis.html#cb583-1" aria-hidden="true" tabindex="-1"></a>post2020 <span class="sc">%&gt;%</span> </span>
+<span id="cb583-2"><a href="an-intro-to-text-analysis.html#cb583-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest_tokens</span>(bigram, summary, <span class="at">token =</span> <span class="st">&quot;ngrams&quot;</span>, <span class="at">n =</span> <span class="dv">2</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb583-3"><a href="an-intro-to-text-analysis.html#cb583-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate</span>(bigram, <span class="fu">c</span>(<span class="st">&quot;word1&quot;</span>, <span class="st">&quot;word2&quot;</span>), <span class="at">sep =</span> <span class="st">&quot; &quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb583-4"><a href="an-intro-to-text-analysis.html#cb583-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>word1 <span class="sc">%in%</span> stop_words<span class="sc">$</span>word) <span class="sc">%&gt;%</span></span>
+<span id="cb583-5"><a href="an-intro-to-text-analysis.html#cb583-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>word2 <span class="sc">%in%</span> stop_words<span class="sc">$</span>word) <span class="sc">%&gt;%</span> </span>
+<span id="cb583-6"><a href="an-intro-to-text-analysis.html#cb583-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">bigram =</span> <span class="fu">paste</span>(word1, word2, <span class="at">sep=</span><span class="st">&quot; &quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb583-7"><a href="an-intro-to-text-analysis.html#cb583-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(bigram) <span class="sc">%&gt;%</span></span>
+<span id="cb583-8"><a href="an-intro-to-text-analysis.html#cb583-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tally</span>(<span class="at">sort=</span><span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb583-9"><a href="an-intro-to-text-analysis.html#cb583-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">percent =</span> (n<span class="sc">/</span><span class="fu">sum</span>(n))<span class="sc">*</span><span class="dv">100</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb583-10"><a href="an-intro-to-text-analysis.html#cb583-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">top_n</span>(<span class="dv">10</span>)</span></code></pre></div>
 <pre><code>## Selecting by percent</code></pre>
 <pre><code>## # A tibble: 11 × 3
 ##    bigram                 n percent
@@ -559,15 +556,15 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ## 11 unlpd received         2    1.57</code></pre>
 <p>Look at that – you can remove 90 percent of the students from campus, and they’re still the top callers to UNLPD. The percent is almost no different.</p>
 <p>So what are the students left on campus reporting to UNLPD?</p>
-<div class="sourceCode" id="cb578"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb578-1"><a href="an-intro-to-text-analysis.html#cb578-1" aria-hidden="true" tabindex="-1"></a>post2020 <span class="sc">%&gt;%</span> </span>
-<span id="cb578-2"><a href="an-intro-to-text-analysis.html#cb578-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest_tokens</span>(bigram, summary, <span class="at">token =</span> <span class="st">&quot;ngrams&quot;</span>, <span class="at">n =</span> <span class="dv">2</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb578-3"><a href="an-intro-to-text-analysis.html#cb578-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate</span>(bigram, <span class="fu">c</span>(<span class="st">&quot;word1&quot;</span>, <span class="st">&quot;word2&quot;</span>), <span class="at">sep =</span> <span class="st">&quot; &quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb578-4"><a href="an-intro-to-text-analysis.html#cb578-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>word1 <span class="sc">%in%</span> stop_words<span class="sc">$</span>word) <span class="sc">%&gt;%</span></span>
-<span id="cb578-5"><a href="an-intro-to-text-analysis.html#cb578-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>word2 <span class="sc">%in%</span> stop_words<span class="sc">$</span>word) <span class="sc">%&gt;%</span> </span>
-<span id="cb578-6"><a href="an-intro-to-text-analysis.html#cb578-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">bigram =</span> <span class="fu">paste</span>(word1, word2, <span class="at">sep=</span><span class="st">&quot; &quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb578-7"><a href="an-intro-to-text-analysis.html#cb578-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(bigram <span class="sc">==</span> <span class="st">&quot;student reported&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb578-8"><a href="an-intro-to-text-analysis.html#cb578-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(incident_code) <span class="sc">%&gt;%</span></span>
-<span id="cb578-9"><a href="an-intro-to-text-analysis.html#cb578-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tally</span>(<span class="at">sort=</span><span class="cn">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb586"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb586-1"><a href="an-intro-to-text-analysis.html#cb586-1" aria-hidden="true" tabindex="-1"></a>post2020 <span class="sc">%&gt;%</span> </span>
+<span id="cb586-2"><a href="an-intro-to-text-analysis.html#cb586-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest_tokens</span>(bigram, summary, <span class="at">token =</span> <span class="st">&quot;ngrams&quot;</span>, <span class="at">n =</span> <span class="dv">2</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb586-3"><a href="an-intro-to-text-analysis.html#cb586-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate</span>(bigram, <span class="fu">c</span>(<span class="st">&quot;word1&quot;</span>, <span class="st">&quot;word2&quot;</span>), <span class="at">sep =</span> <span class="st">&quot; &quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb586-4"><a href="an-intro-to-text-analysis.html#cb586-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>word1 <span class="sc">%in%</span> stop_words<span class="sc">$</span>word) <span class="sc">%&gt;%</span></span>
+<span id="cb586-5"><a href="an-intro-to-text-analysis.html#cb586-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>word2 <span class="sc">%in%</span> stop_words<span class="sc">$</span>word) <span class="sc">%&gt;%</span> </span>
+<span id="cb586-6"><a href="an-intro-to-text-analysis.html#cb586-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">bigram =</span> <span class="fu">paste</span>(word1, word2, <span class="at">sep=</span><span class="st">&quot; &quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb586-7"><a href="an-intro-to-text-analysis.html#cb586-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(bigram <span class="sc">==</span> <span class="st">&quot;student reported&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb586-8"><a href="an-intro-to-text-analysis.html#cb586-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(incident_code) <span class="sc">%&gt;%</span></span>
+<span id="cb586-9"><a href="an-intro-to-text-analysis.html#cb586-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tally</span>(<span class="at">sort=</span><span class="cn">TRUE</span>)</span></code></pre></div>
 <pre><code>## # A tibble: 9 × 2
 ##   incident_code                           n
 ##   &lt;chr&gt;                               &lt;int&gt;
@@ -581,15 +578,15 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ## 8 LOST OR STOLEN ITEM                     1
 ## 9 STALKING                                1</code></pre>
 <p>What about before?</p>
-<div class="sourceCode" id="cb580"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb580-1"><a href="an-intro-to-text-analysis.html#cb580-1" aria-hidden="true" tabindex="-1"></a>pre2020 <span class="sc">%&gt;%</span> </span>
-<span id="cb580-2"><a href="an-intro-to-text-analysis.html#cb580-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest_tokens</span>(bigram, summary, <span class="at">token =</span> <span class="st">&quot;ngrams&quot;</span>, <span class="at">n =</span> <span class="dv">2</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb580-3"><a href="an-intro-to-text-analysis.html#cb580-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate</span>(bigram, <span class="fu">c</span>(<span class="st">&quot;word1&quot;</span>, <span class="st">&quot;word2&quot;</span>), <span class="at">sep =</span> <span class="st">&quot; &quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb580-4"><a href="an-intro-to-text-analysis.html#cb580-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>word1 <span class="sc">%in%</span> stop_words<span class="sc">$</span>word) <span class="sc">%&gt;%</span></span>
-<span id="cb580-5"><a href="an-intro-to-text-analysis.html#cb580-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>word2 <span class="sc">%in%</span> stop_words<span class="sc">$</span>word) <span class="sc">%&gt;%</span> </span>
-<span id="cb580-6"><a href="an-intro-to-text-analysis.html#cb580-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">bigram =</span> <span class="fu">paste</span>(word1, word2, <span class="at">sep=</span><span class="st">&quot; &quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb580-7"><a href="an-intro-to-text-analysis.html#cb580-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(bigram <span class="sc">==</span> <span class="st">&quot;student reported&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb580-8"><a href="an-intro-to-text-analysis.html#cb580-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(incident_code) <span class="sc">%&gt;%</span></span>
-<span id="cb580-9"><a href="an-intro-to-text-analysis.html#cb580-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tally</span>(<span class="at">sort=</span><span class="cn">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb588"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb588-1"><a href="an-intro-to-text-analysis.html#cb588-1" aria-hidden="true" tabindex="-1"></a>pre2020 <span class="sc">%&gt;%</span> </span>
+<span id="cb588-2"><a href="an-intro-to-text-analysis.html#cb588-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest_tokens</span>(bigram, summary, <span class="at">token =</span> <span class="st">&quot;ngrams&quot;</span>, <span class="at">n =</span> <span class="dv">2</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb588-3"><a href="an-intro-to-text-analysis.html#cb588-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate</span>(bigram, <span class="fu">c</span>(<span class="st">&quot;word1&quot;</span>, <span class="st">&quot;word2&quot;</span>), <span class="at">sep =</span> <span class="st">&quot; &quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb588-4"><a href="an-intro-to-text-analysis.html#cb588-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>word1 <span class="sc">%in%</span> stop_words<span class="sc">$</span>word) <span class="sc">%&gt;%</span></span>
+<span id="cb588-5"><a href="an-intro-to-text-analysis.html#cb588-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>word2 <span class="sc">%in%</span> stop_words<span class="sc">$</span>word) <span class="sc">%&gt;%</span> </span>
+<span id="cb588-6"><a href="an-intro-to-text-analysis.html#cb588-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">bigram =</span> <span class="fu">paste</span>(word1, word2, <span class="at">sep=</span><span class="st">&quot; &quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb588-7"><a href="an-intro-to-text-analysis.html#cb588-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(bigram <span class="sc">==</span> <span class="st">&quot;student reported&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb588-8"><a href="an-intro-to-text-analysis.html#cb588-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(incident_code) <span class="sc">%&gt;%</span></span>
+<span id="cb588-9"><a href="an-intro-to-text-analysis.html#cb588-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tally</span>(<span class="at">sort=</span><span class="cn">TRUE</span>)</span></code></pre></div>
 <pre><code>## # A tibble: 21 × 2
 ##    incident_code                                           n
 ##    &lt;chr&gt;                                               &lt;int&gt;
@@ -617,6 +614,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
 <script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
@@ -657,7 +655,7 @@ gitbook.start({
 },
 "download": ["datajournalism.pdf", "datajournalism.epub"],
 "search": {
-"engine": "fuse",
+"engine": "lunr",
 "options": null
 },
 "toc": {

@@ -1,164 +1,155 @@
 # Geographic analysis
 
-In the previous chapter, we looked at Nebraska's hospitals and used layers to show where hospitals on a map of Nebraska's counties. Let's go little further. 
+In the previous chapter, we looked at Maryland's hospitals and used layers to show where hospitals sit on a map of Maryland's counties, and to show a bit of a pattern regarding concentration of the largest hospitals. Let's go little further. 
 
-First, we get caught up to where we were last time. 
+First, let's load the libraries we'll need. We're also going to load tidycensus and set an API key for tidycensus. 
 
 ```{r}
 library(tidyverse)
 library(sf)
 library(janitor)
-library(scales)
+library(tidycensus)
+census_api_key("549950d36c22ff16455fe196bbbd01d63cfbe6cf")
+
 ```
+
+And now let's load the dataframe of hospital information from the previous chapter, and filter for the 50 General Acute Care hospitals in Maryland. 
 
 ```{r}
-hospitals <- st_read("data/Hospitals/Hospitals.shp")
+md_hospitals <- st_read("data/Hospitals/Hospitals.shp") %>% 
+  filter(STATE == "MD") %>%
+  filter(TYPE == "GENERAL ACUTE CARE")
+
+md_hospitals
 ```
+
+For the rest of this chapter, we're going to work on building a map that will help us gain insight into geographic patterns in hospital bed availability by county in Maryland. Our question: by examining the number of hospital beds per 100,000 people in each county, what regional geographic patterns can we identify?
+
+Each hospital exists inside of a county, so we're going to first calculate the total number of beds in each county. We do this by first converting the md_hospitals data to a standard dataframe (instead of a spatial dataframe) using as_tibble(), then grouping by county and totaling the number of beds. Finally, let's sort by total_beds to see which county has the most. 
 
 ```{r}
-ne <- hospitals %>% filter(STATE == "NE")
+
+md_beds_by_county <- md_hospitals %>%
+  as_tibble() %>%
+  group_by(COUNTY) %>%
+  summarise(
+    total_beds = sum(BEDS)
+  ) %>%
+  arrange(desc(total_beds))
+
+md_beds_by_county 
 ```
+So, what do we see here? Baltimore City has the most, followed by Montgomery, Baltimore County and Prince George's.  All big counties. 
+
+Next, we'll go out and get population data for each county from tidycensus.  The variable for total population is B01001_001.  
 
 ```{r}
-nehospitals <- ne %>% filter(TYPE == "CRITICAL ACCESS" | TYPE == "GENERAL ACUTE CARE") %>% filter(STATUS == "OPEN")
+
+md_county_population <- get_acs(geography = "county", 
+              variables = c(population = "B01001_001"), 
+              state = "MD")
+
+md_county_population
 ```
+
+Ultimately, we're going to join this county population table with our beds by county table, and then calculate a beds per 100,000 people statistic.  But remember, we then want to visualize this data by drawing a county map that helps us pick out trends. Thinking ahead, we know we'll need a county map shapefile.  Fortunately, we can pull this geometry information right from tidycensus at the same time that we pull in the population data by adding "geometry = TRUE" to our get_acs function.
 
 ```{r}
-counties <- st_read("data/cb_2018_us_county_5m/cb_2018_us_county_5m.shp")
+
+md_county_population <- get_acs(geography = "county", 
+              variables = c(population = "B01001_001"), 
+              state = "MD",
+              geometry = TRUE)
+
+md_county_population
 ```
+
+We now have a new column, geometry, that contains the "MULTIPOLYGON" data that will draw an outline of each county when we go to draw a map. 
+
+The next step will be to join our population data to our hospital bed data on the county column. 
+
+But there's a problem.  The column in our population data that has county names is called "NAME", and it has the full name of the county spelled out in title case -- first word capitalized and has "County" and "Maryland" in it.  The beds data just has the uppercase name of the county.  For example, the population data has "Anne Arundel County, Maryland" and the beds data has "ANNE ARUNDEL"
 
 ```{r}
-necounties <- counties %>% filter(STATEFP == "31")
+
+md_county_population
+
+md_beds_by_county
 ```
 
-Now that we're in the same place as last time, let's start asking questions of this data. For starters: how many hopsital beds are there in each county? 
+If they're going to join properly, we need to clean one of them up to make it match the other.  
 
-At first, we can look at the `nehospitals` data and see there's a `COUNTY` field that would make for an easy group and summarize.
+Let's clean the population table. We're going to rename the "NAME" column to "COUNTY", then convert it to uppercase while also removing ", Maryland" and "County". Next we'll remove any white spaces after that first cleaning step that, if left in, would prevent a proper join. We're also going to rename the column that contains the population information from "estimate" to "population" and select only the county name and the population columns, along with the geometry. That leaves us with this tidy table.
 
 ```{r}
-nehospitals %>% group_by(COUNTY) %>% summarize(total_beds=sum(BEDS))
+md_county_population <- md_county_population %>%
+  rename(COUNTY = NAME) %>%
+  mutate(COUNTY = toupper(str_remove_all(COUNTY,", Maryland|County"))) %>%
+  mutate(COUNTY = str_trim(COUNTY,side="both")) %>%
+  rename(population = estimate) %>%
+  select(COUNTY, population, geometry)
+
+md_county_population
+
 ```
 
-But look at Thurston County. How does a county have a negative number of hospital beds? When DHS doesn't know and can't find it, they put in -999 to indicate unknown. That's ... obivously not good for us, so we need to filter that. 
-
-Also, notice we still get a geometry? That's because `nehospitals` isn't a dataframe -- it's a simple features file. So that geometry is coming with, regardless. Except in this case, it's useless. It's a collection of points. It does us no good. 
-
-What we really want to do with this data is join the number of beds in each county to the county map, and then shade those counties by the number of beds. It's a style of map called a cloropleth map. You've seen them before. 
-
-To do that, we need to make a dataframe. In our our hospitals data, we have a field called COUNTYFIPS that is identical to the GEOID in the counties data -- it's the merging of the state fips and the county fips to make a unique number for each county. So in one query, we need to convert our `sf` file to a dataframe, filter out the -999 hospital, group it by the COUNTY and COUNTYFIPS and then, to save us some hassle, we're going to rename that COUNTYFIPS field to GEOID which makes our join easier. And, as one last convenience, we're going to drop the geometry, because that too will cause confusion. 
-
-Follow? No worries if you didn't. Each step by itself is simple, and they add up together.
+Now we can join them.  
 
 ```{r}
-nebedcount <- 
-  as.data.frame(
-    nehospitals %>% 
-      filter(BEDS != -999) %>% 
-      group_by(COUNTY, COUNTYFIPS) %>% 
-      summarize(total_beds = sum(BEDS)
-  ) %>% 
-    rename(GEOID = COUNTYFIPS)) %>% 
-  select(-geometry)
+md_beds_per_100k <- md_county_population %>%
+  left_join(md_beds_by_county)
+
+md_beds_per_100k
 ```
 
-Let's take a look at what we got:
+We have two NAs after we join, for Queen Anne's County and Carolina County.  That's not an error.  There are no General Acute Care hospitals in those counties, according to our data (it's why our beds table has 22 rows, not 24).  So let's convert those values to 0 using replace_na(). 
 
 ```{r}
-head(nebedcount)
+md_beds_per_100k <- md_county_population %>%
+  left_join(md_beds_by_county) %>%
+  mutate(total_beds = replace_na(total_beds,0))
+
+md_beds_per_100k
 ```
 
-Pretty simple. Three columns: COUNTY, GEOID and total_beds. 
-
-Now using what we learned in the joining chapter, we can combine them with our counties data. 
+Our final step before visualization, let's calculate the number of beds per 100,000 for each county and sort from highest to lowest to see waht trends we can identify just from the table. 
 
 ```{r}
-nehospbycounty <- necounties %>% left_join(nebedcount, by="GEOID")
+md_beds_per_100k <- md_county_population %>%
+  left_join(md_beds_by_county) %>%
+  mutate(total_beds = replace_na(total_beds,0)) %>%
+  mutate(beds_per_100k = total_beds/population*100000) %>%
+  arrange(desc(beds_per_100k))
+
+md_beds_per_100k
 ```
 
-We can ignore that warning. 
+Let's take a look at the result of this table.  Baltimore City is still up there at the top, even when measuring by beds per 100k.  But there are some surpising ones at the top, some of Maryland's smallest counties! Allegany, Talbot, Somerset may not have that many beds, but they also don't have a lot of people.  
 
-Now we can map it. What's going to change here is we're going to add a fill to our aes in our geom_sf.
+Okay, now let's visualize.  We're going to build a choropleth map, with the color of each county -- the fill -- set according to the number of beds per 100K on a color gradient.  
 
 ```{r}
 ggplot() + 
-  geom_sf(data=nehospbycounty, aes(fill=total_beds)) + 
+  geom_sf(data=md_beds_per_100k, aes(fill=beds_per_100k)) + 
   theme_minimal()
 ```
-
-We get what we expect ... it's not ideal. We can't really tell a difference between anything outside of Douglas and Lancaster counties. So we can add a scale in here. This one is called viridis, and it makes a more visibile color ramp. And since we have a large disparity between Douglas County and pretty much everywhere else, we'll make the scale exponential.
+This map is okay, but the color scale makes it hard to draw fine-grained differences. Let's try applying the magma color scale we learned in the last chapter. 
 
 ```{r}
 ggplot() + 
-  geom_sf(data=nehospbycounty, aes(fill=total_beds)) + 
-  theme_minimal() + 
-  scale_fill_viridis_c(option = "plasma", trans = "sqrt")
+  geom_sf(data=md_beds_per_100k, aes(fill=beds_per_100k)) + 
+  theme_minimal() +
+  scale_fill_viridis_b(option="magma") 
 ```
+The highest ranking counties stand out nicely in this version, but it's still hard to make out fine-grained differences between counties. 
 
-So there's the map. How about a list:
-
+So let's change the color scale to a "log" scale, which will help us see those differences a bit more clearly. 
 ```{r}
-nebedcount %>% select(COUNTY, total_beds) %>% arrange(desc(total_beds)) 
+ggplot() + 
+  geom_sf(data=md_beds_per_100k, aes(fill=beds_per_100k)) + 
+  theme_minimal() +
+  scale_fill_viridis_b(option="magma",trans = "log") 
 ```
+Some interesting regional patterns finally emerge.  
 
-So there's a lot of hosptial beds in Omaha (DOUGLAS) and Lincoln (LANCASTER). Some quick math shows there 3,463 beds in those two counties. How many beds are in the rest of the state combined? 
-
-```{r}
-nebedcount %>% filter(COUNTY != "DOUGLAS" & COUNTY != "LANCASTER") %>% summarize(sum(total_beds))
-```
-
-How many total beds? 
-
-```{r}
-nebedcount %>% summarize(sum(total_beds))
-```
-
-So there's 6,104 beds in the state and 3,463 of them are in Omaha and Lincoln. What perent is that? 
-
-```{r}
-3463/6104
-```
-
-According to this data, 57 percent of the state's hospital beds are in two counties. What about population?
-
-## Why tidycensus is so useful
-
-Most of the time when we're looking at population questions, we're looking at Census data. So what percent of people live in Lancaster and Douglas counties? 
-
-```{r}
-library(tidycensus)
-```
-
-In this case, the population variable we're looking for is Total Population, which is `B01003_001` and we're looking at the county geography. Here's what that looks like:
-
-```{r}
-nepop <- get_acs(geography = "county", 
-              variables = c(population = "B01003_001"), 
-              state = "NE", 
-              year = 2018)
-```
-
-First we can filter FOR Douglas OR Lancaster using the | character: 
-
-```{r}
-nepop %>% filter(NAME == "Lancaster County, Nebraska" | NAME == "Douglas County, Nebraska") %>% summarize(sum(estimate))
-```
-
-Now without them: 
-
-```{r}
-nepop %>% filter(NAME != "Lancaster County, Nebraska" | NAME != "Douglas County, Nebraska") %>% summarize(sum(estimate))
-```
-
-All together now:
-
-```{r}
-nepop %>% summarize(sum(estimate))
-```
-
-And the percentage:
-
-```{r}
-865086/1904760
-```
-
-So Omaha and Lincoln represent 57 percent of the hospital beds, but only 45 percent of the population.
+The Eastern Shore and Western Maryland have more beds per capita than Central Maryland (with the exception of Baltimore City). And Southern Maryland -- PG, Charles, Calvert and St. Mary's -- has by far the fewest beds per capita of any other region. 
