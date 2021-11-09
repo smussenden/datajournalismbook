@@ -4,129 +4,83 @@ Many of the data analyses that you do will be largely one-off efforts -- you're 
 
 But what happens when you have a long-running story, where you're going to update it every day, or every week? What changes when you're writing that code?
 
-1. How will this run again without changing anything? 
+1. How will this run again without changing anything?
 2. What questions do you have that have to be answered each time?
-3. What changes when you have to repeat questions to changing data? 
+3. What changes when you have to repeat questions to changing data?
 
-The global COVID-19 pandemic is something we're going to be writing about and covering for some time. One element of it -- one that materialized in Nebraska as I am writing this -- is a tsunami of first time joblessness claims for unemployment assistance. That data is regularly published, and we're going to be talking about it weekly for a long time. So it's the ideal candidate for repeating analysis -- scripting the questions we want to answer every week and doing so in a way that we can just load it without having to change anything. 
+The global COVID-19 pandemic is something we're going to be writing about and covering for some time. Two elements of it are reports of cases and data on vaccinations. Both are reported frequently (mostly daily), and we'll be talking about them for some time. So they are ideal candidates for repeating analysis -- scripting the questions we want to answer every week and doing so in a way that we can just load it without having to change anything.
 
-Let's get some new libraries to our typical tidyverse import. First, I'm going to add a library called `readxl`, which does what you think it does. It reads Microsoft Excel files. The next one I'm going to add is `DT`. It stands for datatables, and it makes your dataframes into html tables that are browsable and searchable. This is a bigger issue for me -- the author who is turning these into html pages -- than you, working in your notebooks. We're also going to add a library called ggrepel, which assists in putting tables on dots in charts. 
+Let's get some other libraries to our typical tidyverse import. First, I'm going to add `rvest` so we can scrape some HTML tables. The next one I'm going to add is `DT`. It stands for datatables, and it makes your dataframes into html tables that are browsable and searchable. This is a bigger issue for me -- the author who is turning these into html pages -- than you, working in your notebooks. We're also going to add a library called `ggrepel`, which assists in putting tables on dots in charts.
 
-You install them the same way you do anything else -- `install.packages("readxl")` and `install.packages("DT")` and `install.packages("ggrepel")`. 
-
+You install them the same way you do anything else -- `install.packages("rvest")` and `install.packages("DT")` and `install.packages("ggrepel")`.
 
 ```{r}
 library(tidyverse)
 library(janitor)
-library(readxl)
+library(rvest)
 library(DT)
 library(ggrepel)
 ```
 
-## Automating downloads an imports
+## Automating downloads and imports
 
-Nebraska [publishes data weekly on first time unemployment claims on the state Department of Labor website](https://neworks.nebraska.gov/gsipub/index.asp?docid=710).
+Maryland [publishes data daily on COVID-19 cases and deaths on the state Department of Heath website](https://coronavirus.maryland.gov/).
 
-There's four datasets. We're looking at the weekly initial claims from 2012 to present. If you click it, you'll get an Excel spreadsheet. That's a problem, given that we've been working with CSVs all along. So the problem we have before us is this: Have to download it first, then open an Excel file with multiple sheets and lots of header and footers. 
+The table with daily data is located at the bottom of that site, and if you look at the HTML source (always look at the HTML source), you can see that it's an iframe of another page. And not just any page, but a github.io site: https://state-of-maryland.github.io/COVID19_Cases_DashboardBlackBox/CasesBlackboxStats1.html.
 
-There's a multitude of ways to get data from a website, but base R has a simple function to just download a file and name it. Couldn't be easier. Right or control click on the link for the 2012 to 2020 initial claims data and copy the link location. Then use this function:
+That file is updated most weekdays with cumulative figures, and the date isn't included. What we need to do, in words, is this:
 
-```{r}
-download.file("https://neworks.nebraska.gov/admin/gsipub/htmlarea/uploads/NE%20UI%20Weekly%20Initial%20Claims.xlsx", destfile = "weeklyinitialclaims.xlsx")
+1. Read the URL
+2. Scrape the table
+3. Save the results to a dataframe
+4. Add today's date
+5. Write the dataframe out to a CSV file
+
+But there's a catch. When you try to use rvest to scrape this HTML table, you won't see the actual numbers. That's because the data is getting populated on the web page _after_ the page loads in a browser. The good news is that the data has to come from some place, and in this case it's a JSON file. JSON is basically a dictionary object: it has keys and values. A sample JSON file might look like this:
+
+```
+{
+  "university": "University of Maryland",
+  "college": "Merrill College of Journalism"
+}
 ```
 
-Open the file in Excel so you can see what we're working with. The first sheet is just definitions and explanations. Then each sheet is a year (or year to date) of data. Some have footers. Some don't. Some have a headline. Some don't. So we have some work ahead of us. 
+The keys in this file are `university` and `college`, and the values are `University of Maryland` and `Merrill College of Journalism`. You get to the values by knowing the keys.
 
-There are better ways to do this, and if your author was better at this, I'd tell you about it. But for beginners and people who aren't totally sure of themselves, explicit is better than implicit. So instead of using programming magic, we're going to use copy and paste. My programmer friends just died inside a little, but done is better than clever. 
+R has several libraries for dealing with JSON data, and we'll use one called `jsonlite`. Let's install it using the usual syntax: `install.packages("jsonlite")`
 
-What we need to do, in words, is this:
-
-1. Read a specific sheet
-2. Skip the top row
-3. Clean the column names with janitor.
-4. Select just the first two rows, which will help us chop out some garbage.
-5. We need to find if the sheet has that source line at the end of the data, so we'll use `str_detect` in `stringr` and filter it out.
-6. We'll use janitor to remove any empty rows and columns
-7. And lastly, we'll convert all the numbers in initial_claims to actual numbers, because the Source line made them character on import.
-
-It's a lot, but not really. Each step is very simple, and is designed to solve one problem. And after we do it with one, we'll do it with the next, and the next, and the next, so on and so forth. 
+Now we can load it:
 
 ```{r}
-weeklyclaims20 <- read_excel("weeklyinitialclaims.xlsx", sheet=2, skip=1) %>% 
-  clean_names() %>% 
-  select(1:2) %>% 
-  filter(!str_detect(initial_claims, "Source")) %>%  
-  remove_empty(c("cols", "rows")) %>% 
-  mutate(initial_claims = as.numeric(initial_claims))
-
-weeklyclaims19 <- read_excel("weeklyinitialclaims.xlsx", sheet=3, skip=1) %>%
-  clean_names() %>% select(1:2) %>%
-  filter(!str_detect(initial_claims, "Source")) %>%
-  remove_empty(c("cols", "rows")) %>%
-  mutate(initial_claims = as.numeric(initial_claims))
-
-weeklyclaims18 <- read_excel("weeklyinitialclaims.xlsx", sheet=4, skip=1) %>%
-  clean_names() %>%
-  select(1:2) %>%
-  filter(!str_detect(initial_claims, "Source")) %>%
-  remove_empty(c("cols", "rows")) %>%
-  mutate(initial_claims = as.numeric(initial_claims))
-
-weeklyclaims17 <- read_excel("weeklyinitialclaims.xlsx", sheet=5, skip=1) %>%
-  clean_names() %>%
-  select(1:2) %>%
-  filter(!str_detect(initial_claims, "Source")) %>%
-  remove_empty(c("cols", "rows")) %>%
-  mutate(initial_claims = as.numeric(initial_claims))
-
-weeklyclaims16 <- read_excel("weeklyinitialclaims.xlsx", sheet=6, skip=1) %>%
-  clean_names() %>%
-  select(1:2) %>%
-  filter(!str_detect(initial_claims, "Source")) %>%
-  remove_empty(c("cols", "rows")) %>%
-  mutate(initial_claims = as.numeric(initial_claims))
-
-weeklyclaims15 <- read_excel("weeklyinitialclaims.xlsx", sheet=7, skip=1) %>%
-  clean_names() %>%
-  select(1:2) %>%
-  filter(!str_detect(initial_claims, "Source")) %>%
-  remove_empty(c("cols", "rows")) %>%
-  mutate(initial_claims = as.numeric(initial_claims))
-
-weeklyclaims14 <- read_excel("weeklyinitialclaims.xlsx", sheet=8, skip=1) %>%
-  clean_names() %>%
-  select(1:2) %>%
-  filter(!str_detect(initial_claims, "Source")) %>%
-  remove_empty(c("cols", "rows")) %>%
-  mutate(initial_claims = as.numeric(initial_claims))
-
-weeklyclaims13 <- read_excel("weeklyinitialclaims.xlsx", sheet=9, skip=1) %>%
-  clean_names() %>%
-  select(1:2) %>%
-  filter(!str_detect(initial_claims, "Source")) %>%
-  remove_empty(c("cols", "rows")) %>%
-  mutate(initial_claims = as.numeric(initial_claims))
-
-weeklyclaims12 <- read_excel("weeklyinitialclaims.xlsx", sheet=10, skip=1) %>%
-  clean_names() %>%
-  select(1:2) %>%
-  filter(!str_detect(initial_claims, "Source")) %>%
-  remove_empty(c("cols", "rows")) %>%
-  mutate(initial_claims = as.numeric(initial_claims))
+library(jsonlite)
 ```
 
-Now we need to combine all those tables together. We can do that with rbind and some convenient overwriting of a dataframe to add new data each time.
+Next we'll read the JSON file from Maryland and use `clean_names()` to make the columns lowercase:
 
 ```{r}
-weeklyclaims <- rbind(weeklyclaims12, weeklyclaims13)
-weeklyclaims <- rbind(weeklyclaims, weeklyclaims14)
-weeklyclaims <- rbind(weeklyclaims, weeklyclaims15)
-weeklyclaims <- rbind(weeklyclaims, weeklyclaims16)
-weeklyclaims <- rbind(weeklyclaims, weeklyclaims17)
-weeklyclaims <- rbind(weeklyclaims, weeklyclaims18)
-weeklyclaims <- rbind(weeklyclaims, weeklyclaims19)
-weeklyclaims <- rbind(weeklyclaims, weeklyclaims20)
+covid_data <- fromJSON("https://state-of-maryland.github.io/COVID19_Cases_DashboardBlackBox/DailyCasesBlackbox.json") %>%
+  clean_names()
+View(covid_data)
 ```
+
+Looking at this dataframe, we can see that there are four keys for each object that have been turned into columns: `description`, `cases`, `deaths` and `probable_deaths`. You can see all of the possible values for any of them using the following syntax:
+
+```{r}
+covid_data$description
+```
+
+We need to clean this dataframe a bit more, though, to remove those colons from `description` and to make the other columns into numbers (and remove the commas):
+
+```{r}
+
+covid_data <- covid_data %>%
+   mutate(description = str_replace(description, ':', '')) %>%
+   mutate(cases = as.numeric(str_replace_all(cases,',',''))) %>%
+   mutate(deaths = as.numeric(str_replace_all(deaths,',',''))) %>%
+   mutate(probable_deaths = as.numeric(str_replace_all(deaths,',','')))
+```
+
+
 
 ## Exploring the data
 
@@ -147,9 +101,9 @@ weeklyclaims20 %>% arrange(desc(week_ending_date))
 Now is when we need to start asking ourselves -- what are the questions that are going to come up week after week. What about how this most current week compares to all weeks going back to 2012? What if we just ranked them? Where does this week rank? For that, we'll create a new column called Rank using mutate and we'll use a function called `min_rank` to rank them. I'm going to save them to a dataframe and use data
 
 ```{r}
-ranked <- weeklyclaims %>% mutate(Rank = min_rank(desc(initial_claims))) %>% arrange(desc(week_ending_date)) 
+ranked <- weeklyclaims %>% mutate(Rank = min_rank(desc(initial_claims))) %>% arrange(desc(week_ending_date))
 
-datatable(ranked) %>% formatDate(1, "toLocaleDateString") 
+datatable(ranked) %>% formatDate(1, "toLocaleDateString")
 ```
 
 Let's think about this a little more. What else could we do with this. What are the recurring questions? How about the percent change between this week and last week?
@@ -170,20 +124,20 @@ changecalc <- ((rev(change)[1] - rev(change)[2])/rev(change)[2])*100
 changecalc
 ```
 
-So whatever the date, that'll always return the percent change between the most recent date and the previous week. 
+So whatever the date, that'll always return the percent change between the most recent date and the previous week.
 
 ## Making updating graphics
 
 More than numbers, we are going to want to see this data. We can build this in steps. First, let's just make a big bar chart.
 
 ```{r fig.width=9}
-ggplot() + 
-  geom_bar(data=ranked, aes(x=week_ending_date, weight=initial_claims)) 
+ggplot() +
+  geom_bar(data=ranked, aes(x=week_ending_date, weight=initial_claims))
 ```
 
-So that shows us that the trend is going down over time, and that there's some regular spikes around the holidays. Which tells us this data is seasonal, but we knew that going in. 
+So that shows us that the trend is going down over time, and that there's some regular spikes around the holidays. Which tells us this data is seasonal, but we knew that going in.
 
-Let's build up some more layers to highlight trends and the most recent spot. 
+Let's build up some more layers to highlight trends and the most recent spot.
 
 First, we'll slice out a dataframe that's just the most recent data.
 
@@ -191,7 +145,7 @@ First, we'll slice out a dataframe that's just the most recent data.
 latest <- ranked %>% slice(1)
 ```
 
-Now, in ggplot, we can add multiple layers. 
+Now, in ggplot, we can add multiple layers.
 
 The first layer will be all the bars.
 
@@ -203,28 +157,28 @@ Then we'll use ggprepel to label it.
 
 Then I'm going to add a smoothing line. That'll illustrate the trend clearly.
 
-The rest is labeling and adjusting the text to make it look more like a news graphic. 
+The rest is labeling and adjusting the text to make it look more like a news graphic.
 
 ```{r fig.width=9}
-ggplot() + 
+ggplot() +
   geom_bar(data=ranked, aes(x=week_ending_date, weight=initial_claims)) +
   geom_bar(data=latest, aes(x=week_ending_date, weight=initial_claims), fill="red") +
-  geom_point(data=latest, aes(x=week_ending_date, y=initial_claims)) + 
-  geom_text_repel(data=latest, aes(x=week_ending_date, y=initial_claims + 150, label="This week")) + 
-  geom_smooth(data=ranked, aes(x=week_ending_date, y=initial_claims), method=loess, se=FALSE) + 
+  geom_point(data=latest, aes(x=week_ending_date, y=initial_claims)) +
+  geom_text_repel(data=latest, aes(x=week_ending_date, y=initial_claims + 150, label="This week")) +
+  geom_smooth(data=ranked, aes(x=week_ending_date, y=initial_claims), method=loess, se=FALSE) +
   labs(title="Nebraska jobless claims on the rise", x="Date", y="Claims") +
-  theme_minimal() + 
+  theme_minimal() +
   theme(
     plot.title = element_text(size = 16, face = "bold"),
-    axis.title = element_text(size = 8), 
-    plot.subtitle = element_text(size=10), 
+    axis.title = element_text(size = 8),
+    plot.subtitle = element_text(size=10),
     panel.grid.minor = element_blank()
     )
 ```
 
-One thing we are missing? Context. What if we programmatically wrote the chatter for this chart using the percent change calculation we did before? 
+One thing we are missing? Context. What if we programmatically wrote the chatter for this chart using the percent change calculation we did before?
 
-First, we format the change to look more news graphic like and not with 7 significant digits. 
+First, we format the change to look more news graphic like and not with 7 significant digits.
 
 ```{r}
 changetext <- round(changecalc[[1]], digits=2)
@@ -242,32 +196,32 @@ Here's our sentence:
 sub
 ```
 
-Now we can add that to our labels. 
+Now we can add that to our labels.
 
 ```{r fig.width=9}
-ggplot() + 
+ggplot() +
   geom_bar(data=ranked, aes(x=week_ending_date, weight=initial_claims)) +
   geom_bar(data=latest, aes(x=week_ending_date, weight=initial_claims), fill="red") +
-  geom_point(data=latest, aes(x=week_ending_date, y=initial_claims)) + 
-  geom_text_repel(data=latest, aes(x=week_ending_date, y=initial_claims + 150, label="This week")) + 
-  geom_smooth(data=ranked, aes(x=week_ending_date, y=initial_claims), method=loess, se=FALSE) + 
+  geom_point(data=latest, aes(x=week_ending_date, y=initial_claims)) +
+  geom_text_repel(data=latest, aes(x=week_ending_date, y=initial_claims + 150, label="This week")) +
+  geom_smooth(data=ranked, aes(x=week_ending_date, y=initial_claims), method=loess, se=FALSE) +
   labs(title="Nebraska jobless claims on the rise", subtitle=sub, x="Date", y="Claims") +
-  theme_minimal() + 
+  theme_minimal() +
   theme(
     plot.title = element_text(size = 16, face = "bold"),
-    axis.title = element_text(size = 8), 
-    plot.subtitle = element_text(size=10), 
+    axis.title = element_text(size = 8),
+    plot.subtitle = element_text(size=10),
     panel.grid.minor = element_blank()
     )
 ```
 
-This is going to be a story for months, if not years. So repeating this analysis is a must for a reporter covering the economy in Nebraska. We've set ourselves up to do this every week when the data comes out. We just open our notebook, go to Run > Restart R and Run All Chunks and sit back and watch as it does it all again. 
+This is going to be a story for months, if not years. So repeating this analysis is a must for a reporter covering the economy in Nebraska. We've set ourselves up to do this every week when the data comes out. We just open our notebook, go to Run > Restart R and Run All Chunks and sit back and watch as it does it all again.
 
 Then we go report.
 
 ## The State vs the Feds
 
-As I write this, the state hasn't updated their data but the feds have, and the feds have more. The problem? It's a mess. And it's not automatable. So to get more data, you need to go to [the Department of Labor website](https://oui.doleta.gov/unemploy/claims.asp) and fill out the form. 
+As I write this, the state hasn't updated their data but the feds have, and the feds have more. The problem? It's a mess. And it's not automatable. So to get more data, you need to go to [the Department of Labor website](https://oui.doleta.gov/unemploy/claims.asp) and fill out the form.
 
 Leave the years, select state, pick yours (I'm taking Nebraska) and select spreadsheet, but know that it's a lie. If you try to load it using read_excel, you'll get an error. Why? Because what is being downloaded is an HTML file. So you can use `rvest` to read and parse it.
 
@@ -281,31 +235,31 @@ library(lubridate)
 First, read the file you downloaded. You'll need to add the `fill=TRUE` to html_table() to solve a problem with some of the data.
 
 ```{r, error=TRUE}
-claims <- read_html("~/Downloads/r539cy.xls") %>% 
+claims <- read_html("~/Downloads/r539cy.xls") %>%
   html_nodes("table") %>%
-  html_table(fill=TRUE) 
+  html_table(fill=TRUE)
 ```
 
 Similar to previous efforts, we get a list. The first element is a dataframe, so let's get that.
 
 ```{r, error=TRUE}
-claims <- claims[[1]] 
+claims <- claims[[1]]
 ```
 
 Now if you look at this data, you'll see that the header row is empty, and the header names are in the first row. Also, none of this data is formatted correctly. We need to fix that.
 
 To do this, we're going to fix this in steps after we create a new dataframe called `cleanclaims`
 
-1. We'll remove empty columns. 
+1. We'll remove empty columns.
 2. We'll rename the columns with what they are, using `janitor` style naming conventions.
 3. We'll filter out the old header row.
 4. We'll mutate each field to format them correctly. The date columns will use `lubridate`'s `mdy` function. Numbers will use `readr`'s `parse_number` function to solve the comma separator issue.
 
 ```{r, error=TRUE}
-cleanclaims <- claims %>% 
-  remove_empty("cols") %>% 
+cleanclaims <- claims %>%
+  remove_empty("cols") %>%
   rename("state" = 1, "filed_week_ended"= 2, "initial_claims"=3, "reflecting_week_ended"=4, "continued_claims"=5, "covered_employment"=6, "insured_unemployment_rate"=7) %>%
-  filter(state != "State") %>% 
+  filter(state != "State") %>%
   mutate(filed_week_ended = mdy(filed_week_ended), initial_claims=parse_number(initial_claims), reflecting_week_ended=mdy(reflecting_week_ended), continued_claims=parse_number(continued_claims), covered_employment=parse_number(covered_employment), insured_unemployment_rate=parse_number(insured_unemployment_rate))
 ```
 
@@ -317,7 +271,7 @@ cleanclaims %>% arrange(desc(filed_week_ended)) %>% head()
 
 See it? The latest data isn't in there in my version. [It's in a press release](https://www.dol.gov/sites/dolgov/files/OPA/newsreleases/ui-claims/20200551.pdf).
 
-So how do we add it? We use `add_row` from the tidyverse (specifically the `tibble` library). 
+So how do we add it? We use `add_row` from the tidyverse (specifically the `tibble` library).
 
 ```{r, error=TRUE}
 updatedcleanclaims <- cleanclaims %>% add_row(state="Nebraska", filed_week_ended=as.Date("2020-03-28"), initial_claims=24572, reflecting_week_ended=as.Date("2020-03-21"))
@@ -337,19 +291,19 @@ We get the latest week.
 fedlatest <- fedranked %>% slice(1)
 ```
 
-The previous week ... 
+The previous week ...
 
 ```{r, error=TRUE}
 fedprevious <- fedranked %>% slice(2)
 ```
 
-And for this one, let's grab the pre-crisis number as well as a basis point. 
+And for this one, let's grab the pre-crisis number as well as a basis point.
 
 ```{r, error=TRUE}
 pre <- fedranked %>% filter(filed_week_ended==as.Date("2020-03-14"))
 ```
 
-Now we can do some percent change math similar to above. First we calculate the current change. 
+Now we can do some percent change math similar to above. First we calculate the current change.
 
 ```{r, error=TRUE}
 change <- round((((fedlatest$initial_claims - fedprevious$initial_claims)/fedprevious$initial_claims)*100), digits=0)
@@ -367,22 +321,22 @@ And we roll it all into a subhead that we can use in the chart with a little pas
 subhed <- paste("Applications for unemployment jumped ", change, " percent from last week to this week and are up ", prechange, " percent since March 14.", sep="")
 ```
 
-And we make the graphic. 
+And we make the graphic.
 
 ```{r, error=TRUE, fig.width=9}
-ggplot() + 
+ggplot() +
   geom_line(data=fedranked, aes(x=filed_week_ended, y=initial_claims, group=1)) +
-  geom_point(data=fedlatest, aes(x=filed_week_ended, y=initial_claims)) + 
-  geom_text(data=fedlatest, aes(x=filed_week_ended-500, y=initial_claims + 500, label=initial_claims)) + 
-  geom_point(data=fedprevious, aes(x=filed_week_ended, y=initial_claims)) + 
-  geom_text(data=fedprevious, aes(x=filed_week_ended-500, y=initial_claims + 500, label=initial_claims)) + 
-  geom_smooth(data=fedranked, aes(x=filed_week_ended, y=initial_claims), method=loess, se=FALSE) + 
+  geom_point(data=fedlatest, aes(x=filed_week_ended, y=initial_claims)) +
+  geom_text(data=fedlatest, aes(x=filed_week_ended-500, y=initial_claims + 500, label=initial_claims)) +
+  geom_point(data=fedprevious, aes(x=filed_week_ended, y=initial_claims)) +
+  geom_text(data=fedprevious, aes(x=filed_week_ended-500, y=initial_claims + 500, label=initial_claims)) +
+  geom_smooth(data=fedranked, aes(x=filed_week_ended, y=initial_claims), method=loess, se=FALSE) +
   labs(title="Another record for jobless claims in Nebraska", subtitle=subhed, x="Date", y="Claims", caption = "Source: US Dept. of Labor  |  Graphic by Matt Waite") +
-  theme_minimal() + 
+  theme_minimal() +
   theme(
     plot.title = element_text(size = 16, face = "bold"),
-    axis.title = element_text(size = 8), 
-    plot.subtitle = element_text(size=10), 
+    axis.title = element_text(size = 8),
+    plot.subtitle = element_text(size=10),
     panel.grid.minor = element_blank()
     )
 ```
