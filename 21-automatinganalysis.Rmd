@@ -69,7 +69,7 @@ Looking at this dataframe, we can see that there are four keys for each object t
 covid_data$description
 ```
 
-We need to clean this dataframe a bit more, though, to remove those colons from `description` and to make the other columns into numbers (and remove the commas):
+We need to clean this dataframe a bit more, though, to remove those colons from `description` and to make the other columns into numeric data (and remove the commas). We'll use `str_replace` and `str_replace_all` to do that.
 
 ```{r}
 
@@ -80,7 +80,27 @@ covid_data <- covid_data %>%
    mutate(probable_deaths = as.numeric(str_replace_all(deaths,',','')))
 ```
 
+Finally, let's break this data out into different kinds: counties, age, race and other totals. To do this, we'll filter on description and add today's date:
 
+```{r}
+covid_race_ethnicity <- covid_data %>%
+  filter(description == 'African-American (NH)' | description == 'Asian (NH)' | description == 'White (NH)' | description == 'Hispanic' | description == 'Other (NH)' | description == 'Race and Ethnicity Data not available') %>%
+  mutate(date='2021-11-10')
+
+covid_age <- covid_data %>%
+  filter(description == '0-9' | description == '10-19' | description == '20-29' | description == '30-39' | description == '40-49' | description == '50-59' | description == '60-69' | description == '70-79' | description == '80+' | description == 'Age Data Not Available') %>%
+  mutate(date='2021-11-10')
+
+covid_gender <- covid_data %>%
+  filter(description == 'Female' | description == 'Male' | description == 'Unknown Gender') %>%
+  mutate(date='2021-11-10')
+
+covid_hospitalized <- covid_data %>%
+  filter(description == 'Currently hospitalized' | description == 'Acute care' | description == 'Intensive care') %>%
+  mutate(date='2021-11-10')
+
+
+```
 
 ## Exploring the data
 
