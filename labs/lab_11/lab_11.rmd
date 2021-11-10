@@ -25,14 +25,13 @@ knitr::opts_chunk$set(echo = TRUE)
 
 **Q1.** You are interested in doing some reporting on how West Virginia companies in the "Mining, Quarrying, and Oil and Gas Extraction" industry (https://www.naics.com/six-digit-naics/?code=21) used PPP loans during the pandemic (West Virginia is a big coal mining state).  
 
-
 Then produce a choropleth map that shows West Virginia counties shaded according to the total amount of loans to that industry per 100,000 population. 
 
-Use the magma color palette, and shade on a "log" scale. Also produce a table that shows the total amount of loans per 100,000 population, ranked from highest to lowest, along with the total amount of loans and the total number of loans. 
+Use the magma color palette, and shade on a "log" scale. Also produce a table that shows the total amount of loans per 100,000 population for each county, ranked from highest to lowest, along with the total amount of loans and the total number of loans. 
 
 Then answer these questions:
 
-* Based on the map, what region of the state appears to have gotten more loans in this industry? What spatial pattern do you notice in the data?
+* Based on the map, what region of the state appears to have gotten more loans in this industry? What geographic pattern do you notice in the data?
 * Based on the table, what county got the highest total loan amount? What was the total amount per 100K population, the total amount of loans (not population adjusted), how many loans were there, and what's the population?
 
 **A1.** 
