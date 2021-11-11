@@ -8,23 +8,40 @@ But what happens when you have a long-running story, where you're going to updat
 2. What questions do you have that have to be answered each time?
 3. What changes when you have to repeat questions to changing data?
 
-The global COVID-19 pandemic is something we're going to be writing about and covering for some time. Two elements of it are reports of cases and data on vaccinations. Both are reported frequently (mostly daily), and we'll be talking about them for some time. So they are ideal candidates for repeating analysis -- scripting the questions we want to answer every week and doing so in a way that we can just load it without having to change anything.
+The global COVID-19 pandemic is something we're going to be writing about and covering for some time. One element of it is data on vaccinations. That's reported frequently (mostly daily), and we'll be talking about it for some time. So it is an ideal candidate for repeating analysis -- scripting the questions we want to answer every week and doing so in a way that we can just load it without having to change anything.
 
-Let's get some other libraries to our typical tidyverse import. First, I'm going to add `rvest` so we can scrape some HTML tables. The next one I'm going to add is `DT`. It stands for datatables, and it makes your dataframes into html tables that are browsable and searchable. This is a bigger issue for me -- the author who is turning these into html pages -- than you, working in your notebooks. We're also going to add a library called `ggrepel`, which assists in putting tables on dots in charts.
+Let's get some other libraries to our typical tidyverse import (plus lubridate and janitor to help wrangle the data). First, I'm going to add `DT`. It stands for datatables, and it makes your dataframes into html tables that are browsable and searchable. This is a bigger issue for me -- the author who is turning these into html pages -- than you, working in your notebooks. We're also going to add a library called `ggrepel`, which assists in putting tables on dots in charts.
 
-You install them the same way you do anything else -- `install.packages("rvest")` and `install.packages("DT")` and `install.packages("ggrepel")`.
+You install them the same way you do anything else -- `install.packages("DT")` and `install.packages("ggrepel")`.
 
 ```{r}
 library(tidyverse)
 library(janitor)
-library(rvest)
+library(lubridate)
 library(DT)
 library(ggrepel)
 ```
 
 ## Automating downloads and imports
 
-Maryland [publishes data daily on COVID-19 cases and deaths on the state Department of Heath website](https://coronavirus.maryland.gov/).
+Maryland [publishes data daily on vaccinations on the state Department of Heath website](https://coronavirus.maryland.gov/#Vaccine).
+
+The dashboard is a series of HTML pages placed on the main page via iframe. Like this one: https://state-of-maryland.github.io/VaccineDashboardGraphs/VaccinationDosesDaily.html. But if you view the source on that URL, there's ... no data. It's being pulled in from another URL. If we want to automate getting this data, we'll need to find out where it lives. One big clue is in the composition of that URL: "github.io". Are these files (and maybe the data) already on GitHub? Let's find out. The easiest thing to do is to go to the GitHub user: https://github.com/state-of-maryland. There's a repository there called `VaccineCSVs` that sounds pretty good. Let's check it out.
+
+There are a lot of files here: https://github.com/state-of-maryland/VaccineCSVs, and we want to focus our attention on the ones that are frequently updated. There are a bunch of those, some of which end in .json and .csv.xml, but we want to focus on the ones that end in .csv. Let's use this one: https://raw.githubusercontent.com/state-of-maryland/VaccineCSVs/master/MD_COVID19_TotalVaccinationsCountyFirstandSecondSingleDose.csv
+
+We'll read it into a dataframe like usual and clean up the column names:
+
+```{r}
+county_vaccinations <- read_csv("https://raw.githubusercontent.com/state-of-maryland/VaccineCSVs/master/MD_COVID19_TotalVaccinationsCountyFirstandSecondSingleDose.csv") %>%
+   clean_names()
+View(county_vaccinations)
+```
+
+Each row represents vaccination stats for a single county on a single day, including cumulative figures. Let's see if there's anything unusual in the data by counting the number of rows for each county
+
+
+
 
 The table with daily data is located at the bottom of that site, and if you look at the HTML source (always look at the HTML source), you can see that it's an iframe of another page. And not just any page, but a github.io site: https://state-of-maryland.github.io/COVID19_Cases_DashboardBlackBox/CasesBlackboxStats1.html.
 
@@ -36,16 +53,29 @@ That file is updated most weekdays with cumulative figures, and the date isn't i
 4. Add today's date
 5. Write the dataframe out to a CSV file
 
-But there's a catch. When you try to use rvest to scrape this HTML table, you won't see the actual numbers. That's because the data is getting populated on the web page _after_ the page loads in a browser. The good news is that the data has to come from some place, and in this case it's a JSON file. JSON is basically a dictionary object: it has keys and values. A sample JSON file might look like this:
+But there's a catch. When you try to use rvest to scrape this HTML table, you won't see the actual numbers:
+
+```{r}
+cases_url <- "https://state-of-maryland.github.io/COVID19_Cases_DashboardBlackBox/CasesBlackboxStats1.html"
+cases <- cases_url %>%
+  read_html() %>%
+  html_table()
+
+View(cases[[1]] %>% as_tibble())
+```
+
+That's because the data is getting populated on the web page _after_ the page loads in a browser. The good news is that the data has to come from some place, and in this case all the data is in a JSON file. JSON is basically a dictionary object: it has keys and values. A sample JSON object might look like this:
 
 ```
 {
   "university": "University of Maryland",
-  "college": "Merrill College of Journalism"
+  "college": "Merrill College of Journalism",
+  "course": "JOUR472/772",
+  "course_title": "Data Journalism"
 }
 ```
 
-The keys in this file are `university` and `college`, and the values are `University of Maryland` and `Merrill College of Journalism`. You get to the values by knowing the keys.
+The keys in this file are to the left of the colon, and the values are to the right. You get to the values by using the keys.
 
 R has several libraries for dealing with JSON data, and we'll use one called `jsonlite`. Let's install it using the usual syntax: `install.packages("jsonlite")`
 
@@ -55,7 +85,7 @@ Now we can load it:
 library(jsonlite)
 ```
 
-Next we'll read the JSON file from Maryland and use `clean_names()` to make the columns lowercase:
+Next we'll read the JSON file from Maryland and use janitor's `clean_names()` to make the columns easier to deal with:
 
 ```{r}
 covid_data <- fromJSON("https://state-of-maryland.github.io/COVID19_Cases_DashboardBlackBox/DailyCasesBlackbox.json") %>%
@@ -69,7 +99,7 @@ Looking at this dataframe, we can see that there are four keys for each object t
 covid_data$description
 ```
 
-We need to clean this dataframe a bit more, though, to remove those colons from `description` and to make the other columns into numeric data (and remove the commas). We'll use `str_replace` and `str_replace_all` to do that.
+We need to clean this dataframe a bit more, to remove those colons from `description` and to make the other columns into numeric data (and remove the commas). We'll use `str_replace` and `str_replace_all` to do that. We'll also remove any rows where `cases`, `deaths` and `probable_deaths` are all NA. We can then use `today()`, a function from lubridate, to add today's date:
 
 ```{r}
 
@@ -77,37 +107,31 @@ covid_data <- covid_data %>%
    mutate(description = str_replace(description, ':', '')) %>%
    mutate(cases = as.numeric(str_replace_all(cases,',',''))) %>%
    mutate(deaths = as.numeric(str_replace_all(deaths,',',''))) %>%
-   mutate(probable_deaths = as.numeric(str_replace_all(deaths,',','')))
+   mutate(probable_deaths = as.numeric(str_replace_all(deaths,',',''))) %>%
+   filter(!is.na(cases), !is.na(deaths), !is.na(probable_deaths)) %>%
+   mutate(date=today())
 ```
 
-Finally, let's break this data out into different kinds: counties, age, race and other totals. To do this, we'll filter on description and add today's date:
+Ok, so we've got a dataframe with _today's_ data. But every time that JSON file gets updated, all of the data gets replaced. So if you want to know what's happening over time, you have have to grab that file every day, process it and add it to your previous data so you can see what has changed. Here's the basic process:
 
-```{r}
-covid_race_ethnicity <- covid_data %>%
-  filter(description == 'African-American (NH)' | description == 'Asian (NH)' | description == 'White (NH)' | description == 'Hispanic' | description == 'Other (NH)' | description == 'Race and Ethnicity Data not available') %>%
-  mutate(date='2021-11-10')
+1. Get the new data
+2. Clean it and add today's date
+3. Add it to previous data
+4. Calculate changes
+5. Summarize those changes
 
-covid_age <- covid_data %>%
-  filter(description == '0-9' | description == '10-19' | description == '20-29' | description == '30-39' | description == '40-49' | description == '50-59' | description == '60-69' | description == '70-79' | description == '80+' | description == 'Age Data Not Available') %>%
-  mutate(date='2021-11-10')
-
-covid_gender <- covid_data %>%
-  filter(description == 'Female' | description == 'Male' | description == 'Unknown Gender') %>%
-  mutate(date='2021-11-10')
-
-covid_hospitalized <- covid_data %>%
-  filter(description == 'Currently hospitalized' | description == 'Acute care' | description == 'Intensive care') %>%
-  mutate(date='2021-11-10')
+## The previous data
 
 
-```
+
+
 
 ## Exploring the data
 
 Let's take a look at what we have, using datatables. The formatDate business just makes the date look nicer.
 
 ```{r}
-datatable(weeklyclaims) %>% formatDate(1, "toLocaleDateString")
+datatable(covid_data) %>% formatDate(1, "toLocaleDateString")
 ```
 
 Let's just look at the most recent week, and that's something that takes on different meaning when we're talking about updating data. We need to make this generic so that every time we pull this up and run it, it's the most recent week at the top. This time, it's very simple.

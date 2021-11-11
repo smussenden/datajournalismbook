@@ -1,0 +1,18 @@
+---
+title: "pre_lab_12.Rmd"
+author: "derek willis"
+date: "11/09/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Task 1: Load libraries and settings
+**Task** Run the following code in the gray-colored codeblock below to load the tidyverse and rvest libraries
+
+```{r}
+library(tidyverse)
+library(rvest)
+```

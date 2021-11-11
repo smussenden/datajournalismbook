@@ -1,0 +1,368 @@
+[
+    {
+        "Description": "Number of confirmed cases:",
+        "Cases": "568,914",
+        "Deaths": "",
+        "ProbableDeaths": ""
+    },
+    {
+        "Description": "Number of persons tested negative:",
+        "Cases": "4,503,015",
+        "Deaths": "",
+        "ProbableDeaths": ""
+    },
+    {
+        "Description": "Total testing volume:",
+        "Cases": "14,461,337",
+        "Deaths": "",
+        "ProbableDeaths": ""
+    },
+    {
+        "Description": "Daily testing volume:",
+        "Cases": "42,643",
+        "Deaths": "",
+        "ProbableDeaths": ""
+    },
+    {
+        "Description": "Total vaccinated 1st Dose:",
+        "Cases": "4,135,431",
+        "Deaths": "",
+        "ProbableDeaths": ""
+    },
+    {
+        "Description": "Total vaccinated 2nd Dose:",
+        "Cases": "3,751,296",
+        "Deaths": "",
+        "ProbableDeaths": ""
+    },
+    {
+        "Description": "Total vaccinated Single Dose:",
+        "Cases": "314,711",
+        "Deaths": "",
+        "ProbableDeaths": ""
+    },
+    {
+        "Description": "Number of confirmed deaths:",
+        "Cases": "10,788",
+        "Deaths": "",
+        "ProbableDeaths": ""
+    },
+    {
+        "Description": "Number of probable deaths:",
+        "Cases": "232",
+        "Deaths": "",
+        "ProbableDeaths": ""
+    },
+    {
+        "Description": "Currently hospitalized:",
+        "Cases": "505",
+        "Deaths": "503",
+        "ProbableDeaths": "2"
+    },
+    {
+        "Description": "Acute care:",
+        "Cases": "377",
+        "Deaths": "377",
+        "ProbableDeaths": "0"
+    },
+    {
+        "Description": "Intensive care:",
+        "Cases": "128",
+        "Deaths": "126",
+        "ProbableDeaths": "2"
+    },
+    {
+        "Description": "Ever hospitalized:",
+        "Cases": "51,219",
+        "Deaths": "",
+        "ProbableDeaths": ""
+    },
+    {
+        "Description": "Released from isolation:",
+        "Cases": "11,520",
+        "Deaths": "",
+        "ProbableDeaths": ""
+    },
+    {
+        "Description": "Cases and Deaths by County (deaths*):",
+        "Cases": "",
+        "Deaths": "",
+        "ProbableDeaths": ""
+    },
+    {
+        "Description": "Allegany:",
+        "Cases": "10,012",
+        "Deaths": "257",
+        "ProbableDeaths": "2"
+    },
+    {
+        "Description": "Anne Arundel:",
+        "Cases": "53,863",
+        "Deaths": "761",
+        "ProbableDeaths": "15"
+    },
+    {
+        "Description": "Baltimore City:",
+        "Cases": "62,456",
+        "Deaths": "1,335",
+        "ProbableDeaths": "28"
+    },
+    {
+        "Description": "Baltimore County:",
+        "Cases": "77,891",
+        "Deaths": "1,824",
+        "ProbableDeaths": "42"
+    },
+    {
+        "Description": "Calvert:",
+        "Cases": "5,826",
+        "Deaths": "100",
+        "ProbableDeaths": "1"
+    },
+    {
+        "Description": "Caroline:",
+        "Cases": "3,307",
+        "Deaths": "52",
+        "ProbableDeaths": "0"
+    },
+    {
+        "Description": "Carroll:",
+        "Cases": "12,125",
+        "Deaths": "286",
+        "ProbableDeaths": "7"
+    },
+    {
+        "Description": "Cecil:",
+        "Cases": "9,047",
+        "Deaths": "183",
+        "ProbableDeaths": "2"
+    },
+    {
+        "Description": "Charles:",
+        "Cases": "14,694",
+        "Deaths": "261",
+        "ProbableDeaths": "2"
+    },
+    {
+        "Description": "Dorchester:",
+        "Cases": "4,233",
+        "Deaths": "83",
+        "ProbableDeaths": "1"
+    },
+    {
+        "Description": "Frederick:",
+        "Cases": "24,812",
+        "Deaths": "376",
+        "ProbableDeaths": "10"
+    },
+    {
+        "Description": "Garrett:",
+        "Cases": "3,468",
+        "Deaths": "82",
+        "ProbableDeaths": "1"
+    },
+    {
+        "Description": "Harford:",
+        "Cases": "21,217",
+        "Deaths": "353",
+        "ProbableDeaths": "8"
+    },
+    {
+        "Description": "Howard:",
+        "Cases": "22,960",
+        "Deaths": "273",
+        "ProbableDeaths": "7"
+    },
+    {
+        "Description": "Kent:",
+        "Cases": "1,795",
+        "Deaths": "53",
+        "ProbableDeaths": "3"
+    },
+    {
+        "Description": "Montgomery:",
+        "Cases": "83,349",
+        "Deaths": "1,672",
+        "ProbableDeaths": "51"
+    },
+    {
+        "Description": "Prince George's:",
+        "Cases": "100,611",
+        "Deaths": "1,689",
+        "ProbableDeaths": "43"
+    },
+    {
+        "Description": "Queen Anne's:",
+        "Cases": "3,981",
+        "Deaths": "72",
+        "ProbableDeaths": "1"
+    },
+    {
+        "Description": "Somerset:",
+        "Cases": "3,395",
+        "Deaths": "54",
+        "ProbableDeaths": "0"
+    },
+    {
+        "Description": "St. Mary's:",
+        "Cases": "10,152",
+        "Deaths": "168",
+        "ProbableDeaths": "1"
+    },
+    {
+        "Description": "Talbot:",
+        "Cases": "2,950",
+        "Deaths": "55",
+        "ProbableDeaths": "0"
+    },
+    {
+        "Description": "Washington:",
+        "Cases": "20,365",
+        "Deaths": "411",
+        "ProbableDeaths": "5"
+    },
+    {
+        "Description": "Wicomico:",
+        "Cases": "11,316",
+        "Deaths": "227",
+        "ProbableDeaths": "0"
+    },
+    {
+        "Description": "Worcester:",
+        "Cases": "5,089",
+        "Deaths": "122",
+        "ProbableDeaths": "1"
+    },
+    {
+        "Description": "County Data not available:",
+        "Cases": "0",
+        "Deaths": "39",
+        "ProbableDeaths": "1"
+    },
+    {
+        "Description": "Cases and Deaths by Age Range and Gender (deaths*):",
+        "Cases": "",
+        "Deaths": "",
+        "ProbableDeaths": ""
+    },
+    {
+        "Description": "0-9:",
+        "Cases": "40,393",
+        "Deaths": "4",
+        "ProbableDeaths": "0"
+    },
+    {
+        "Description": "10-19:",
+        "Cases": "63,416",
+        "Deaths": "8",
+        "ProbableDeaths": "1"
+    },
+    {
+        "Description": "20-29:",
+        "Cases": "101,380",
+        "Deaths": "55",
+        "ProbableDeaths": "1"
+    },
+    {
+        "Description": "30-39:",
+        "Cases": "97,364",
+        "Deaths": "146",
+        "ProbableDeaths": "7"
+    },
+    {
+        "Description": "40-49:",
+        "Cases": "82,548",
+        "Deaths": "378",
+        "ProbableDeaths": "5"
+    },
+    {
+        "Description": "50-59:",
+        "Cases": "81,076",
+        "Deaths": "1,003",
+        "ProbableDeaths": "34"
+    },
+    {
+        "Description": "60-69:",
+        "Cases": "54,615",
+        "Deaths": "1,856",
+        "ProbableDeaths": "29"
+    },
+    {
+        "Description": "70-79:",
+        "Cases": "29,996",
+        "Deaths": "2,711",
+        "ProbableDeaths": "47"
+    },
+    {
+        "Description": "80+:",
+        "Cases": "18,126",
+        "Deaths": "4,623",
+        "ProbableDeaths": "107"
+    },
+    {
+        "Description": "Age Data not available:",
+        "Cases": "0",
+        "Deaths": "4",
+        "ProbableDeaths": "1"
+    },
+    {
+        "Description": "Female:",
+        "Cases": "297,937",
+        "Deaths": "5,174",
+        "ProbableDeaths": "113"
+    },
+    {
+        "Description": "Male:",
+        "Cases": "270,977",
+        "Deaths": "5,614",
+        "ProbableDeaths": "119"
+    },
+    {
+        "Description": "Cases and Deaths by Race and Ethnicity (deaths*):",
+        "Cases": "",
+        "Deaths": "",
+        "ProbableDeaths": ""
+    },
+    {
+        "Description": "African-American (NH):",
+        "Cases": "177,754",
+        "Deaths": "3,829",
+        "ProbableDeaths": "86"
+    },
+    {
+        "Description": "Asian (NH):",
+        "Cases": "13,830",
+        "Deaths": "349",
+        "ProbableDeaths": "11"
+    },
+    {
+        "Description": "White (NH):",
+        "Cases": "219,052",
+        "Deaths": "5,575",
+        "ProbableDeaths": "114"
+    },
+    {
+        "Description": "Hispanic:",
+        "Cases": "79,602",
+        "Deaths": "884",
+        "ProbableDeaths": "19"
+    },
+    {
+        "Description": "Other (NH):",
+        "Cases": "26,162",
+        "Deaths": "118",
+        "ProbableDeaths": "1"
+    },
+    {
+        "Description": "Race and Ethnicity Data not available:",
+        "Cases": "52,514",
+        "Deaths": "33",
+        "ProbableDeaths": "1"
+    },
+    {
+        "Description": "Unknown Gender",
+        "Cases": "0",
+        "Deaths": "0",
+        "ProbableDeaths": "0"
+    }
+]
