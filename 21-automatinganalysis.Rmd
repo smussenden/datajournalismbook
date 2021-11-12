@@ -10,19 +10,22 @@ But what happens when you have a long-running story, where you're going to updat
 
 The global COVID-19 pandemic is something we're going to be writing about and covering for some time. One element of it is data on vaccinations. That's reported frequently (mostly daily), and we'll be talking about it for some time. So it is an ideal candidate for repeating analysis -- scripting the questions we want to answer every week and doing so in a way that we can just load it without having to change anything.
 
-Let's get some other libraries to our typical tidyverse import (plus lubridate and janitor to help wrangle the data). First, I'm going to add `DT`. It stands for datatables, and it makes your dataframes into html tables that are browsable and searchable. This is a bigger issue for me -- the author who is turning these into html pages -- than you, working in your notebooks. We're also going to add a library called `ggrepel`, which assists in putting tables on dots in charts.
+Here's a real-world example: you are covering public health in Maryland, focusing on Prince George's County, and you want to see how many people are getting fully vaccinated over time. You could look at a county or state website, copy and paste some information into a file and then do some calculations, but there's a better way. Instead, let's build a system that goes out each day to retrieve the data, makes it easier to analyze and then calculates the percentage change in the number of people getting fully vaccinated between the latest date and a week earlier. And makes us a chart showing that.
 
-You install them the same way you do anything else -- `install.packages("DT")` and `install.packages("ggrepel")`.
+Let's get some other libraries to our typical tidyverse import. We'll start with lubridate and janitor to help wrangle the data, and we're also going to add a library called `ggrepel`, which assists in putting tables on dots in charts.
+
+You install it the same way you do anything else -- `install.packages("ggrepel")`.
 
 ```{r}
 library(tidyverse)
 library(janitor)
 library(lubridate)
-library(DT)
 library(ggrepel)
 ```
 
 ## Automating downloads and imports
+
+Now, where to find the data?
 
 Maryland [publishes data daily on vaccinations on the state Department of Heath website](https://coronavirus.maryland.gov/#Vaccine).
 
@@ -37,6 +40,8 @@ county_vaccinations_by_date <- read_csv("https://raw.githubusercontent.com/state
   clean_names()
 View(county_vaccinations_by_date)
 ```
+
+## Exploring the data
 
 Each row represents vaccination stats for a single county on a single day, including cumulative figures. But when we read in that data, the `vaccination_date` column is formatted as a <chr> column, not as a date. Let's fix that using lubridate's handy `mdy_hms` function, which matches the format in the dataframe. Then we'll save `vaccination_date` as a date without the time:
 
@@ -55,7 +60,7 @@ county_totals <- county_vaccinations_by_date %>%
 View(county_totals)
 ```
 
-There are totals for all of Maryland's jurisdictions, plus one for "Unknown" and one that's NA. All but the last one have roughly the same number of records (between 315-335). What's going on with the NA records?
+There are totals for all of Maryland's jurisdictions, plus one for "Unknown" and one that's NA. All but the last one have roughly the same number of records. What's going on with the NA records?
 
 ```{r}
 county_vaccinations_by_date %>%
@@ -71,15 +76,7 @@ county_vaccinations_by_date <- county_vaccinations_by_date %>%
 
 Now we can start to interview this data.
 
-## Exploring the data
-
-Let's take a look at what we have, using datatables. The formatDate business just makes the date look nicer.
-
-```{r}
-datatable(county_vaccinations_by_date) %>% formatDate(2, "toLocaleDateString")
-```
-
-Let's just look at the most recent date, and that's something that takes on different meaning when we're talking about updating data. We need to make this generic so that every time we pull this up and run it, it's the most recent date at the top. This time, it's very simple.
+Let's look at the most recent date, and that's something that takes on different meaning when we're talking about updating data. We need to make this generic so that every time we pull this up and run it, it's the most recent date at the top. This time, it's very simple:
 
 ```{r}
 county_vaccinations_by_date %>% arrange(desc(vaccination_date))
@@ -87,7 +84,9 @@ county_vaccinations_by_date %>% arrange(desc(vaccination_date))
 
 ## Analysis
 
-Now is when we need to start asking ourselves -- what are the questions that are going to come up day after day. What about how this most current date compares to the previous day, or the previous week or month? What if we just ranked them? Where does this date rank? For that, we'll create a new column called Rank using mutate and we'll use a function called `min_rank` to rank them. Let's start by looking at daily `fully_vaccinated` figures in Prince George's County. I'm going to save them to a dataframe and use datatable
+Now is when we need to start asking ourselves -- what are the questions that are going to come up day after day? What about how this most current date compares to the previous day, or the previous week or month?
+
+What if we just ranked them? Where does this date rank? For that, we'll create a new column called Rank using mutate and we'll use a function called `min_rank` to rank them. Let's start by looking at daily `fully_vaccinated` figures in Prince George's County. I'm going to save them to a dataframe called `ranked`:
 
 ```{r}
 ranked <- county_vaccinations_by_date %>%
@@ -96,10 +95,12 @@ ranked <- county_vaccinations_by_date %>%
   arrange(desc(vaccination_date)) %>%
   select(county, vaccination_date, fully_vaccinated, rank)
 
-datatable(ranked) %>% formatDate(1, "toLocaleDateString")
+View(ranked)
 ```
 
-Let's think about this a little more. What else could we do with this? What are the recurring questions? How about the percent change between the latest date and one week ago? To do that, we need to find the latest date, which we've arranged to be the first one in our `ranked` dataframe. But what about a week ago?  Luckily, if we have one date we can calculate another one by adding or subtracting days:
+The most recent dates aren't among the highest-ranked, meaning that fewer people are getting fully vaccinated on a given day compared to previous dates.
+
+Let's think about this a little more. What else could we do with this? What are the recurring questions? How about the percent change between the latest date and one week ago? To do that, we need to find the latest date, which we've arranged to be the first one in our `ranked` dataframe. But what about a week ago? Luckily, if we have one date we can calculate another one by adding or subtracting days:
 
 ```{r}
 latest_date <- ranked %>% slice(1)
@@ -108,9 +109,11 @@ latest_date <- latest_date %>%
   mutate(pct_change_week = (fully_vaccinated - one_week_ago$fully_vaccinated)/one_week_ago$fully_vaccinated *100)
 ```
 
+The `one_week_ago$fully_vaccinated` syntax is a way to reference a specific column in a specific dataframe. In this case, it's a dataframe with exactly one row.
+
 ## Making updating graphics
 
-More than numbers, we are going to want to see this data. We can build this in steps. First, let's just make a big bar chart.
+More than numbers, we are going to want to see this data so we can spot potential stories. We can build this in steps. First, let's just make a big bar chart.
 
 ```{r fig.width=9}
 ggplot() +
@@ -125,7 +128,7 @@ Now, in ggplot, we can add multiple layers.
 
 The first layer will be all the bars.
 
-The second layer will just be the latest.
+The second layer will just be the latest, and we'll make that bar red.
 
 Then we'll add a point to the top of that line to really draw attention to it.
 
@@ -152,9 +155,9 @@ ggplot() +
     )
 ```
 
-One thing we are missing? Automated context. What if we programmatically wrote the chatter for this chart using the percent change calculation we did before?
+One thing we are missing? An automated summary. What if we programmatically wrote the description for this chart using the percent change calculation we did before?
 
-First, we format the change to look more news graphic like and not with 7 significant digits.
+First, we format the percent change to look more news graphic like and not with 7 significant digits.
 
 ```{r}
 changetext <- round(latest_date$pct_change_week[[1]], digits=2)
