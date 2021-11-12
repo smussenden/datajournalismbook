@@ -33,142 +33,80 @@ There are a lot of files here: https://github.com/state-of-maryland/VaccineCSVs,
 We'll read it into a dataframe like usual and clean up the column names:
 
 ```{r}
-county_vaccinations <- read_csv("https://raw.githubusercontent.com/state-of-maryland/VaccineCSVs/master/MD_COVID19_TotalVaccinationsCountyFirstandSecondSingleDose.csv") %>%
-   clean_names()
-View(county_vaccinations)
-```
-
-Each row represents vaccination stats for a single county on a single day, including cumulative figures. Let's see if there's anything unusual in the data by counting the number of rows for each county
-
-
-
-
-The table with daily data is located at the bottom of that site, and if you look at the HTML source (always look at the HTML source), you can see that it's an iframe of another page. And not just any page, but a github.io site: https://state-of-maryland.github.io/COVID19_Cases_DashboardBlackBox/CasesBlackboxStats1.html.
-
-That file is updated most weekdays with cumulative figures, and the date isn't included. What we need to do, in words, is this:
-
-1. Read the URL
-2. Scrape the table
-3. Save the results to a dataframe
-4. Add today's date
-5. Write the dataframe out to a CSV file
-
-But there's a catch. When you try to use rvest to scrape this HTML table, you won't see the actual numbers:
-
-```{r}
-cases_url <- "https://state-of-maryland.github.io/COVID19_Cases_DashboardBlackBox/CasesBlackboxStats1.html"
-cases <- cases_url %>%
-  read_html() %>%
-  html_table()
-
-View(cases[[1]] %>% as_tibble())
-```
-
-That's because the data is getting populated on the web page _after_ the page loads in a browser. The good news is that the data has to come from some place, and in this case all the data is in a JSON file. JSON is basically a dictionary object: it has keys and values. A sample JSON object might look like this:
-
-```
-{
-  "university": "University of Maryland",
-  "college": "Merrill College of Journalism",
-  "course": "JOUR472/772",
-  "course_title": "Data Journalism"
-}
-```
-
-The keys in this file are to the left of the colon, and the values are to the right. You get to the values by using the keys.
-
-R has several libraries for dealing with JSON data, and we'll use one called `jsonlite`. Let's install it using the usual syntax: `install.packages("jsonlite")`
-
-Now we can load it:
-
-```{r}
-library(jsonlite)
-```
-
-Next we'll read the JSON file from Maryland and use janitor's `clean_names()` to make the columns easier to deal with:
-
-```{r}
-covid_data <- fromJSON("https://state-of-maryland.github.io/COVID19_Cases_DashboardBlackBox/DailyCasesBlackbox.json") %>%
+county_vaccinations_by_date <- read_csv("https://raw.githubusercontent.com/state-of-maryland/VaccineCSVs/master/MD_COVID19_TotalVaccinationsCountyFirstandSecondSingleDose.csv") %>%
   clean_names()
-View(covid_data)
+View(county_vaccinations_by_date)
 ```
 
-Looking at this dataframe, we can see that there are four keys for each object that have been turned into columns: `description`, `cases`, `deaths` and `probable_deaths`. You can see all of the possible values for any of them using the following syntax:
+Each row represents vaccination stats for a single county on a single day, including cumulative figures. But when we read in that data, the `vaccination_date` column is formatted as a <chr> column, not as a date. Let's fix that using lubridate's handy `mdy_hms` function, which matches the format in the dataframe. Then we'll save `vaccination_date` as a date without the time:
 
 ```{r}
-covid_data$description
+county_vaccinations_by_date <- county_vaccinations_by_date %>%
+  mutate(vaccination_date = date(mdy_hms(vaccination_date)))
 ```
 
-We need to clean this dataframe a bit more, to remove those colons from `description` and to make the other columns into numeric data (and remove the commas). We'll use `str_replace` and `str_replace_all` to do that. We'll also remove any rows where `cases`, `deaths` and `probable_deaths` are all NA. We can then use `today()`, a function from lubridate, to add today's date:
+Let's see if there's anything unusual in the data by counting the number of rows for each county:
 
 ```{r}
+county_totals <- county_vaccinations_by_date %>%
+  group_by(county) %>%
+  summarize(total = n())
 
-covid_data <- covid_data %>%
-   mutate(description = str_replace(description, ':', '')) %>%
-   mutate(cases = as.numeric(str_replace_all(cases,',',''))) %>%
-   mutate(deaths = as.numeric(str_replace_all(deaths,',',''))) %>%
-   mutate(probable_deaths = as.numeric(str_replace_all(deaths,',',''))) %>%
-   filter(!is.na(cases), !is.na(deaths), !is.na(probable_deaths)) %>%
-   mutate(date=today())
+View(county_totals)
 ```
 
-Ok, so we've got a dataframe with _today's_ data. But every time that JSON file gets updated, all of the data gets replaced. So if you want to know what's happening over time, you have have to grab that file every day, process it and add it to your previous data so you can see what has changed. Here's the basic process:
+There are totals for all of Maryland's jurisdictions, plus one for "Unknown" and one that's NA. All but the last one have roughly the same number of records (between 315-335). What's going on with the NA records?
 
-1. Get the new data
-2. Clean it and add today's date
-3. Add it to previous data
-4. Calculate changes
-5. Summarize those changes
+```{r}
+county_vaccinations_by_date %>%
+  filter(is.na(county))
+```
 
-## The previous data
+They don't seem to pertain to any county (or no county), and it's not clear what these records represent. Let's remove them from our dataset:
 
+```{r}
+county_vaccinations_by_date <- county_vaccinations_by_date %>%
+  filter(!is.na(county))
+```
 
-
-
+Now we can start to interview this data.
 
 ## Exploring the data
 
 Let's take a look at what we have, using datatables. The formatDate business just makes the date look nicer.
 
 ```{r}
-datatable(covid_data) %>% formatDate(1, "toLocaleDateString")
+datatable(county_vaccinations_by_date) %>% formatDate(2, "toLocaleDateString")
 ```
 
 Let's just look at the most recent week, and that's something that takes on different meaning when we're talking about updating data. We need to make this generic so that every time we pull this up and run it, it's the most recent week at the top. This time, it's very simple.
 
 ```{r}
-weeklyclaims20 %>% arrange(desc(week_ending_date))
+county_vaccinations_by_date %>% arrange(desc(vaccination_date))
 ```
 
 ## Analysis
 
-Now is when we need to start asking ourselves -- what are the questions that are going to come up week after week. What about how this most current week compares to all weeks going back to 2012? What if we just ranked them? Where does this week rank? For that, we'll create a new column called Rank using mutate and we'll use a function called `min_rank` to rank them. I'm going to save them to a dataframe and use data
+Now is when we need to start asking ourselves -- what are the questions that are going to come up day after day. What about how this most current date compares to the previous day, or the previous week or month? What if we just ranked them? Where does this date rank? For that, we'll create a new column called Rank using mutate and we'll use a function called `min_rank` to rank them. Let's start by looking at daily `fully_vaccinated` figures in Prince George's County. I'm going to save them to a dataframe and use datatable
 
 ```{r}
-ranked <- weeklyclaims %>% mutate(Rank = min_rank(desc(initial_claims))) %>% arrange(desc(week_ending_date))
+ranked <- county_vaccinations_by_date %>%
+  filter(county == "Prince George's") %>%
+  mutate(rank = min_rank(desc(fully_vaccinated))) %>%
+  arrange(desc(vaccination_date)) %>%
+  select(county, vaccination_date, fully_vaccinated, rank)
 
 datatable(ranked) %>% formatDate(1, "toLocaleDateString")
 ```
 
-Let's think about this a little more. What else could we do with this. What are the recurring questions? How about the percent change between this week and last week?
-
-To do that, we need our dates to be next to each other -- side by side. Then we can do new minus old divided by old. To do that, we're going to use a function from `tidyr` called pivot_wider, which will transform our data from one row per week to one row, with the weeks as columns.
+Let's think about this a little more. What else could we do with this? What are the recurring questions? How about the percent change between the latest date and one week ago? To do that, we need to find the latest date, which we've arranged to be the first one in our `ranked` dataframe. But what about a week ago?  Luckily, if we have one date we can calculate another one by adding or subtracting days:
 
 ```{r}
-change <- weeklyclaims20 %>% pivot_wider(names_from = week_ending_date, values_from = initial_claims)
-
-head(change)
+latest_date <- ranked %>% slice(1)
+one_week_ago <- ranked %>% filter(vaccination_date == latest_date$vaccination_date - 7)
+latest_date <- latest_date %>%
+  mutate(pct_change_week = (fully_vaccinated - one_week_ago$fully_vaccinated)/one_week_ago$fully_vaccinated *100)
 ```
-
-Now the problem we have is ... which column is the last one, and which one is the previous one? I'll be honest, this isn't easy in R. But the trick is to reverse the order of the columns. Then, your newest one is column 1 and the next newest is 2.  
-
-```{r}
-changecalc <- ((rev(change)[1] - rev(change)[2])/rev(change)[2])*100
-
-changecalc
-```
-
-So whatever the date, that'll always return the percent change between the most recent date and the previous week.
 
 ## Making updating graphics
 
@@ -176,18 +114,12 @@ More than numbers, we are going to want to see this data. We can build this in s
 
 ```{r fig.width=9}
 ggplot() +
-  geom_bar(data=ranked, aes(x=week_ending_date, weight=initial_claims))
+  geom_bar(data=ranked, aes(x=vaccination_date, weight=fully_vaccinated))
 ```
 
-So that shows us that the trend is going down over time, and that there's some regular spikes around the holidays. Which tells us this data is seasonal, but we knew that going in.
+So that shows us that the trend is going down over time, which makes sense as fewer people in the county are unvaccinated. It also shows that just after vaccinations began there was an initial dip - supply problems? - before the figure leapt up in April and May.
 
 Let's build up some more layers to highlight trends and the most recent spot.
-
-First, we'll slice out a dataframe that's just the most recent data.
-
-```{r}
-latest <- ranked %>% slice(1)
-```
 
 Now, in ggplot, we can add multiple layers.
 
@@ -205,12 +137,12 @@ The rest is labeling and adjusting the text to make it look more like a news gra
 
 ```{r fig.width=9}
 ggplot() +
-  geom_bar(data=ranked, aes(x=week_ending_date, weight=initial_claims)) +
-  geom_bar(data=latest, aes(x=week_ending_date, weight=initial_claims), fill="red") +
-  geom_point(data=latest, aes(x=week_ending_date, y=initial_claims)) +
-  geom_text_repel(data=latest, aes(x=week_ending_date, y=initial_claims + 150, label="This week")) +
-  geom_smooth(data=ranked, aes(x=week_ending_date, y=initial_claims), method=loess, se=FALSE) +
-  labs(title="Nebraska jobless claims on the rise", x="Date", y="Claims") +
+  geom_bar(data=ranked, aes(x=vaccination_date, weight=fully_vaccinated)) +
+  geom_bar(data=latest_date, aes(x=vaccination_date, weight=fully_vaccinated), fill="red") +
+  geom_point(data=latest_date, aes(x=vaccination_date, y=fully_vaccinated)) +
+  geom_text_repel(data=latest_date, aes(x=vaccination_date, y=fully_vaccinated + 150, label="Latest date")) +
+  geom_smooth(data=ranked, aes(x=vaccination_date, y=fully_vaccinated), method=loess, se=FALSE) +
+  labs(title="Prince George's County Fully Vaccinated Tailing Off", x="Date", y="Fully Vaccinated") +
   theme_minimal() +
   theme(
     plot.title = element_text(size = 16, face = "bold"),
@@ -220,18 +152,19 @@ ggplot() +
     )
 ```
 
-One thing we are missing? Context. What if we programmatically wrote the chatter for this chart using the percent change calculation we did before?
+One thing we are missing? Automated context. What if we programmatically wrote the chatter for this chart using the percent change calculation we did before?
 
 First, we format the change to look more news graphic like and not with 7 significant digits.
 
 ```{r}
-changetext <- round(changecalc[[1]], digits=2)
+changetext <- round(latest_date$pct_change_week[[1]], digits=2)
+direction <- if_else(changetext > 0, "increased", "decreased")
 ```
 
 Now we're going to use a function called paste to merge some text together. We're going to paste together a sentence fragment, the percent change number and another sentence fragment together to form a sentence. We'll save it as sub, because that's what it's called in ggplot -- a subtitle.
 
 ```{r}
-sub <- paste("First time unemployment claims rose by ", changetext, " percent over last week", sep="")
+sub <- paste("The number of people in Prince George's County fully vaccinated on ", format(latest_date$vaccination_date, format="%B %d"), " ", direction, " by ", changetext, " percent compared to a week ago", sep="")
 ```
 
 Here's our sentence:
@@ -244,12 +177,12 @@ Now we can add that to our labels.
 
 ```{r fig.width=9}
 ggplot() +
-  geom_bar(data=ranked, aes(x=week_ending_date, weight=initial_claims)) +
-  geom_bar(data=latest, aes(x=week_ending_date, weight=initial_claims), fill="red") +
-  geom_point(data=latest, aes(x=week_ending_date, y=initial_claims)) +
-  geom_text_repel(data=latest, aes(x=week_ending_date, y=initial_claims + 150, label="This week")) +
-  geom_smooth(data=ranked, aes(x=week_ending_date, y=initial_claims), method=loess, se=FALSE) +
-  labs(title="Nebraska jobless claims on the rise", subtitle=sub, x="Date", y="Claims") +
+  geom_bar(data=ranked, aes(x=vaccination_date, weight=fully_vaccinated)) +
+  geom_bar(data=latest_date, aes(x=vaccination_date, weight=fully_vaccinated), fill="red") +
+  geom_point(data=latest_date, aes(x=vaccination_date, y=fully_vaccinated)) +
+  geom_text_repel(data=latest_date, aes(x=vaccination_date, y=fully_vaccinated + 150, label="Latest date")) +
+  geom_smooth(data=ranked, aes(x=vaccination_date, y=fully_vaccinated), method=loess, se=FALSE) +
+  labs(title="Prince George's County Fully Vaccinated Tailing Off", subtitle=sub, x="Date", y="Fully Vaccinated") +
   theme_minimal() +
   theme(
     plot.title = element_text(size = 16, face = "bold"),
@@ -259,128 +192,6 @@ ggplot() +
     )
 ```
 
-This is going to be a story for months, if not years. So repeating this analysis is a must for a reporter covering the economy in Nebraska. We've set ourselves up to do this every week when the data comes out. We just open our notebook, go to Run > Restart R and Run All Chunks and sit back and watch as it does it all again.
+This is going to be a story for months, if not years. So repeating this analysis is a must for a reporter covering health care in Maryland. We've set ourselves up to do this every week when the data comes out. We just open our notebook, go to Run > Restart R and Run All Chunks and sit back and watch as it does it all again.
 
 Then we go report.
-
-## The State vs the Feds
-
-As I write this, the state hasn't updated their data but the feds have, and the feds have more. The problem? It's a mess. And it's not automatable. So to get more data, you need to go to [the Department of Labor website](https://oui.doleta.gov/unemploy/claims.asp) and fill out the form.
-
-Leave the years, select state, pick yours (I'm taking Nebraska) and select spreadsheet, but know that it's a lie. If you try to load it using read_excel, you'll get an error. Why? Because what is being downloaded is an HTML file. So you can use `rvest` to read and parse it.
-
-However, that isn't so simple.
-
-```{r}
-library(rvest)
-library(lubridate)
-```
-
-First, read the file you downloaded. You'll need to add the `fill=TRUE` to html_table() to solve a problem with some of the data.
-
-```{r, error=TRUE}
-claims <- read_html("~/Downloads/r539cy.xls") %>%
-  html_nodes("table") %>%
-  html_table(fill=TRUE)
-```
-
-Similar to previous efforts, we get a list. The first element is a dataframe, so let's get that.
-
-```{r, error=TRUE}
-claims <- claims[[1]]
-```
-
-Now if you look at this data, you'll see that the header row is empty, and the header names are in the first row. Also, none of this data is formatted correctly. We need to fix that.
-
-To do this, we're going to fix this in steps after we create a new dataframe called `cleanclaims`
-
-1. We'll remove empty columns.
-2. We'll rename the columns with what they are, using `janitor` style naming conventions.
-3. We'll filter out the old header row.
-4. We'll mutate each field to format them correctly. The date columns will use `lubridate`'s `mdy` function. Numbers will use `readr`'s `parse_number` function to solve the comma separator issue.
-
-```{r, error=TRUE}
-cleanclaims <- claims %>%
-  remove_empty("cols") %>%
-  rename("state" = 1, "filed_week_ended"= 2, "initial_claims"=3, "reflecting_week_ended"=4, "continued_claims"=5, "covered_employment"=6, "insured_unemployment_rate"=7) %>%
-  filter(state != "State") %>%
-  mutate(filed_week_ended = mdy(filed_week_ended), initial_claims=parse_number(initial_claims), reflecting_week_ended=mdy(reflecting_week_ended), continued_claims=parse_number(continued_claims), covered_employment=parse_number(covered_employment), insured_unemployment_rate=parse_number(insured_unemployment_rate))
-```
-
-If you open `cleanclaims`, you may notice something:
-
-```{r, error=TRUE}
-cleanclaims %>% arrange(desc(filed_week_ended)) %>% head()
-```
-
-See it? The latest data isn't in there in my version. [It's in a press release](https://www.dol.gov/sites/dolgov/files/OPA/newsreleases/ui-claims/20200551.pdf).
-
-So how do we add it? We use `add_row` from the tidyverse (specifically the `tibble` library).
-
-```{r, error=TRUE}
-updatedcleanclaims <- cleanclaims %>% add_row(state="Nebraska", filed_week_ended=as.Date("2020-03-28"), initial_claims=24572, reflecting_week_ended=as.Date("2020-03-21"))
-```
-
-Now we can repeat the analysis from above.
-
-First we rank.
-
-```{r, error=TRUE}
-fedranked <- updatedcleanclaims %>% mutate(Rank = min_rank(desc(initial_claims))) %>% arrange(desc(filed_week_ended))
-```
-
-We get the latest week.
-
-```{r, error=TRUE}
-fedlatest <- fedranked %>% slice(1)
-```
-
-The previous week ...
-
-```{r, error=TRUE}
-fedprevious <- fedranked %>% slice(2)
-```
-
-And for this one, let's grab the pre-crisis number as well as a basis point.
-
-```{r, error=TRUE}
-pre <- fedranked %>% filter(filed_week_ended==as.Date("2020-03-14"))
-```
-
-Now we can do some percent change math similar to above. First we calculate the current change.
-
-```{r, error=TRUE}
-change <- round((((fedlatest$initial_claims - fedprevious$initial_claims)/fedprevious$initial_claims)*100), digits=0)
-```
-
-Then the change from the pre-crisis week.
-
-```{r, error=TRUE}
-prechange <- round((((fedlatest$initial_claims - pre$initial_claims)/pre$initial_claims)*100), digits=0)
-```
-
-And we roll it all into a subhead that we can use in the chart with a little paste-fu.
-
-```{r, error=TRUE}
-subhed <- paste("Applications for unemployment jumped ", change, " percent from last week to this week and are up ", prechange, " percent since March 14.", sep="")
-```
-
-And we make the graphic.
-
-```{r, error=TRUE, fig.width=9}
-ggplot() +
-  geom_line(data=fedranked, aes(x=filed_week_ended, y=initial_claims, group=1)) +
-  geom_point(data=fedlatest, aes(x=filed_week_ended, y=initial_claims)) +
-  geom_text(data=fedlatest, aes(x=filed_week_ended-500, y=initial_claims + 500, label=initial_claims)) +
-  geom_point(data=fedprevious, aes(x=filed_week_ended, y=initial_claims)) +
-  geom_text(data=fedprevious, aes(x=filed_week_ended-500, y=initial_claims + 500, label=initial_claims)) +
-  geom_smooth(data=fedranked, aes(x=filed_week_ended, y=initial_claims), method=loess, se=FALSE) +
-  labs(title="Another record for jobless claims in Nebraska", subtitle=subhed, x="Date", y="Claims", caption = "Source: US Dept. of Labor  |  Graphic by Matt Waite") +
-  theme_minimal() +
-  theme(
-    plot.title = element_text(size = 16, face = "bold"),
-    axis.title = element_text(size = 8),
-    plot.subtitle = element_text(size=10),
-    panel.grid.minor = element_blank()
-    )
-```
