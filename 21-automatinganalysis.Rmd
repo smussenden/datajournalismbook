@@ -79,7 +79,7 @@ Let's take a look at what we have, using datatables. The formatDate business jus
 datatable(county_vaccinations_by_date) %>% formatDate(2, "toLocaleDateString")
 ```
 
-Let's just look at the most recent week, and that's something that takes on different meaning when we're talking about updating data. We need to make this generic so that every time we pull this up and run it, it's the most recent week at the top. This time, it's very simple.
+Let's just look at the most recent date, and that's something that takes on different meaning when we're talking about updating data. We need to make this generic so that every time we pull this up and run it, it's the most recent date at the top. This time, it's very simple.
 
 ```{r}
 county_vaccinations_by_date %>% arrange(desc(vaccination_date))
