@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>Chapter 21 Geographic analysis | Data Journalism with R and the Tidyverse</title>
   <meta name="description" content="This is a book built on a very opinionated philosophy for journalism students doing data journalism in R with replicable methods." />
-  <meta name="generator" content="bookdown 0.23 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
 
   <meta property="og:title" content="Chapter 21 Geographic analysis | Data Journalism with R and the Tidyverse" />
   <meta property="og:type" content="book" />
@@ -24,7 +24,7 @@
 <meta name="author" content="Matt Waite (original author); updated by Derek Willis and Sean Mussenden" />
 
 
-<meta name="date" content="2021-11-07" />
+<meta name="date" content="2021-11-16" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -35,6 +35,7 @@
 <link rel="next" href="automating-analysis.html"/>
 <script src="libs/header-attrs-2.10/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
@@ -50,17 +51,8 @@
 
 
 
-
 <link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
 <script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
-<script src="libs/htmlwidgets-1.5.3/htmlwidgets.js"></script>
-<link href="libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
-<script src="libs/datatables-binding-0.18/datatables.js"></script>
-<link href="libs/dt-core-1.10.20/css/jquery.dataTables.min.css" rel="stylesheet" />
-<link href="libs/dt-core-1.10.20/css/jquery.dataTables.extra.css" rel="stylesheet" />
-<script src="libs/dt-core-1.10.20/js/jquery.dataTables.min.js"></script>
-<link href="libs/crosstalk-1.1.1/css/crosstalk.css" rel="stylesheet" />
-<script src="libs/crosstalk-1.1.1/js/crosstalk.min.js"></script>
 <!-- Global site tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-160712129-1"></script>
 <script>
@@ -264,11 +256,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="21" data-path="geographic-analysis.html"><a href="geographic-analysis.html"><i class="fa fa-check"></i><b>21</b> Geographic analysis</a></li>
 <li class="chapter" data-level="22" data-path="automating-analysis.html"><a href="automating-analysis.html"><i class="fa fa-check"></i><b>22</b> Automating analysis</a>
 <ul>
-<li class="chapter" data-level="22.1" data-path="automating-analysis.html"><a href="automating-analysis.html#automating-downloads-an-imports"><i class="fa fa-check"></i><b>22.1</b> Automating downloads an imports</a></li>
+<li class="chapter" data-level="22.1" data-path="automating-analysis.html"><a href="automating-analysis.html#automating-downloads-and-imports"><i class="fa fa-check"></i><b>22.1</b> Automating downloads and imports</a></li>
 <li class="chapter" data-level="22.2" data-path="automating-analysis.html"><a href="automating-analysis.html#exploring-the-data"><i class="fa fa-check"></i><b>22.2</b> Exploring the data</a></li>
 <li class="chapter" data-level="22.3" data-path="automating-analysis.html"><a href="automating-analysis.html#analysis"><i class="fa fa-check"></i><b>22.3</b> Analysis</a></li>
 <li class="chapter" data-level="22.4" data-path="automating-analysis.html"><a href="automating-analysis.html#making-updating-graphics"><i class="fa fa-check"></i><b>22.4</b> Making updating graphics</a></li>
-<li class="chapter" data-level="22.5" data-path="automating-analysis.html"><a href="automating-analysis.html#the-state-vs-the-feds"><i class="fa fa-check"></i><b>22.5</b> The State vs the Feds</a></li>
 </ul></li>
 <li class="chapter" data-level="23" data-path="automating-geographic-analysis.html"><a href="automating-geographic-analysis.html"><i class="fa fa-check"></i><b>23</b> Automating geographic analysis</a>
 <ul>
@@ -335,11 +326,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb415-5"><a href="geographic-analysis.html#cb415-5" aria-hidden="true" tabindex="-1"></a><span class="fu">census_api_key</span>(<span class="st">&quot;549950d36c22ff16455fe196bbbd01d63cfbe6cf&quot;</span>)</span></code></pre></div>
 <pre><code>## To install your API key for use in future sessions, run this function with `install = TRUE`.</code></pre>
 <p>And now let’s load the dataframe of hospital information from the previous chapter, and filter for the 50 General Acute Care hospitals in Maryland.</p>
-<div class="sourceCode" id="cb417"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb417-1"><a href="geographic-analysis.html#cb417-1" aria-hidden="true" tabindex="-1"></a>md_hospitals <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="st">&quot;data/Hospitals/Hospitals.shp&quot;</span>) <span class="sc">%&gt;%</span> </span>
+<div class="sourceCode" id="cb417"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb417-1"><a href="geographic-analysis.html#cb417-1" aria-hidden="true" tabindex="-1"></a>md_hospitals <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="st">&quot;data/Hospitals/Hospitals.shp&quot;</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb417-2"><a href="geographic-analysis.html#cb417-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(STATE <span class="sc">==</span> <span class="st">&quot;MD&quot;</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb417-3"><a href="geographic-analysis.html#cb417-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(TYPE <span class="sc">==</span> <span class="st">&quot;GENERAL ACUTE CARE&quot;</span>)</span></code></pre></div>
 <pre><code>## Reading layer `Hospitals&#39; from data source 
-##   `/Users/smussenden/Desktop/git_repos/classes/datajournalismbook/data/Hospitals/Hospitals.shp&#39; 
+##   `/Users/dpwillis/code/datajournalismbook/data/Hospitals/Hospitals.shp&#39; 
 ##   using driver `ESRI Shapefile&#39;
 ## Simple feature collection with 7581 features and 32 fields
 ## Geometry type: POINT
@@ -473,7 +464,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb421-6"><a href="geographic-analysis.html#cb421-6" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
 <span id="cb421-7"><a href="geographic-analysis.html#cb421-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(total_beds))</span>
 <span id="cb421-8"><a href="geographic-analysis.html#cb421-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb421-9"><a href="geographic-analysis.html#cb421-9" aria-hidden="true" tabindex="-1"></a>md_beds_by_county </span></code></pre></div>
+<span id="cb421-9"><a href="geographic-analysis.html#cb421-9" aria-hidden="true" tabindex="-1"></a>md_beds_by_county</span></code></pre></div>
 <pre><code>## # A tibble: 22 × 2
 ##    COUNTY          total_beds
 ##    &lt;chr&gt;                &lt;dbl&gt;
@@ -490,8 +481,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ## # … with 12 more rows</code></pre>
 <p>So, what do we see here? Baltimore City has the most, followed by Montgomery, Baltimore County and Prince George’s. All big counties.</p>
 <p>Next, we’ll go out and get population data for each county from tidycensus. The variable for total population is B01001_001.</p>
-<div class="sourceCode" id="cb423"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb423-1"><a href="geographic-analysis.html#cb423-1" aria-hidden="true" tabindex="-1"></a>md_county_population <span class="ot">&lt;-</span> <span class="fu">get_acs</span>(<span class="at">geography =</span> <span class="st">&quot;county&quot;</span>, </span>
-<span id="cb423-2"><a href="geographic-analysis.html#cb423-2" aria-hidden="true" tabindex="-1"></a>              <span class="at">variables =</span> <span class="fu">c</span>(<span class="at">population =</span> <span class="st">&quot;B01001_001&quot;</span>), </span>
+<div class="sourceCode" id="cb423"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb423-1"><a href="geographic-analysis.html#cb423-1" aria-hidden="true" tabindex="-1"></a>md_county_population <span class="ot">&lt;-</span> <span class="fu">get_acs</span>(<span class="at">geography =</span> <span class="st">&quot;county&quot;</span>,</span>
+<span id="cb423-2"><a href="geographic-analysis.html#cb423-2" aria-hidden="true" tabindex="-1"></a>              <span class="at">variables =</span> <span class="fu">c</span>(<span class="at">population =</span> <span class="st">&quot;B01001_001&quot;</span>),</span>
 <span id="cb423-3"><a href="geographic-analysis.html#cb423-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">state =</span> <span class="st">&quot;MD&quot;</span>)</span></code></pre></div>
 <pre><code>## Getting data from the 2015-2019 5-year ACS</code></pre>
 <div class="sourceCode" id="cb425"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb425-1"><a href="geographic-analysis.html#cb425-1" aria-hidden="true" tabindex="-1"></a>md_county_population</span></code></pre></div>
@@ -510,8 +501,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ## 10 24021 Frederick County, Maryland    population   251422    NA
 ## # … with 14 more rows</code></pre>
 <p>Ultimately, we’re going to join this county population table with our beds by county table, and then calculate a beds per 100,000 people statistic. But remember, we then want to visualize this data by drawing a county map that helps us pick out trends. Thinking ahead, we know we’ll need a county map shapefile. Fortunately, we can pull this geometry information right from tidycensus at the same time that we pull in the population data by adding “geometry = TRUE” to our get_acs function.</p>
-<div class="sourceCode" id="cb427"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb427-1"><a href="geographic-analysis.html#cb427-1" aria-hidden="true" tabindex="-1"></a>md_county_population <span class="ot">&lt;-</span> <span class="fu">get_acs</span>(<span class="at">geography =</span> <span class="st">&quot;county&quot;</span>, </span>
-<span id="cb427-2"><a href="geographic-analysis.html#cb427-2" aria-hidden="true" tabindex="-1"></a>              <span class="at">variables =</span> <span class="fu">c</span>(<span class="at">population =</span> <span class="st">&quot;B01001_001&quot;</span>), </span>
+<div class="sourceCode" id="cb427"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb427-1"><a href="geographic-analysis.html#cb427-1" aria-hidden="true" tabindex="-1"></a>md_county_population <span class="ot">&lt;-</span> <span class="fu">get_acs</span>(<span class="at">geography =</span> <span class="st">&quot;county&quot;</span>,</span>
+<span id="cb427-2"><a href="geographic-analysis.html#cb427-2" aria-hidden="true" tabindex="-1"></a>              <span class="at">variables =</span> <span class="fu">c</span>(<span class="at">population =</span> <span class="st">&quot;B01001_001&quot;</span>),</span>
 <span id="cb427-3"><a href="geographic-analysis.html#cb427-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">state =</span> <span class="st">&quot;MD&quot;</span>,</span>
 <span id="cb427-4"><a href="geographic-analysis.html#cb427-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">geometry =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 <pre><code>## Getting data from the 2015-2019 5-year ACS</code></pre>
@@ -520,95 +511,17 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   |                                                                            
   |                                                                      |   0%
   |                                                                            
-  |                                                                      |   1%
-  |                                                                            
-  |=                                                                     |   1%
-  |                                                                            
-  |=                                                                     |   2%
-  |                                                                            
-  |==                                                                    |   2%
-  |                                                                            
-  |==                                                                    |   3%
-  |                                                                            
   |===                                                                   |   4%
-  |                                                                            
-  |===                                                                   |   5%
-  |                                                                            
-  |====                                                                  |   5%
-  |                                                                            
-  |====                                                                  |   6%
-  |                                                                            
-  |=====                                                                 |   7%
   |                                                                            
   |=====                                                                 |   8%
   |                                                                            
   |======                                                                |   8%
   |                                                                            
-  |======                                                                |   9%
-  |                                                                            
-  |=======                                                               |   9%
-  |                                                                            
-  |=======                                                               |  10%
-  |                                                                            
-  |=======                                                               |  11%
-  |                                                                            
-  |========                                                              |  11%
-  |                                                                            
   |========                                                              |  12%
-  |                                                                            
-  |=========                                                             |  12%
-  |                                                                            
-  |=========                                                             |  13%
-  |                                                                            
-  |==========                                                            |  14%
-  |                                                                            
-  |==========                                                            |  15%
-  |                                                                            
-  |===========                                                           |  15%
-  |                                                                            
-  |===========                                                           |  16%
-  |                                                                            
-  |============                                                          |  17%
-  |                                                                            
-  |============                                                          |  18%
-  |                                                                            
-  |=============                                                         |  18%
-  |                                                                            
-  |=============                                                         |  19%
-  |                                                                            
-  |==============                                                        |  19%
   |                                                                            
   |==============                                                        |  20%
   |                                                                            
-  |==============                                                        |  21%
-  |                                                                            
-  |===============                                                       |  21%
-  |                                                                            
-  |===============                                                       |  22%
-  |                                                                            
-  |================                                                      |  22%
-  |                                                                            
-  |================                                                      |  23%
-  |                                                                            
-  |=================                                                     |  24%
-  |                                                                            
-  |=================                                                     |  25%
-  |                                                                            
-  |==================                                                    |  25%
-  |                                                                            
-  |==================                                                    |  26%
-  |                                                                            
-  |===================                                                   |  27%
-  |                                                                            
-  |===================                                                   |  28%
-  |                                                                            
   |====================                                                  |  28%
-  |                                                                            
-  |====================                                                  |  29%
-  |                                                                            
-  |=====================                                                 |  29%
-  |                                                                            
-  |=====================                                                 |  30%
   |                                                                            
   |======================                                                |  31%
   |                                                                            
@@ -618,39 +531,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   |                                                                            
   |=======================                                               |  33%
   |                                                                            
-  |========================                                              |  34%
-  |                                                                            
-  |========================                                              |  35%
-  |                                                                            
-  |=========================                                             |  35%
-  |                                                                            
   |=========================                                             |  36%
-  |                                                                            
-  |==========================                                            |  36%
-  |                                                                            
-  |==========================                                            |  37%
-  |                                                                            
-  |==========================                                            |  38%
-  |                                                                            
-  |===========================                                           |  38%
-  |                                                                            
-  |===========================                                           |  39%
   |                                                                            
   |============================                                          |  39%
   |                                                                            
   |============================                                          |  40%
   |                                                                            
-  |============================                                          |  41%
-  |                                                                            
-  |=============================                                         |  41%
-  |                                                                            
-  |=============================                                         |  42%
-  |                                                                            
-  |==============================                                        |  42%
-  |                                                                            
   |==============================                                        |  43%
-  |                                                                            
-  |===============================                                       |  44%
   |                                                                            
   |===============================                                       |  45%
   |                                                                            
@@ -658,35 +545,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   |                                                                            
   |================================                                      |  46%
   |                                                                            
-  |=================================                                     |  47%
-  |                                                                            
-  |=================================                                     |  48%
-  |                                                                            
-  |==================================                                    |  48%
-  |                                                                            
-  |==================================                                    |  49%
-  |                                                                            
-  |===================================                                   |  49%
-  |                                                                            
-  |===================================                                   |  50%
-  |                                                                            
-  |===================================                                   |  51%
-  |                                                                            
-  |====================================                                  |  51%
-  |                                                                            
-  |====================================                                  |  52%
-  |                                                                            
   |=====================================                                 |  52%
-  |                                                                            
-  |=====================================                                 |  53%
-  |                                                                            
-  |======================================                                |  54%
-  |                                                                            
-  |======================================                                |  55%
-  |                                                                            
-  |=======================================                               |  55%
-  |                                                                            
-  |=======================================                               |  56%
   |                                                                            
   |========================================                              |  56%
   |                                                                            
@@ -698,63 +557,35 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   |                                                                            
   |=========================================                             |  59%
   |                                                                            
-  |==========================================                            |  60%
-  |                                                                            
-  |==========================================                            |  61%
-  |                                                                            
   |===========================================                           |  61%
   |                                                                            
   |===========================================                           |  62%
   |                                                                            
-  |============================================                          |  62%
-  |                                                                            
-  |============================================                          |  63%
-  |                                                                            
-  |=============================================                         |  64%
-  |                                                                            
-  |=============================================                         |  65%
-  |                                                                            
-  |==============================================                        |  65%
-  |                                                                            
-  |==============================================                        |  66%
-  |                                                                            
   |===============================================                       |  67%
-  |                                                                            
-  |===============================================                       |  68%
-  |                                                                            
-  |================================================                      |  68%
   |                                                                            
   |================================================                      |  69%
   |                                                                            
-  |=================================================                     |  70%
+  |=================================================                     |  69%
   |                                                                            
-  |=================================================                     |  71%
+  |=================================================                     |  70%
   |                                                                            
   |==================================================                    |  71%
   |                                                                            
   |==================================================                    |  72%
   |                                                                            
-  |===================================================                   |  72%
-  |                                                                            
   |===================================================                   |  73%
   |                                                                            
-  |===================================================                   |  74%
-  |                                                                            
   |====================================================                  |  74%
-  |                                                                            
-  |====================================================                  |  75%
   |                                                                            
   |=====================================================                 |  75%
   |                                                                            
   |=====================================================                 |  76%
   |                                                                            
-  |======================================================                |  76%
-  |                                                                            
   |======================================================                |  77%
   |                                                                            
-  |=======================================================               |  78%
-  |                                                                            
   |=======================================================               |  79%
+  |                                                                            
+  |========================================================              |  79%
   |                                                                            
   |========================================================              |  80%
   |                                                                            
@@ -762,31 +593,15 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   |                                                                            
   |=========================================================             |  81%
   |                                                                            
-  |=========================================================             |  82%
-  |                                                                            
   |==========================================================            |  82%
   |                                                                            
   |==========================================================            |  83%
-  |                                                                            
-  |==========================================================            |  84%
-  |                                                                            
-  |===========================================================           |  84%
   |                                                                            
   |===========================================================           |  85%
   |                                                                            
   |============================================================          |  85%
   |                                                                            
   |============================================================          |  86%
-  |                                                                            
-  |=============================================================         |  87%
-  |                                                                            
-  |=============================================================         |  88%
-  |                                                                            
-  |==============================================================        |  88%
-  |                                                                            
-  |==============================================================        |  89%
-  |                                                                            
-  |===============================================================       |  89%
   |                                                                            
   |===============================================================       |  90%
   |                                                                            
@@ -800,17 +615,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   |                                                                            
   |=================================================================     |  93%
   |                                                                            
-  |==================================================================    |  94%
-  |                                                                            
   |==================================================================    |  95%
   |                                                                            
   |===================================================================   |  95%
-  |                                                                            
-  |===================================================================   |  96%
-  |                                                                            
-  |====================================================================  |  97%
-  |                                                                            
-  |===================================================================== |  98%
   |                                                                            
   |===================================================================== |  99%
   |                                                                            
@@ -942,7 +749,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ## 8        WORCESTER      51765         45 MULTIPOLYGON (((-75.66061 3...
 ## 9           HOWARD     318855        331 MULTIPOLYGON (((-77.18711 3...
 ## 10 PRINCE GEORGE&#39;S     908670        789 MULTIPOLYGON (((-77.07995 3...</code></pre>
-<p>We have two NAs after we join, for Queen Anne’s County and Carolina County. That’s not an error. There are no General Acute Care hospitals in those counties, according to our data (it’s why our beds table has 22 rows, not 24). So let’s convert those values to 0 using replace_na().</p>
+<p>We have two NAs after we join, for Queen Anne’s County and Caroline County. That’s not an error. There are no General Acute Care hospitals in those counties, according to our data (it’s why our beds table has 22 rows, not 24). So let’s convert those values to 0 using replace_na().</p>
 <div class="sourceCode" id="cb443"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb443-1"><a href="geographic-analysis.html#cb443-1" aria-hidden="true" tabindex="-1"></a>md_beds_per_100k <span class="ot">&lt;-</span> md_county_population <span class="sc">%&gt;%</span></span>
 <span id="cb443-2"><a href="geographic-analysis.html#cb443-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(md_beds_by_county) <span class="sc">%&gt;%</span></span>
 <span id="cb443-3"><a href="geographic-analysis.html#cb443-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">total_beds =</span> <span class="fu">replace_na</span>(total_beds,<span class="dv">0</span>))</span></code></pre></div>
@@ -1003,22 +810,22 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ## 10 MULTIPOLYGON (((-76.27737 3...</code></pre>
 <p>Let’s take a look at the result of this table. Baltimore City is still up there at the top, even when measuring by beds per 100k. But there are some surpising ones at the top, some of Maryland’s smallest counties! Allegany, Talbot, Somerset may not have that many beds, but they also don’t have a lot of people.</p>
 <p>Okay, now let’s visualize. We’re going to build a choropleth map, with the color of each county – the fill – set according to the number of beds per 100K on a color gradient.</p>
-<div class="sourceCode" id="cb451"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb451-1"><a href="geographic-analysis.html#cb451-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> </span>
-<span id="cb451-2"><a href="geographic-analysis.html#cb451-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data=</span>md_beds_per_100k, <span class="fu">aes</span>(<span class="at">fill=</span>beds_per_100k)) <span class="sc">+</span> </span>
+<div class="sourceCode" id="cb451"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb451-1"><a href="geographic-analysis.html#cb451-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb451-2"><a href="geographic-analysis.html#cb451-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data=</span>md_beds_per_100k, <span class="fu">aes</span>(<span class="at">fill=</span>beds_per_100k)) <span class="sc">+</span></span>
 <span id="cb451-3"><a href="geographic-analysis.html#cb451-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div>
 <p><img src="datajournalism_files/figure-html/unnamed-chunk-252-1.png" width="672" />
 This map is okay, but the color scale makes it hard to draw fine-grained differences. Let’s try applying the magma color scale we learned in the last chapter.</p>
-<div class="sourceCode" id="cb452"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb452-1"><a href="geographic-analysis.html#cb452-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> </span>
-<span id="cb452-2"><a href="geographic-analysis.html#cb452-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data=</span>md_beds_per_100k, <span class="fu">aes</span>(<span class="at">fill=</span>beds_per_100k)) <span class="sc">+</span> </span>
+<div class="sourceCode" id="cb452"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb452-1"><a href="geographic-analysis.html#cb452-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb452-2"><a href="geographic-analysis.html#cb452-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data=</span>md_beds_per_100k, <span class="fu">aes</span>(<span class="at">fill=</span>beds_per_100k)) <span class="sc">+</span></span>
 <span id="cb452-3"><a href="geographic-analysis.html#cb452-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
-<span id="cb452-4"><a href="geographic-analysis.html#cb452-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_b</span>(<span class="at">option=</span><span class="st">&quot;magma&quot;</span>) </span></code></pre></div>
+<span id="cb452-4"><a href="geographic-analysis.html#cb452-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_b</span>(<span class="at">option=</span><span class="st">&quot;magma&quot;</span>)</span></code></pre></div>
 <p><img src="datajournalism_files/figure-html/unnamed-chunk-253-1.png" width="672" />
 The highest ranking counties stand out nicely in this version, but it’s still hard to make out fine-grained differences between counties.</p>
 <p>So let’s change the color scale to a “log” scale, which will help us see those differences a bit more clearly.</p>
-<div class="sourceCode" id="cb453"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb453-1"><a href="geographic-analysis.html#cb453-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> </span>
-<span id="cb453-2"><a href="geographic-analysis.html#cb453-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data=</span>md_beds_per_100k, <span class="fu">aes</span>(<span class="at">fill=</span>beds_per_100k)) <span class="sc">+</span> </span>
+<div class="sourceCode" id="cb453"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb453-1"><a href="geographic-analysis.html#cb453-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb453-2"><a href="geographic-analysis.html#cb453-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data=</span>md_beds_per_100k, <span class="fu">aes</span>(<span class="at">fill=</span>beds_per_100k)) <span class="sc">+</span></span>
 <span id="cb453-3"><a href="geographic-analysis.html#cb453-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
-<span id="cb453-4"><a href="geographic-analysis.html#cb453-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_b</span>(<span class="at">option=</span><span class="st">&quot;magma&quot;</span>,<span class="at">trans =</span> <span class="st">&quot;log&quot;</span>) </span></code></pre></div>
+<span id="cb453-4"><a href="geographic-analysis.html#cb453-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_b</span>(<span class="at">option=</span><span class="st">&quot;magma&quot;</span>,<span class="at">trans =</span> <span class="st">&quot;log&quot;</span>)</span></code></pre></div>
 <pre><code>## Warning: Transformation introduced infinite values in discrete y-axis</code></pre>
 <p><img src="datajournalism_files/figure-html/unnamed-chunk-254-1.png" width="672" />
 Some interesting regional patterns finally emerge.</p>
@@ -1035,7 +842,6 @@ Some interesting regional patterns finally emerge.</p>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
-<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
 <script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
@@ -1076,7 +882,7 @@ gitbook.start({
 },
 "download": ["datajournalism.pdf", "datajournalism.epub"],
 "search": {
-"engine": "lunr",
+"engine": "fuse",
 "options": null
 },
 "toc": {

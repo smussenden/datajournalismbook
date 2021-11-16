@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>Chapter 16 Advanced rvest | Data Journalism with R and the Tidyverse</title>
   <meta name="description" content="This is a book built on a very opinionated philosophy for journalism students doing data journalism in R with replicable methods." />
-  <meta name="generator" content="bookdown 0.23 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
 
   <meta property="og:title" content="Chapter 16 Advanced rvest | Data Journalism with R and the Tidyverse" />
   <meta property="og:type" content="book" />
@@ -24,7 +24,7 @@
 <meta name="author" content="Matt Waite (original author); updated by Derek Willis and Sean Mussenden" />
 
 
-<meta name="date" content="2021-11-07" />
+<meta name="date" content="2021-11-16" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -35,6 +35,7 @@
 <link rel="next" href="intro-to-apis-the-census.html"/>
 <script src="libs/header-attrs-2.10/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
@@ -50,17 +51,8 @@
 
 
 
-
 <link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
 <script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
-<script src="libs/htmlwidgets-1.5.3/htmlwidgets.js"></script>
-<link href="libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
-<script src="libs/datatables-binding-0.18/datatables.js"></script>
-<link href="libs/dt-core-1.10.20/css/jquery.dataTables.min.css" rel="stylesheet" />
-<link href="libs/dt-core-1.10.20/css/jquery.dataTables.extra.css" rel="stylesheet" />
-<script src="libs/dt-core-1.10.20/js/jquery.dataTables.min.js"></script>
-<link href="libs/crosstalk-1.1.1/css/crosstalk.css" rel="stylesheet" />
-<script src="libs/crosstalk-1.1.1/js/crosstalk.min.js"></script>
 <!-- Global site tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-160712129-1"></script>
 <script>
@@ -264,11 +256,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="21" data-path="geographic-analysis.html"><a href="geographic-analysis.html"><i class="fa fa-check"></i><b>21</b> Geographic analysis</a></li>
 <li class="chapter" data-level="22" data-path="automating-analysis.html"><a href="automating-analysis.html"><i class="fa fa-check"></i><b>22</b> Automating analysis</a>
 <ul>
-<li class="chapter" data-level="22.1" data-path="automating-analysis.html"><a href="automating-analysis.html#automating-downloads-an-imports"><i class="fa fa-check"></i><b>22.1</b> Automating downloads an imports</a></li>
+<li class="chapter" data-level="22.1" data-path="automating-analysis.html"><a href="automating-analysis.html#automating-downloads-and-imports"><i class="fa fa-check"></i><b>22.1</b> Automating downloads and imports</a></li>
 <li class="chapter" data-level="22.2" data-path="automating-analysis.html"><a href="automating-analysis.html#exploring-the-data"><i class="fa fa-check"></i><b>22.2</b> Exploring the data</a></li>
 <li class="chapter" data-level="22.3" data-path="automating-analysis.html"><a href="automating-analysis.html#analysis"><i class="fa fa-check"></i><b>22.3</b> Analysis</a></li>
 <li class="chapter" data-level="22.4" data-path="automating-analysis.html"><a href="automating-analysis.html#making-updating-graphics"><i class="fa fa-check"></i><b>22.4</b> Making updating graphics</a></li>
-<li class="chapter" data-level="22.5" data-path="automating-analysis.html"><a href="automating-analysis.html#the-state-vs-the-feds"><i class="fa fa-check"></i><b>22.5</b> The State vs the Feds</a></li>
 </ul></li>
 <li class="chapter" data-level="23" data-path="automating-geographic-analysis.html"><a href="automating-geographic-analysis.html"><i class="fa fa-check"></i><b>23</b> Automating geographic analysis</a>
 <ul>
@@ -377,14 +368,14 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ## 20 92     Public Administration</code></pre>
 <p>We’ll use this table to help us get to our end goal: a single dataframe with the number of employees in each industry sector.</p>
 <p>It will look like this when we’re done.</p>
-<p><img src="images/advrvest1a.png" width="588" /></p>
+<p><img src="images/advrvest1a.png" /><!-- --></p>
 <p>Unfortunately, that information doesn’t exist in a single tidy table on a single page we can scrape all at once. We’re going to have to scrape it from lots of different pages, and build it ourselves.</p>
 <p>Let’s next take a look at the web page that has detailed employment information for one of our sectors, 22, Mining, Quarrying, and Oil and Gas Extraction.</p>
 <p>We can find it here: <a href="https://www.bls.gov/iag/tgs/iag22.htm">https://www.bls.gov/iag/tgs/iag22.htm</a>.</p>
 <p>A few scrolls down the page, there’s a table that has employee statistics.</p>
 <p>The table is called “Employment and Unemployment.” There’s a row in the tabled for “Employment, all employees (seasonally adjusted).” And in that row, there’s a value for the number of employees – in thousands – in June 2021.</p>
 <p>The table shows that for the mining sector, it was 538.6 – or 538,600 – in June 2021. That’s the value we want to ingest in R.</p>
-<p><img src="images/advrvest1.png" width="1078" /></p>
+<p><img src="images/advrvest1.png" /><!-- --></p>
 <p>We don’t just want it for mining. We want it for all sectors!</p>
 <p>But we’ll start by writing code just to get it from this one sector page, then modify that code to get it from every sector’s page</p>
 <p>First, let’s define the URL of the page we want to get the information from.</p>
@@ -408,7 +399,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>We can use the web inspector in our web browser (Chrome) to figure out where the table is located.</p>
 <p>Go to the web page and right click on the word “Data Series” in the table, then pick “inspect” to pull up the menu.</p>
 <p>Notice two things. First, all of this information is contained in a proper html <code>&lt;table&gt;</code>. And that table has an id property of “iag22emp1.” Designers use these IDs to help style the page, to target certain elements with CSS. We can use it to scrape.</p>
-<p><img src="images/advrvest2.png" width="1071" />
+<p><img src="images/advrvest2.png" /><!-- -->
 Recall that in the last chapter, when we used the html_table() function, it pulled in every single table on the page, six in total.</p>
 <p>Here, we can use that id property to pick out just the table we want, and leave all the others behind.
 We do that with a new function from rvest called html_element(), employing a bit of information about that element stored in what’s called the <a href="https://en.wikipedia.org/wiki/XPath">xpath</a>. Xpath is a query language that helps us write programs that target specific parts of web pages.</p>
@@ -1030,9 +1021,9 @@ First, we need to build a list of URLs to loop through in a “for loop.” We c
 ##  4 Unemployment          &quot;&quot;          &quot;&quot;         &quot;&quot;         &quot;&quot;         &quot;&quot;        
 ##  5 Unemployment rate     &quot;&quot;          &quot;6.1%&quot;     &quot;4.6%&quot;     &quot;4.5%&quot;     &quot;4.0%&quot;    
 ##  6 Job openings, hires,… &quot;&quot;          &quot;&quot;         &quot;&quot;         &quot;&quot;         &quot;&quot;        
-##  7 Job openings          &quot;&quot;          &quot;377&quot;      &quot;(p)365&quot;   &quot;&quot;         &quot;&quot;        
-##  8 Hires                 &quot;&quot;          &quot;430&quot;      &quot;(p)381&quot;   &quot;&quot;         &quot;&quot;        
-##  9 Separations           &quot;&quot;          &quot;402&quot;      &quot;(p)431&quot;   &quot;&quot;         &quot;&quot;        
+##  7 Job openings          &quot;&quot;          &quot;377&quot;      &quot;384&quot;      &quot;(p)316&quot;   &quot;&quot;        
+##  8 Hires                 &quot;&quot;          &quot;430&quot;      &quot;395&quot;      &quot;(p)341&quot;   &quot;&quot;        
+##  9 Separations           &quot;&quot;          &quot;402&quot;      &quot;439&quot;      &quot;(p)336&quot;   &quot;&quot;        
 ## 10 Footnotes(p) Prelimi… &quot;Footnotes… &quot;Footnote… &quot;Footnote… &quot;Footnote… &quot;Footnote…
 ## 
 ## [[1]]
@@ -1045,9 +1036,9 @@ First, we need to build a list of URLs to loop through in a “for loop.” We c
 ##  4 Unemployment          &quot;&quot;          &quot;&quot;         &quot;&quot;         &quot;&quot;         &quot;&quot;        
 ##  5 Unemployment rate     &quot;&quot;          &quot;4.2%&quot;     &quot;3.6%&quot;     &quot;3.9%&quot;     &quot;3.3%&quot;    
 ##  6 Job openings, hires,… &quot;&quot;          &quot;&quot;         &quot;&quot;         &quot;&quot;         &quot;&quot;        
-##  7 Job openings          &quot;&quot;          &quot;974&quot;      &quot;(p)892&quot;   &quot;&quot;         &quot;&quot;        
-##  8 Hires                 &quot;&quot;          &quot;526&quot;      &quot;(p)515&quot;   &quot;&quot;         &quot;&quot;        
-##  9 Separations           &quot;&quot;          &quot;452&quot;      &quot;(p)518&quot;   &quot;&quot;         &quot;&quot;        
+##  7 Job openings          &quot;&quot;          &quot;974&quot;      &quot;889&quot;      &quot;(p)899&quot;   &quot;&quot;        
+##  8 Hires                 &quot;&quot;          &quot;526&quot;      &quot;518&quot;      &quot;(p)504&quot;   &quot;&quot;        
+##  9 Separations           &quot;&quot;          &quot;452&quot;      &quot;527&quot;      &quot;(p)479&quot;   &quot;&quot;        
 ## 10 Footnotes(p) Prelimi… &quot;Footnotes… &quot;Footnote… &quot;Footnote… &quot;Footnote… &quot;Footnote…
 ## 
 ## [[1]]
@@ -1060,9 +1051,9 @@ First, we need to build a list of URLs to loop through in a “for loop.” We c
 ##  4 Unemployment          &quot;&quot;          &quot;&quot;         &quot;&quot;         &quot;&quot;         &quot;&quot;        
 ##  5 Unemployment rate     &quot;&quot;          &quot;4.6%&quot;     &quot;4.3%&quot;     &quot;3.7%&quot;     &quot;4.2%&quot;    
 ##  6 Job openings, hires,… &quot;&quot;          &quot;&quot;         &quot;&quot;         &quot;&quot;         &quot;&quot;        
-##  7 Job openings          &quot;&quot;          &quot;291&quot;      &quot;(p)263&quot;   &quot;&quot;         &quot;&quot;        
-##  8 Hires                 &quot;&quot;          &quot;199&quot;      &quot;(p)201&quot;   &quot;&quot;         &quot;&quot;        
-##  9 Separations           &quot;&quot;          &quot;177&quot;      &quot;(p)215&quot;   &quot;&quot;         &quot;&quot;        
+##  7 Job openings          &quot;&quot;          &quot;291&quot;      &quot;261&quot;      &quot;(p)320&quot;   &quot;&quot;        
+##  8 Hires                 &quot;&quot;          &quot;199&quot;      &quot;203&quot;      &quot;(p)197&quot;   &quot;&quot;        
+##  9 Separations           &quot;&quot;          &quot;177&quot;      &quot;220&quot;      &quot;(p)175&quot;   &quot;&quot;        
 ## 10 Footnotes(p) Prelimi… &quot;Footnotes… &quot;Footnote… &quot;Footnote… &quot;Footnote… &quot;Footnote…
 ## 
 ## [[1]]
@@ -1075,9 +1066,9 @@ First, we need to build a list of URLs to loop through in a “for loop.” We c
 ##  4 Unemployment          &quot;&quot;          &quot;&quot;         &quot;&quot;         &quot;&quot;         &quot;&quot;        
 ##  5 Unemployment rate     &quot;&quot;          &quot;6.4%&quot;     &quot;6.5%&quot;     &quot;6.1%&quot;     &quot;5.4%&quot;    
 ##  6 Job openings, hires,… &quot;&quot;          &quot;&quot;         &quot;&quot;         &quot;&quot;         &quot;&quot;        
-##  7 Job openings          &quot;&quot;          &quot;1,245&quot;    &quot;(p)1,324&quot; &quot;&quot;         &quot;&quot;        
-##  8 Hires                 &quot;&quot;          &quot;905&quot;      &quot;(p)987&quot;   &quot;&quot;         &quot;&quot;        
-##  9 Separations           &quot;&quot;          &quot;913&quot;      &quot;(p)1,097&quot; &quot;&quot;         &quot;&quot;        
+##  7 Job openings          &quot;&quot;          &quot;1,245&quot;    &quot;1,346&quot;    &quot;(p)1,231&quot; &quot;&quot;        
+##  8 Hires                 &quot;&quot;          &quot;905&quot;      &quot;1,010&quot;    &quot;(p)892&quot;   &quot;&quot;        
+##  9 Separations           &quot;&quot;          &quot;913&quot;      &quot;1,100&quot;    &quot;(p)843&quot;   &quot;&quot;        
 ## 10 Footnotes(p) Prelimi… &quot;Footnotes… &quot;Footnote… &quot;Footnote… &quot;Footnote… &quot;Footnote…
 ## 
 ## [[1]]
@@ -1101,9 +1092,9 @@ First, we need to build a list of URLs to loop through in a “for loop.” We c
 ##  4 Unemployment          &quot;&quot;          &quot;&quot;         &quot;&quot;         &quot;&quot;         &quot;&quot;        
 ##  5 Unemployment rate     &quot;&quot;          &quot;5.6%&quot;     &quot;4.4%&quot;     &quot;4.0%&quot;     &quot;3.5%&quot;    
 ##  6 Job openings, hires,… &quot;&quot;          &quot;&quot;         &quot;&quot;         &quot;&quot;         &quot;&quot;        
-##  7 Job openings          &quot;&quot;          &quot;181&quot;      &quot;(p)161&quot;   &quot;&quot;         &quot;&quot;        
-##  8 Hires                 &quot;&quot;          &quot;106&quot;      &quot;(p)101&quot;   &quot;&quot;         &quot;&quot;        
-##  9 Separations           &quot;&quot;          &quot;85&quot;       &quot;(p)93&quot;    &quot;&quot;         &quot;&quot;        
+##  7 Job openings          &quot;&quot;          &quot;181&quot;      &quot;193&quot;      &quot;(p)243&quot;   &quot;&quot;        
+##  8 Hires                 &quot;&quot;          &quot;106&quot;      &quot;112&quot;      &quot;(p)113&quot;   &quot;&quot;        
+##  9 Separations           &quot;&quot;          &quot;85&quot;       &quot;91&quot;       &quot;(p)72&quot;    &quot;&quot;        
 ## 10 Footnotes(p) Prelimi… &quot;Footnotes… &quot;Footnote… &quot;Footnote… &quot;Footnote… &quot;Footnote…
 ## 
 ## [[1]]
@@ -1115,9 +1106,9 @@ First, we need to build a list of URLs to loop through in a “for loop.” We c
 ## 3 Unemployment        &quot;&quot;          &quot;&quot;          &quot;&quot;          &quot;&quot;          &quot;&quot;        
 ## 4 Unemployment rate   &quot;&quot;          &quot;3.1%&quot;      &quot;3.5%&quot;      &quot;2.0%&quot;      &quot;1.8%&quot;    
 ## 5 Job openings, hire… &quot;&quot;          &quot;&quot;          &quot;&quot;          &quot;&quot;          &quot;&quot;        
-## 6 Job openings        &quot;&quot;          &quot;354&quot;       &quot;(p)310&quot;    &quot;&quot;          &quot;&quot;        
-## 7 Hires               &quot;&quot;          &quot;164&quot;       &quot;(p)141&quot;    &quot;&quot;          &quot;&quot;        
-## 8 Separations         &quot;&quot;          &quot;140&quot;       &quot;(p)174&quot;    &quot;&quot;          &quot;&quot;        
+## 6 Job openings        &quot;&quot;          &quot;354&quot;       &quot;285&quot;       &quot;(p)298&quot;    &quot;&quot;        
+## 7 Hires               &quot;&quot;          &quot;164&quot;       &quot;134&quot;       &quot;(p)193&quot;    &quot;&quot;        
+## 8 Separations         &quot;&quot;          &quot;140&quot;       &quot;173&quot;       &quot;(p)191&quot;    &quot;&quot;        
 ## 9 Footnotes(p) Preli… &quot;Footnotes… &quot;Footnotes… &quot;Footnotes… &quot;Footnotes… &quot;Footnote…
 ## 
 ## [[1]]
@@ -1129,9 +1120,9 @@ First, we need to build a list of URLs to loop through in a “for loop.” We c
 ## 3 Unemployment        &quot;&quot;          &quot;&quot;          &quot;&quot;          &quot;&quot;          &quot;&quot;        
 ## 4 Unemployment rate   &quot;&quot;          &quot;2.8%&quot;      &quot;2.6%&quot;      &quot;3.8%&quot;      &quot;2.2%&quot;    
 ## 5 Job openings, hire… &quot;&quot;          &quot;&quot;          &quot;&quot;          &quot;&quot;          &quot;&quot;        
-## 6 Job openings        &quot;&quot;          &quot;199&quot;       &quot;(p)167&quot;    &quot;&quot;          &quot;&quot;        
-## 7 Hires               &quot;&quot;          &quot;89&quot;        &quot;(p)74&quot;     &quot;&quot;          &quot;&quot;        
-## 8 Separations         &quot;&quot;          &quot;82&quot;        &quot;(p)71&quot;     &quot;&quot;          &quot;&quot;        
+## 6 Job openings        &quot;&quot;          &quot;199&quot;       &quot;183&quot;       &quot;(p)112&quot;    &quot;&quot;        
+## 7 Hires               &quot;&quot;          &quot;89&quot;        &quot;79&quot;        &quot;(p)68&quot;     &quot;&quot;        
+## 8 Separations         &quot;&quot;          &quot;82&quot;        &quot;81&quot;        &quot;(p)57&quot;     &quot;&quot;        
 ## 9 Footnotes(p) Preli… &quot;Footnotes… &quot;Footnotes… &quot;Footnotes… &quot;Footnotes… &quot;Footnote…
 ## 
 ## [[1]]
@@ -1172,9 +1163,9 @@ First, we need to build a list of URLs to loop through in a “for loop.” We c
 ## 3 Unemployment        &quot;&quot;          &quot;&quot;          &quot;&quot;          &quot;&quot;          &quot;&quot;        
 ## 4 Unemployment rate   &quot;&quot;          &quot;6.7%&quot;      &quot;6.1%&quot;      &quot;3.9%&quot;      &quot;3.0%&quot;    
 ## 5 Job openings, hire… &quot;&quot;          &quot;&quot;          &quot;&quot;          &quot;&quot;          &quot;&quot;        
-## 6 Job openings        &quot;&quot;          &quot;221&quot;       &quot;(p)184&quot;    &quot;&quot;          &quot;&quot;        
-## 7 Hires               &quot;&quot;          &quot;143&quot;       &quot;(p)209&quot;    &quot;&quot;          &quot;&quot;        
-## 8 Separations         &quot;&quot;          &quot;88&quot;        &quot;(p)127&quot;    &quot;&quot;          &quot;&quot;        
+## 6 Job openings        &quot;&quot;          &quot;221&quot;       &quot;188&quot;       &quot;(p)129&quot;    &quot;&quot;        
+## 7 Hires               &quot;&quot;          &quot;143&quot;       &quot;213&quot;       &quot;(p)109&quot;    &quot;&quot;        
+## 8 Separations         &quot;&quot;          &quot;88&quot;        &quot;116&quot;       &quot;(p)89&quot;     &quot;&quot;        
 ## 9 Footnotes(p) Preli… &quot;Footnotes… &quot;Footnotes… &quot;Footnotes… &quot;Footnotes… &quot;Footnote…
 ## 
 ## [[1]]
@@ -1187,9 +1178,9 @@ First, we need to build a list of URLs to loop through in a “for loop.” We c
 ##  4 Unemployment        &quot;&quot;          &quot;&quot;          &quot;&quot;          &quot;&quot;         &quot;&quot;        
 ##  5 Unemployment rate   &quot;&quot;          &quot;3.8%&quot;      &quot;3.9%&quot;      &quot;3.1%&quot;     &quot;2.7%&quot;    
 ##  6 Job openings, hire… &quot;&quot;          &quot;&quot;          &quot;&quot;          &quot;&quot;         &quot;&quot;        
-##  7 Job openings        &quot;&quot;          &quot;1,813&quot;     &quot;(p)1,541&quot;  &quot;&quot;         &quot;&quot;        
-##  8 Hires               &quot;&quot;          &quot;763&quot;       &quot;(p)763&quot;    &quot;&quot;         &quot;&quot;        
-##  9 Separations         &quot;&quot;          &quot;728&quot;       &quot;(p)720&quot;    &quot;&quot;         &quot;&quot;        
+##  7 Job openings        &quot;&quot;          &quot;1,813&quot;     &quot;1,565&quot;     &quot;(p)1,702&quot; &quot;&quot;        
+##  8 Hires               &quot;&quot;          &quot;763&quot;       &quot;764&quot;       &quot;(p)800&quot;   &quot;&quot;        
+##  9 Separations         &quot;&quot;          &quot;728&quot;       &quot;722&quot;       &quot;(p)768&quot;   &quot;&quot;        
 ## 10 Footnotes(p) Preli… &quot;Footnotes… &quot;Footnotes… &quot;Footnotes… &quot;Footnote… &quot;Footnote…
 ## 
 ## [[1]]
@@ -1202,9 +1193,9 @@ First, we need to build a list of URLs to loop through in a “for loop.” We c
 ##  4 Unemployment        &quot;&quot;          &quot;&quot;          &quot;&quot;          &quot;&quot;         &quot;&quot;        
 ##  5 Unemployment rate   &quot;&quot;          &quot;8.3%&quot;      &quot;7.7%&quot;      &quot;7.2%&quot;     &quot;6.5%&quot;    
 ##  6 Job openings, hire… &quot;&quot;          &quot;&quot;          &quot;&quot;          &quot;&quot;         &quot;&quot;        
-##  7 Job openings        &quot;&quot;          &quot;234&quot;       &quot;(p)206&quot;    &quot;&quot;         &quot;&quot;        
-##  8 Hires               &quot;&quot;          &quot;199&quot;       &quot;(p)148&quot;    &quot;&quot;         &quot;&quot;        
-##  9 Separations         &quot;&quot;          &quot;119&quot;       &quot;(p)219&quot;    &quot;&quot;         &quot;&quot;        
+##  7 Job openings        &quot;&quot;          &quot;234&quot;       &quot;218&quot;       &quot;(p)184&quot;   &quot;&quot;        
+##  8 Hires               &quot;&quot;          &quot;199&quot;       &quot;151&quot;       &quot;(p)159&quot;   &quot;&quot;        
+##  9 Separations         &quot;&quot;          &quot;119&quot;       &quot;212&quot;       &quot;(p)249&quot;   &quot;&quot;        
 ## 10 Footnotes(p) Preli… &quot;Footnotes… &quot;Footnotes… &quot;Footnotes… &quot;Footnote… &quot;Footnote…
 ## 
 ## [[1]]
@@ -1217,9 +1208,9 @@ First, we need to build a list of URLs to loop through in a “for loop.” We c
 ##  4 Unemployment        &quot;&quot;          &quot;&quot;          &quot;&quot;          &quot;&quot;         &quot;&quot;        
 ##  5 Unemployment rate   &quot;&quot;          &quot;9.2%&quot;      &quot;9.4%&quot;      &quot;7.8%&quot;     &quot;7.7%&quot;    
 ##  6 Job openings, hire… &quot;&quot;          &quot;&quot;          &quot;&quot;          &quot;&quot;         &quot;&quot;        
-##  7 Job openings        &quot;&quot;          &quot;1,793&quot;     &quot;(p)1,541&quot;  &quot;&quot;         &quot;&quot;        
-##  8 Hires               &quot;&quot;          &quot;1,443&quot;     &quot;(p)1,141&quot;  &quot;&quot;         &quot;&quot;        
-##  9 Separations         &quot;&quot;          &quot;1,005&quot;     &quot;(p)1,280&quot;  &quot;&quot;         &quot;&quot;        
+##  7 Job openings        &quot;&quot;          &quot;1,793&quot;     &quot;1,518&quot;     &quot;(p)1,394&quot; &quot;&quot;        
+##  8 Hires               &quot;&quot;          &quot;1,443&quot;     &quot;1,135&quot;     &quot;(p)1,002&quot; &quot;&quot;        
+##  9 Separations         &quot;&quot;          &quot;1,005&quot;     &quot;1,278&quot;     &quot;(p)1,169&quot; &quot;&quot;        
 ## 10 Footnotes(p) Preli… &quot;Footnotes… &quot;Footnotes… &quot;Footnotes… &quot;Footnote… &quot;Footnote…
 ## 
 ## [[1]]
@@ -1232,9 +1223,9 @@ First, we need to build a list of URLs to loop through in a “for loop.” We c
 ##  4 Unemployment          &quot;&quot;          &quot;&quot;         &quot;&quot;         &quot;&quot;         &quot;&quot;        
 ##  5 Unemployment rate     &quot;&quot;          &quot;4.9%&quot;     &quot;5.0%&quot;     &quot;4.2%&quot;     &quot;3.5%&quot;    
 ##  6 Job openings, hires,… &quot;&quot;          &quot;&quot;         &quot;&quot;         &quot;&quot;         &quot;&quot;        
-##  7 Job openings          &quot;&quot;          &quot;501&quot;      &quot;(p)499&quot;   &quot;&quot;         &quot;&quot;        
-##  8 Hires                 &quot;&quot;          &quot;327&quot;      &quot;(p)250&quot;   &quot;&quot;         &quot;&quot;        
-##  9 Separations           &quot;&quot;          &quot;275&quot;      &quot;(p)234&quot;   &quot;&quot;         &quot;&quot;        
+##  7 Job openings          &quot;&quot;          &quot;501&quot;      &quot;500&quot;      &quot;(p)382&quot;   &quot;&quot;        
+##  8 Hires                 &quot;&quot;          &quot;327&quot;      &quot;243&quot;      &quot;(p)239&quot;   &quot;&quot;        
+##  9 Separations           &quot;&quot;          &quot;275&quot;      &quot;239&quot;      &quot;(p)304&quot;   &quot;&quot;        
 ## 10 Footnotes(p) Prelimi… &quot;Footnotes… &quot;Footnote… &quot;Footnote… &quot;Footnote… &quot;Footnote…</code></pre>
 <p>In this next step, we use employment_info &lt;- employment_info[[1]] to extract each dataframe from the nested list. Then we’ll tidy up the dataframe a bit. We’ll use the get rid of all the information we don’t need in the table, by using slice() to keep only the second row. We’ll also standardize the column names with clean_names().</p>
 <div class="sourceCode" id="cb315"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb315-1"><a href="advanced-rvest.html#cb315-1" aria-hidden="true" tabindex="-1"></a><span class="co"># For loop, iterating over each row in our naics industry dataframe</span></span>
@@ -1653,9 +1644,9 @@ First, we need to build a list of URLs to loop through in a “for loop.” We c
 <p>The value for “Agriculture, Forestry, Fishing and Hunting” seems suspiciously low, compared with the other values.</p>
 <p>Let’s figure out why.</p>
 <p>Here’s the table on the mining sector page: <a href="https://www.bls.gov/iag/tgs/iag21.htm">https://www.bls.gov/iag/tgs/iag21.htm</a></p>
-<p><img src="images/advrvest3.png" width="883" />
+<p><img src="images/advrvest3.png" /><!-- -->
 And here’s the table for the agriculture sector.</p>
-<p><img src="images/advrvest4.png" width="872" />
+<p><img src="images/advrvest4.png" /><!-- -->
 Unlike mining – and every other sector page (I checked each page) – the agriculture page is structured differently.</p>
 <p>In the second row of this table, it has the unemployment rate. Nowhere on the page can we find information on the number of employees. We would need to do additional research to track down a valid number if we plan on using this table, but for now we’re going to replace it with an NA using na_if.</p>
 <div class="sourceCode" id="cb323"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb323-1"><a href="advanced-rvest.html#cb323-1" aria-hidden="true" tabindex="-1"></a><span class="co"># remove the suspicious value for agriculture. </span></span>
@@ -1701,7 +1692,6 @@ Unlike mining – and every other sector page (I checked each page) – the agri
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
-<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
 <script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
@@ -1742,7 +1732,7 @@ gitbook.start({
 },
 "download": ["datajournalism.pdf", "datajournalism.epub"],
 "search": {
-"engine": "lunr",
+"engine": "fuse",
 "options": null
 },
 "toc": {
