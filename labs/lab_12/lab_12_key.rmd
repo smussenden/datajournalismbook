@@ -36,20 +36,20 @@ census_api_key("549950d36c22ff16455fe196bbbd01d63cfbe6cf")
 
 ## Questions
 
-**Q1.** You are interested in tracking vaccinations by age group, and in particular how many children are being vaccinated over time. Using [CSV data posted by the state](https://raw.githubusercontent.com/state-of-maryland/VaccineCSVs/master/MD_COVID19_VaccinationPercentAgeGroupPopulation.csv), making the column names more readable and ensuring each day is formatted as a date column that only contains the date, not a time.
+**Q1.** You are interested in tracking vaccinations by age group, and in particular how many children are being vaccinated over time. You want to generate a sentence that describes the daily change in vaccinations among children between 5-11 years old, and also compares it to the most recent same day of the week.
 
-Then do the following:
+Using [CSV data posted by the state](https://raw.githubusercontent.com/state-of-maryland/VaccineCSVs/master/MD_COVID19_VaccinationPercentAgeGroupPopulation.csv), making the column names more readable and ensuring each day is formatted as a date column that only contains the date, not a time.
 
-1. Create a dataframe for the under-12 age group that contain data from the first 15 days after vaccines were made available to the general population. To do this, you will need to find the dates when that age group became eligible for vaccination in Maryland. Remember: this is for the first 15 days of availability to the general population, not specific types of individuals within an age group.
-2. Draw a line chart using ggplot showing the number of first-dose vaccinations by date for the under-12 age group. Add points for each date and label them with the number of first-dose vaccinations.
-3. Write a sentence describing what you see on the chart. What story does it tell?
-4. Add a column to your dataframe that adds the day of the week to it. 
+Then write code that will construct the sentence about the data described above comparing the most recent data to the previous date and the most recent date for the same day of the week. To do that, you will need:
 
-Maybe just do under 12 and check to see whether the most recent data is larger/smaller than previous day, and why that might be? Check against previous same day of the week.
+1. A dataframe with vaccination data for the under-12 age group.
+2. A column in your dataframe that contains the day of the week that each date represents (you may need to google how to do that).
+3. Data from the previous day and the most recent same day of the week.
+3. A template for your sentence.
 
-How do the two charts compare right now? Write a sentence describing each chart.
+In addition, draw a line chart using ggplot showing the number of first-dose vaccinations by date for the under-12 age group. Add points for each date and label them with the number of first-dose vaccinations. Write a sentence describing what you see on the chart. What story does it tell?
 
-**A1.** The initial rush for vaccinations for the under-12 set looks pretty different from the 12-17 age group, which has a more uneven look early on. For the under-12 group, there's a steady rise in vaccinations in the first week before the numbers begin to tail off. For 12-17, the figures begin at a much higher level but then fluctuate a lot, dropping below 5,000 a day for most of the end of May.
+**A1.** 
 
 ```{r}
 
@@ -64,83 +64,42 @@ vaccinations_by_age <- vaccinations_by_age %>%
 
 under_12 <- vaccinations_by_age %>%
   filter(age_range == '11 and Under') %>%
-  arrange(vaccination_date) %>%
-  slice(1:15)
+  arrange(vaccination_date)
 
-twelve_to_seventeen <- vaccinations_by_age %>%
-  filter(age_range == '12-17', vaccination_date >= '2021-05-14') %>%
-  arrange(vaccination_date) %>%
-  slice(1:15)
+under_12 <- under_12 %>%
+  mutate(day_of_week = weekdays(vaccination_date))
+
+previous_day <- under_12
+
 
 under_12 %>%
-  ggplot() + 
+  ggplot() +
   geom_line(aes(x=vaccination_date, y=first_daily_dose)) +
   geom_point(aes(x=vaccination_date, y=first_daily_dose)) +
   geom_text(aes(x=vaccination_date, y=first_daily_dose, label=first_daily_dose), hjust=1)
 
-twelve_to_seventeen %>%
-  ggplot() + 
-  geom_line(aes(x=vaccination_date, y=first_daily_dose)) +
-  geom_point(aes(x=vaccination_date, y=first_daily_dose)) +
-  geom_text(aes(x=vaccination_date, y=first_daily_dose, label=first_daily_dose), hjust=1)
+
 ```
 
-**Q2.** Using the initial dataframe you created from the CSV file,  
+**Q2.** How does Prince George's County fare in vaccinating 5-11 year-olds compared to Montgomery County? Create a chart showing the daily difference between the two counties, and provide automated labels and text describing the latest date's difference. 
 
-**A2.** It's pretty similar.  There's a big cluster of mines in the southern part of the state, and most of them are in the southwest-northeast seam we identified previously.
+**A2.** 
 
 ```{r}
 
-# Read in the data
-wv_mine_locations <-st_read("https://tagis.dep.wv.gov/arcgis/rest/services/WVDEP_enterprise/mining_reclamation/MapServer/0/query?where=1%3D1&outFields=*&geometry=&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outSR=4326&f=json")
-
-# Filter for only active mines based on expire date
-wv_active_mine_locations <- wv_mine_locations  %>%
-  mutate(expiredate = ymd(expiredate)) %>%
-  filter(expiredate > "2021-09-01")
-
-# Get a counties table from Tigris
-wv_counties <- counties() %>%
-  filter(STATEFP == "54")
-
-# Make a map
-ggplot() +
-  geom_sf(data=wv_counties) +
-  geom_sf(data=wv_active_mine_locations) +
-  theme_minimal()
-
 ```
-Q3. To confirm the spatial comparison you identified in question 2, let's create a new map that layers the mine location points on top of our PPP choropleth map we created in question 1. What do you notice about the amount of mines in the county that has the highest total loan amount per 100K?
 
-A3. The county (the only one in yellow) doesn't appear to be in a part of West Virginia with a lot of mines.
+**Q3.** 
+
+**A3.**
 
 ```{r}
 
-ggplot() +
-  geom_sf(data=wv_mining_population, aes(fill=amount_per_100k)) +
-  geom_sf(data=wv_active_mine_locations) +
-  theme_minimal() +
-  scale_fill_viridis_b(option="magma", trans="log")
-
 ```
-Q4. Starting from the original WV ppp dataframe, examine the loans to companies in "Mining, Quarrying, and Oil and Gas Extraction" in the county with the highest total loan amount per 100K (you can use the table you created in question 1 to identify the top county). Answer the following questions:
+**Q4.** 
 
-* What single company accounts for the biggest chunk of the total loan amount?
-* What specific industry are they in, based on their 6-digit NAICS code? Look them up on the web. What services do they provide?
-* How many jobs did they save, according to the data?
-* What's your hypothesis for why a company in their specific industry would need to seek a PPP loan during the pandemic?
-
-A4. Hall Drilling, Inc. (https://www.halldrilling.com/) got a loan of $6.8 million.  They are "Drilling Oil and Gas Wells" service company.  They help people frack and extract oil and natural gas from the ground. This type of energy extraction has grown over the last decade, even as coal mining in the state has declined. They retained 387 jobs. Why might they have needed a loan? Oil and gas prices fell sharply in 2020 as people drove less and social distanced at home.  Those low prices made it harder for oil and gas companies to justify the cost of extracting it from the ground.  So it makes sense that a service provider like Hall would see less demand for its services. https://www.wvpublic.org/news/2020-03-19/coronavirus-and-slumping-prices-hit-ohio-valleys-oil-gas-sector
+**A4.**
 
 ```{r}
-wv_mining_ritchie <- ppp_wv_loans %>%
-  mutate(two_digit_naics = str_sub(naics_code,start=1L, end=2L)) %>%
-  filter(project_county_name == "RITCHIE") %>%
-  filter(two_digit_naics == "21") %>%
-  arrange(desc(amount)) %>%
-  head(1)
 
-wv_mining_ritchie
 ```
-
--30-
