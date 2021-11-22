@@ -1,3 +1,15 @@
+---
+title: "pre_lab_13.Rmd"
+author: "sean mussenden"
+date: "11/19/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
 # Basic Stats: Linear Regression and The T-Test 
 
 A month into the Covid-19 pandemic, in April 2020, Reveal, an investigative reporting outfit, [wrote a story based on original data analysis showing that a disproportionate share of PPP loans](https://revealnews.org/article/bailout-money-bypasses-hard-hit-new-york-california-for-north-dakota-nebraska/) were going to states that Donald Trump won in 2016. In North Dakota, a state that gave a higher share of its vote to Trump than all but three states, 58 percent of small businesses got PPP loans.  In Democratic-leaning New York, which was hit hard in the pandemic's first wave, only 18 percent of small businesses received loans.  They wrote:
@@ -12,7 +24,11 @@ Mostly, it used basic descriptive statistics, calculating rates, ranking states 
 
 First, let's load libraries.  We're going to load janitor, the tidyverse and a new package, [corrr](https://corrr.tidymodels.org/), which will help us do linear regression a bit easier than base R. 
 
+### Task 1: Load libraries and settings
+**Task** Run the following code in the gray-colored codeblock below to load the libraries we'll use.
+
 ```{r}
+# install.packages('corrr')
 library(janitor)
 library(tidyverse)
 library(corrr)
@@ -27,7 +43,9 @@ Now let's load the data we'll be using. It has five fields:
 * ppe_amount_per_employee: the average amount of money provided by PPP per small business employee in the state.
 
 
-
+### Task 2: Read in data
+**Task** Run the following code and describe the dataframe it outputs.
+**Answer**
 ```{r}
 
 reveal_data <- read_rds("data/reveal_data.rds")
@@ -42,6 +60,9 @@ Let's start with this question: did small businesses in states that voted more s
 
 Let's start by plotting them to get a sense of the pattern. 
 
+### Task 3: Plot data
+**Task** Run the following code. Describe the plot. What do you see?
+**Answer**
 ```{r}
 
 reveal_data %>%
@@ -54,6 +75,9 @@ It's a bit messy, but we can see something of a pattern here in the blob of dots
 
 Let's test another variable, the average amount of money provided by PPP per small business employee in the state. 
 
+### Task 4: Plot data
+**Task** Run the following code. Describe the plot. What do you see?
+**Answer**
 ```{r}
 
 reveal_data %>%
@@ -76,6 +100,9 @@ All r values will fall somewhere on this scale, and how to interpret them isn't 
 
 We can calculate r with a function from the corrr package called "correlate()".  First, we remove the non-numeric values from our reveal_data (state name and a binary vote_2016 column), then we correlate.   
 
+### Task 5: Correlate data
+**Task** Run the following code. Describe the table output. What do you see?
+**Answer**
 ```{r}
 reveal_data %>%
   select(-state_name, -vote_2016) %>%
@@ -89,6 +116,10 @@ The table this function produces generally confirms our interpretation of the tw
 
 The relationship between businesses in a state receiving ppe and the state's Trump vote is a bit stronger, if still moderate, .52 (on a scale of -1 to 1).  Is this finding statistically valid?  We can get a general sense of that by calculating the p-value of this correlation, a test of statistical significance. For that, we can use the cor.test function. 
 
+
+### Task 6: Correlate data
+**Task** Run the following code. Describe the model output. What do you see?
+**Answer**
 ```{r}
 
 cor.test(reveal_data$pct_trump, reveal_data$businesses_receiving_ppe_pct)
@@ -99,6 +130,9 @@ This output is quite a bit uglier, but for our purposes there are two key pieces
 
 Now let's test the other one, the relationship between the pct_trump and the ppe_amount_per_employee. 
 
+### Task 7: Correlate data
+**Task** Run the following code. Describe the model output. What do you see?
+**Answer**
 ```{r}
 
 cor.test(reveal_data$pct_trump, reveal_data$ppe_amount_per_employee)
@@ -121,6 +155,10 @@ We can do this because, in our data, we have a column with two possible categori
 
 We could just calculate the averages like we're used to doing. 
 
+
+### Task 8: Average data
+**Task** Run the following code. Describe the table. What do you see?
+**Answer**
 ```{r}
 reveal_data %>%
   group_by(vote_2016) %>%
@@ -136,7 +174,9 @@ The average amount of ppp loans per employee in Clinton states is smaller than T
 
 A t-test can help us answer that question.  It can tell us where there's a statistically significant difference between the means of two groups. Have we found a real difference, or have we chanced upon a statistical abberation?  Let's see by calculating it for the average loan amount. 
 
-
+### Task 9: Run t-test
+**Task** Run the following code. Describe the output. What do you see?
+**Answer**
 ```{r}
 t.test(ppe_amount_per_employee ~ vote_2016, data = reveal_data)
 ```
@@ -144,8 +184,14 @@ We see our two means, for Trump and Clinton, the same as we calcluated above. Th
 
 Let's try the percentage of businesses getting ppp loans.
 
+### Task 10: Run t-test
+**Task** Run the following code. Describe the output. What do you see?
+**Answer**
 ```{r}
 t.test(businesses_receiving_ppe_pct ~ vote_2016, data = reveal_data)
 ```
 
 This is a bit more promising. T is much stronger -- about 3 -- and the p-value is .002.  Both of these should give us assurance that we've found something statistically meaningful.  Again, this doesn't prove that Trump is stacking the deck for states.  It just suggests there's a pattern worth following up on. 
+
+
+
