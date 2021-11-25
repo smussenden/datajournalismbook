@@ -73,12 +73,12 @@ analysis
 making-updating-graphics
 automating-geographic-analysis
 mapping-continuously
-basic-stats-the-t-test
-specific-call-types
-what-else-should-we-look-at
+basic-stats-linear-regression-and-the-t-test
+linear-regression
+t-tests
 an-intro-to-text-analysis
-going-further-by-analyzing-text
 going-beyond-a-single-word
+sentiment-analysis
 writing-with-numbers
 how-to-write-about-numbers-without-overwhelming-with-numbers.
 when-exact-numbers-matter
