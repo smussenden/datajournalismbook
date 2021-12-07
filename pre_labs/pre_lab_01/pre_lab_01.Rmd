@@ -14,15 +14,23 @@ options(scipen=999)
 
 This notebook contains code and explanatory text that your should review and run as you read through chapters 1 - 5 of the course textbook, "Data Journalism with R and the Tidyverse". Answer questions and edit the document as directed.
 
-Running this notebook will help you understand key data analysis methods and concepts that you will put into practice during this week's lab.  
+Running this notebook will help you understand key data analysis methods and concepts that you will put into practice during this week's lab. When you come across a new command or verb in R, you should add it to your class reference notebook file along with what it's used for.
 
 When you are finished running the code in this notebook, you will push changes to your course GitHub repo, and upload the link to ELMS as instructed.
+
+You also should update your class reference notebook with code examples and what they mean. When you come across a new concept or R verb, put it in your reference notebook along with a sentence about what it does. For example:
+
+```{r}
+library(tidyverse)
+```
+
+The library function loads an R library such as the tidyverse, providing access to the verbs and functions that library contains. You have to load a library before you can use its functions.
 
 ## Instructor in class demonstration outline
 
 * Load this notebook, and provide overview of R, RStudio (text editor, console, environment window, file explorer), Rmarkdown data notebooks.
 * Work through the code below, chapter by chapter.
-  * Chapter 2: explain the console and the concept of variables.
+  * Chapter 3: explain the console and the concept of variables.
   * Chapter 3: explain packages, the Tidyverse, how to install them.
   * Chapter 5: explain R markdown data notebooks, the difference between codeblocks and text, loading libraries, the concept of functions, loading data, the importance of having questions to guide data analysis, and aggregation and summarization.
 
@@ -30,7 +38,7 @@ When you are finished running the code in this notebook, you will push changes t
 
 There is no code to run from Chapter 1.
 
-## Chapter 2
+## Chapter 3
 
 ### Task 1: The console
 **Task** In the console (look below), type 2+2 and hit enter. What does it return? Type your answer below.
@@ -60,19 +68,13 @@ What does it return? Type your answer below:
 install.packages('tidyverse')
 ```
 
+**Task** Add that
+
 Then run the following code to install the rmarkdown library
 
 ```{r}
 install.packages('rmarkdown')
 ```
-
-## Chapter 3
-
-There is no code to run from Chapter 3.
-
-## Chapter 4
-
-There is no code to run from Chapter 4.
 
 ## Chapter 5
 
@@ -80,7 +82,8 @@ There is no code to run from Chapter 4.
 **Task** Run the following code in the gray-colored codeblock below -- not in the console -- to load the tidyverse library. To run the code, click the little green play button (left facing arrow) at the top right of the codeblock. In Rmarkdown data notebooks, we write code inside of codeblocks, and explanatory text in the white area outside of it.   
 
 ```{r}
-# This is a comment inside of a codeblock. Comments doesn't run when we run the codeblock.   
+# This is a comment inside of a codeblock. Comments doesn't run when we run the codeblock.
+# Adding this command is a good way to start your class reference notebook.
 library(tidyverse)
 ```
 
@@ -185,8 +188,10 @@ ppp_maryland_loans %>%
 ```
 Which county has the highest mean loan amount?  Put your answer in the space below.
 **Answer**
+
 ### Task 11
 **Task** Run the following codeblock to group the ppp_maryland_loans dataframe by the county for each loan. Then do the following summarizations for each group:count the number of loans, add up the value of all loans, calculate the mean and median loan amounts and calculate the smallest and largest loans. Then sort so the county with the largest max loan amount is listed first.
+
 ```{r}
 ppp_maryland_loans %>%
   group_by(project_county_name) %>%
@@ -204,11 +209,12 @@ Which is the max loan amount in Anne Arundel County?  Put your answer in the spa
 **Answer**
 
 ### Task 12
+
 **Task** Sort the entire dataset so that the biggest loans appear first, allowing you to see which companies got the biggest loans.
 ```{r}
 ppp_maryland_loans %>%
   arrange(desc(amount))
-
 ```
+
 How many companies got $10 million loans? One of them is a restaurant chain.  What kind of food do they serve? Put your answers in the space below.
 **Answer**

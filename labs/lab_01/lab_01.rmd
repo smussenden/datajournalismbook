@@ -21,13 +21,13 @@ To complete this lab, you need to:
 
 When you are finished, commit changes and push to your personal GitHub repo, then submit the URL to this document on ELMS.
 
+Remember to add any new verbs or concepts to your reference notebook!
+
 ## Load libraries and establish settings
 
 **Task** Run the codeblock below to load the Tidyverse. To run the codeblock, hit the little green play button in the upper right corner of the gray area (the codeblock) below.
 
 ```{r}
-
-
 # Load the tidyverse. If you have not installed the tidyverse already, remove the # from the next line and run it first.  
 # install.packages('tidyverse')
 library(tidyverse)
@@ -55,6 +55,8 @@ glimpse(wv_ppp_loans)
 
 ## Answer questions
 
+Use the pre-lab and your reference notebook as examples.
+
 **Q2** Which West Virginia county got the most loans? How many?
 **A2** [write your answer here]
 
@@ -81,7 +83,7 @@ glimpse(wv_ppp_loans)
 
 ```
 
-**Q6** What West Virginia politician (with his family) owns the company identified in question 2? What's your source for that information? Hint: this will require web research, you won't be able to answer this purely from the data set.  You do not need to write any code for this question, so no codeblock is provided.  
+**Q6** What West Virginia politician (with his family) owns the company identified in question 5? What's your source for that information? Hint: this will require web research, you won't be able to answer this purely from the data set.  You do not need to write any code for this question, so no codeblock is provided.  
 **A6** [write your answer here]
 
 **Q7**. Produce a summary table that has the following information for West Virginia as a whole (the whole state, not by county):
@@ -95,23 +97,6 @@ glimpse(wv_ppp_loans)
 Store it as a variable object called `wv_summary` so that you can examine it with the data viewer. What newsworthy nuggets jump out at you that you could imagine dropping into a news story? Write a few summary sentences with overall findings.
 
 **A7** [write your answer here]
-```{r}
-# Write the code to produce your answer here
-```
-
-**Q8** Produce a summary table that has the following information for each West Virginia county:
-* count of loans
-* total amount of all loans
-* the average loan amount
-* the median loan amount
-* the smallest loan amount
-* the largest loan amount
-
-Store it as a variable object called `wv_county_summary` so that you can examine it with the data viewer.
-
-What newsworthy nuggets or patterns jump out at you that you could imagine dropping into a news story or doing follow up reporting on? Write up a few sentence that summarizes one county.
-
-**A8** [write your answer here]
 ```{r}
 # Write the code to produce your answer here
 ```
