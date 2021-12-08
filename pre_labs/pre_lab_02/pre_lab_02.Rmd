@@ -95,9 +95,9 @@ What is the payroll proceeds percentage for the first result? Put your answer in
 
 
 ### Task 8: Create a new column using if/else
-One question you might have is whether the lenders servicing these loan applications are located in Maryland or outside. We can add a column using mutate and populate it based on the state of the lender. Add a description of what this code does to your reference notebook.
+One question you might have is whether the lenders servicing these loan applications are located in Maryland or outside. We can add a column using mutate and populate it based on the state of the lender.
 
-**Task** Run the following code to create a new column called `in_out` based on the values of `servicing_lender_state`
+**Task** Run the following code to create a new column called `in_out` based on the values of `servicing_lender_state`. Add a description of what this code does to your reference notebook.
 
 ```{r}
 # if/else example
@@ -109,6 +109,28 @@ maryland_with_in_out <- maryland_ppp %>%
   )
 ```
 
+### Task 9: Create a new column using case_when
+One common use of mutate is to create a new column and then populate it based on values in an existing column. For example, if we wanted to put the values in `jobs_retained` into broader categories in a new column called `jobs_retained_category` and we have multiple categories. We can use a function called `case_when` to make that easier.
+
+**Task** Run the following code to create a new column called `jobs_retained_category` based on the values of `jobs_retained`. Add a description of what this code does to your reference notebook.
+
+```{r}
+# case_when example
+maryland_jobs_categories <- maryland_ppp %>%
+mutate(
+  jobs_retained_category = case_when(
+    jobs_retained < 10 ~ 'under_10',
+    jobs_retained >= 10 & jobs_retained < 25 ~ '10_to_25',
+    jobs_retained >= 50 & jobs_retained < 100 ~ '50_to_100',
+    jobs_retained >= 100 & jobs_retained < 250 ~ '100_to_250',
+    jobs_retained >= 250 & jobs_retained < 500 ~ '250_to_500',
+    jobs_retained == 500 ~ '500'
+  )
+)
+```
+
+There's a lot going on here, so let's unpack it. It starts out as a typical mutate statement, but like our if_else example, case_when introduces some new things. Each line is basically a filter followed by `~` and then a value for the new column for records that match that filter. Here is [more detail](https://www.sharpsightlabs.com/blog/case-when-r/) on using `case_when`.
+
 ## Filters
 
 Filter is a tidyverse verb that uses criteria you supply to return a subset of the original data. Here's how it is structured:
@@ -117,26 +139,13 @@ Filter is a tidyverse verb that uses criteria you supply to return a subset of t
 
 Where COLUMN_NAME is any column name from your dataframe, OPERATOR is some comparison operator like == or > or < and CRITERIA is something to compare the values in COLUMN_NAME to.
 
-### Task 9: Filter by county
+### Task 10: Filter by county
 **Task** Run the following code to limit our data to Prince George's County. Add a description of what this code does to your reference notebook.
 
 ```{r}
 prince_georges <- maryland_ppp %>% filter(project_county_name == "PRINCE GEORGES")
 head(prince_georges)
 ```
-
-
-### Task 10: Multiple filters
-**Task** Run the following code to limit our data to Prince George's County loan applications from nonprofit organizations where the amount is larger than $150,000.
-
-```{r}
-large_prince_georges_nonprofit <- maryland_ppp %>% filter(project_county_name == "PRINCE GEORGES") %>% filter(business_type == "Non-Profit Organization") %>% filter(amount > 150000)
-
-nrow(large_prince_georges_nonprofit)
-```
-What is the number of applications that meet that criteria? Put your answer in the space below.
-**Answer**
-
 
 ### Task 11: Multiple filters - AND
 **Task** Run the following code to limit our data to Prince George's County loan applications from nonprofit organizations where the amount is larger than $150,000.
@@ -162,6 +171,7 @@ What is the number of applications that meet that criteria? Put your answer in t
 
 
 ## Dates
+The key to working with dates is that R needs to know that the column containing the date has a datatype of date (or datetime for timestamps). R will
 
 
 ### Task 13: Load data using read.csv
@@ -188,7 +198,7 @@ What is the datatype for `date_approved` (it's just to the right of the column n
 **Answer**
 
 
-### Task 14: Load data using read_csv
+### Task 15: Load data using read_csv
 **Task** Run the following code to load the application data, then use glimpse() to see the data type for `date_approved`.
 ```{r}
 # using read_csv
@@ -198,7 +208,7 @@ glimpse(maryland_ppp)
 What is the datatype for `date_approved` (it's just to the right of the column name)? Put your answer in the space below.
 **Answer**
 
-### Task 14: Use mutate and lubridate to add a column called `Month` and see which month had the most applications.
+### Task 16: Use mutate and lubridate to add a column called `Month` and see which month had the most applications.
 **Task** Run the following code to create a new column based on `date_approved`. Add a description of what this code does to your reference notebook.
 
 ```{r}
