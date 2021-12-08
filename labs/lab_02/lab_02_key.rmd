@@ -25,7 +25,7 @@ library(lubridate)
 Let's keep working with West Virginia loans contained in the PPP loans data.  
 
 ```{r}
-west_virginia_ppp <- read_rds("lab_02.rds")
+west_virginia_ppp <- read_rds("data/lab_02.rds")
 ```
 
 ## Examine Data
@@ -33,7 +33,7 @@ west_virginia_ppp <- read_rds("lab_02.rds")
 ## Answer questions
 
 Q1. Create a new column that divides the loan amounts into multiple options: under_10k, 10k_50k, 50k_100k, 100k_500k, 500k_1m, 1m_plus. How many loans are in each group?
-A1. The 10k-50k group has 15,372, the most of any group.
+A1. The 10k-50k group has 15,089, the most of any group.
 
 ```{r}
 west_virginia_ppp %>%
@@ -55,23 +55,20 @@ west_virginia_ppp %>%
 ```
 
 Q2. Which servicing lenders have the most loans with undisbursed amounts greater than 0?
-A2. Harvest Small Business Finance, LLC, tops the list with 139.
+A2. Davis Trust Company tops the list with 12.
 
 ```{r}
 west_virginia_ppp %>%
   filter(undisbursed_amount > 0) %>%
-  group_by(servicing_lender_name, servicing_lender_state ) %>%
+  group_by(servicing_lender_name, servicing_lender_state) %>%
   summarise(
     total_loans = n()
   ) %>%
   arrange(desc(total_loans))
 ```
 
-Q3. How would you describe the top 10 list of those lenders? What do they have in common or not? (You may want to look up some of the top ones.)
-A3. The top seven lenders with the most undisbursed loans are banks or institutions located outside West Virginia. The top three are not chartered banks but specialty lenders that operate under different rules. They also have distinctly unhelpful websites for PPP applicants.
-
-Q4. Which month in 2021 had the most loans approved?
-A4. March 2021, with 4,404.
+Q3. Which month in 2021 had the most loans approved?
+A3. March 2021, with 4,394.
 
 ```{r}
 west_virginia_ppp %>%
@@ -80,4 +77,14 @@ west_virginia_ppp %>%
   group_by(Month) %>%
   summarise(total = n()) %>%
   arrange(desc(total))
+```
+
+Q4. How many loans went to West Virginia applicants that listed the maximum number of jobs retained (500)? Which one had the earliest approved date?
+A4. There were 10 applicants that listed 500 jobs retained. J. AUSTIN HEATING & COOLING, INC, which was approved on April 8, 2020, had the earliest approved date.
+
+```{r}
+west_virginia_ppp %>%
+  filter(jobs_retained == 500) %>%
+  arrange(date_approved) %>%
+  select(name, amount, date_approved)
 ```
