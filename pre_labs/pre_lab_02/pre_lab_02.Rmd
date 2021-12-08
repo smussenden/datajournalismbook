@@ -111,9 +111,9 @@ maryland_with_in_out <- maryland_ppp %>%
 
 ## Filters
 
-Filter is a tidyverse verb that uses criteria you supply to return a subset of the original data. Here's how it works:
+Filter is a tidyverse verb that uses criteria you supply to return a subset of the original data. Here's how it is structured:
 
-filter(COLUMN_NAME OPERATOR CRITERIA)
+`filter(COLUMN_NAME OPERATOR CRITERIA)`
 
 Where COLUMN_NAME is any column name from your dataframe, OPERATOR is some comparison operator like == or > or < and CRITERIA is something to compare the values in COLUMN_NAME to.
 
@@ -165,7 +165,7 @@ What is the number of applications that meet that criteria? Put your answer in t
 
 
 ### Task 13: Load data using read.csv
-**Task** Run the following code to load the application data, then use glimpse() to see the data type for `date_approved`.
+**Task** Unzip the data/ppp_applications_md.csv.zip file in the data directory, run the following code to load the application data, then use glimpse() to see the data type for `date_approved`. Note that we're using `read.csv`, not the tidyverse's `read_csv`:
 
 ```{r}
 # using read.csv
