@@ -68,7 +68,7 @@ ppp_maryland_loans <- read_csv("ppp_loans_md.csv.zip", guess_max=195865)
 glimpse(ppp_maryland_loans)
 ```
 ### Task 6: Change the "id" field data type
-**Task** Run the following codeblock to change the data type of the "id" field from a number (dbl) to a character, and then glimpse the data, to see the change.     
+**Task** Run the following codeblock to change the data type of the "id" field from a number (dbl) to a character, and then glimpse the data, to see the change. Add a description of what this code does to your reference notebook.     
 
 ```{r}
 ppp_maryland_loans <- ppp_maryland_loans %>%
@@ -95,7 +95,6 @@ ppp_maryland_loans %>%
 **Answer**:
 
 ```{r}
-
 ppp_maryland_loans %>%
   group_by(forgiveness_amount) %>%
   summarise(
@@ -109,7 +108,6 @@ ppp_maryland_loans %>%
 **Answer**:
 
 ```{r}
-
 ppp_maryland_loans %>%
   group_by(forgiveness_date) %>%
   summarise(
@@ -118,9 +116,11 @@ ppp_maryland_loans %>%
   filter(is.na(forgiveness_date)) %>%
   arrange(desc(count))
 ```
+
 ### Task 10: Examine forgiveness_date and forgiveness_amount together
 **Task** Run the following codeblock to group by forgiveness_date and forgiveness_amount, count the number of loans, then sort from highest to lowest on count and filter to only show NA values. How many loans are there where forgiveness_date and forgiveness_amount is NA? Is it the same as the number for forgiveness_amount and forgiveness_amount run separately in the codeblocks above? What can you conclude from Answer below.
 **Answer**:
+
 ```{r}
 ppp_maryland_loans %>%
   group_by(forgiveness_amount, forgiveness_date) %>%
@@ -145,7 +145,7 @@ library(lubridate)
 ```
 
 ### Task 13: Look for date gaps in data
-**Task** Run the following codeblock to create a new column called "month_year_approved" that extracts the month and year from the "date_approved" column.  Group by the new "month_year_approved" column, count, and sort by "month_year_approved". How many loans are there in the data for October 2020? Answer below.
+**Task** Run the following codeblock to create a new column called "month_year_approved" that extracts the month and year from the "date_approved" column.  Group by the new "month_year_approved" column, count, and sort by "month_year_approved". How many loans are there in the data for October 2020? Answer below. Add a description of what this code does to your reference notebook.
 **Answer**
 ```{r}
 ppp_maryland_loans %>%
@@ -209,7 +209,7 @@ library(janitor)
 **Answer**
 
 ```{r}
-arnold_md_loans <- read_rds("arnold_md_loans.rmd")
+arnold_md_loans <- read_rds("arnold_md_loans.rds")
 ```
 
 ### Task 4: Examine the data with glimpse
@@ -230,7 +230,7 @@ arnold_md_loans
 ```
 
 ### Task 6: Use clean_names()
-**Task** Run the following codeblock to use the clean_names() function from janitor to standardize column names. How does the function change the name of the column "1_id"? Answer below.
+**Task** Run the following codeblock to use the `clean_names()` function from janitor to standardize column names. How does the function change the name of the column "1_id"? Answer below. Add a description of what this code does to your reference notebook.
 **Answer**
 
 
@@ -244,8 +244,7 @@ cleaned_arnold_md_loans
 ```
 
 ### Task 7: Use rename()
-**Task** Run the following codeblock to use the clean_names() function from janitor to standardize column names and then use rename() to change the "x1_id" column.
-
+**Task** Run the following codeblock to use the clean_names() function from janitor to standardize column names and then use rename() to change the "x1_id" column. Add a description of what this code does to your reference notebook.
 
 ```{r}
 # cleaning function
@@ -313,8 +312,9 @@ cleaned_arnold_md_loans %>%
 ```
 
 ### Task 12: Check for duplicate rows
-**Task** Run the following codeblock to use distinct() to get rid of duplicate rows. How many rows does the new dataframe have? Answer below.
+**Task** Run the following codeblock to use distinct() to get rid of duplicate rows. How many rows does the new dataframe have? Answer below. Add a description of what this code does to your reference notebook.
 **Answer**
+
 ```{r}
 # cleaning function
 cleaned_arnold_md_loans <- arnold_md_loans %>%
@@ -330,7 +330,7 @@ cleaned_arnold_md_loans
 ```
 
 ### Task 13: Clean up ZIP code
-**Task** Run the following codeblock to use str_sub() to convert the ZIP codes that have nine digits to five digits, standardizing the field.
+**Task** Run the following codeblock to use str_sub() to convert the ZIP codes that have nine digits to five digits, standardizing the field. Add a description of what this code does to your reference notebook.
 **Answer**
 
 ```{r}
@@ -349,7 +349,7 @@ cleaned_arnold_md_loans
 ```
 
 ### Task 14: Clean up city field
-**Task** Run the following codeblock to use str_tot_title() to standarize capitalization in the "city" field. How many mispellings of Arnold remain after running this code? Answer below.
+**Task** Run the following codeblock to use str_tot_title() to standarize capitalization in the "city" field. How many mispellings of Arnold remain after running this code? Answer below. Add a description of what this code does to your reference notebook.
 
 ```{r}
 # cleaning function
@@ -393,7 +393,7 @@ cleaned_arnold_md_loans
 ```
 
 ### Task 16: Clean up city field more with case_when()
-**Task** Run the following codeblock to use case_when() to fix misspellings of Arnold in the "city" field using both the exact match method and the str_detect() method. How many mispellings of Arnold remain after running this code? Answer below.
+**Task** Run the following codeblock to use case_when() to fix misspellings of Arnold in the "city" field using both the exact match method and the str_detect() method. How many mispellings of Arnold remain after running this code? Answer below. Add a description of what this code does to your reference notebook.
 **Answer**
 ```{r}
 # cleaning function
