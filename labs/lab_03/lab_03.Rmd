@@ -30,9 +30,9 @@ options(scipen=999)
 
 ## Answer questions
 
-Q1: Which five cities located in Kanawha County, West Virginia got the most loans (in number of loans)? How many did each get? To answer this question, you'll have to clean the very messy "city" field.
+Q1: Which five cities located in Kanawha County, West Virginia, got the largest _number_ of loans? How many did each get? To answer this question, you'll have to clean the very messy "city" field.
 
-Note: To answer this question, please fully clean the city field for Kanawha County cities. Hint: once cleaned, the dataframe that counts the number of loans by city should have 38 distinct cities for Kanawha County.
+Note: To answer this question, you'll need to see every variation of the "city" column in Kanawha County, and then fully clean the city field for those cities. Hint: once cleaned, the dataframe that counts the number of loans by city should have 38 distinct cities for Kanawha County.
 
 A1:
 ```{r}
@@ -41,14 +41,14 @@ A1:
 
 ```
 
-Q2: What is the name of the business that got the largest loan (by dollar value) in the 5-digit ZIP code in West Virginia that had the highest dollar amount in total loans (by dollar value)? Write up a short paragraph that also answers these questions:
+Q2: Find the 5-digit ZIP code in West Virginia that had the highest total amount of loans (by dollar value). What is the name of the business that got the largest loan (by dollar value) in that zip code? Write up a short paragraph that also answers these questions:
 
 * Where in West Virginia is this ZIP code located?
 * How much was the business' loan for?
 * How much of that loan was forgiven?
 * Which number is bigger, the loan amount or the forgiveness amount? Can you explain the discrepancy?
 
-A2: 
+A2:
 
 ```{r}
 # Hint
