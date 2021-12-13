@@ -60,7 +60,7 @@ View(estimates)
 **Answer**
 
 ```{r}
-maryland_ppp <- read_rds("pre_lab_04.rds")
+maryland_ppp <- read_csv("data/ppp_applications_md.csv")
 ```
 
 ```{r}
