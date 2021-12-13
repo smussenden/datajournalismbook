@@ -45,7 +45,7 @@ popestimate_2020 <- read_csv("data/popestimate_2020.csv")
 
 
 ### Task 3: Using bind_rows
-**Task** Combine the three files into a single data frame using the bind_rows function.
+**Task** Combine the three files into a single data frame using the bind_rows function. Add a description of what this code does to your reference notebook.
 
 ```{r}
 # bind_rows with list
@@ -84,7 +84,7 @@ maryland_ppp %>% left_join(naics_codes) %>% select(name, naics_code, title)
 ```
 
 ### Task 7: Assign Joined Data to New Dataframe
-**Task** Create a new dataframe with PPP and NAICS data joined together
+**Task** Create a new dataframe with PPP and NAICS data joined together. Add a description of what this code does to your reference notebook.
 
 ```{r}
 maryland_ppp_with_naics <- maryland_ppp %>% left_join(naics_codes)
@@ -98,7 +98,7 @@ maryland_zcta <- read_csv('data/maryland_zcta.csv')
 ```
 
 ### Task 9: Join ZCTA to PPP Data
-**Task** Join the ZCTA data to the our PPP & NAICS data. What's the error message you get? What do you think it means?
+**Task** Join the ZCTA data to the our PPP & NAICS data. What's the error message you get? What do you think it means? Add a description of what this code does to your reference notebook.
 **Answer**
 
 ```{r}
@@ -106,7 +106,7 @@ maryland_zcta <- read_csv('data/maryland_zcta.csv')
 maryland_ppp_with_naics_and_demographics <- maryland_ppp_with_naics %>% left_join(maryland_zcta, by=c("zip"="ZCTA5N"))
 ```
 ### Task 10: Fix ZCTA Data
-**Task** Fix the ZCTA file by changing the datatype
+**Task** Fix the ZCTA file by changing the datatype. Add a description of what this code does to your reference notebook.
 
 ```{r}
 maryland_zcta <- maryland_zcta %>% mutate(across(ZCTA5N, as.character))
