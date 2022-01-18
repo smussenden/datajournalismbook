@@ -23,7 +23,7 @@ To do this, we'll need a new library -- [tidytext](https://cran.r-project.org/we
 **Task** Run the following code in the gray-colored codeblock below to load the libraries we'll use.
 
 ```{r}
-#install.packages("tidytext")
+install.packages("tidytext")
 library(tidyverse)
 library(tidytext)
 library(janitor)
