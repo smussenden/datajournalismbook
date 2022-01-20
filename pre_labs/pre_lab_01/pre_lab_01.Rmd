@@ -28,15 +28,11 @@ The library function loads an R library such as the tidyverse, providing access 
 
 ## Instructor in class demonstration outline
 
-* Load this notebook, and provide overview of R, RStudio (text editor, console, environment window, file explorer), Rmarkdown data notebooks.
+* Load this notebook, and provide overview of R, RStudio (text editor, console, environment window, file explorer), Rmarkdown data notebooks, the reference notebook.
 * Work through the code below, chapter by chapter.
   * Chapter 3: explain the console and the concept of variables.
   * Chapter 3: explain packages, the Tidyverse, how to install them.
-  * Chapter 5: explain R markdown data notebooks, the difference between codeblocks and text, loading libraries, the concept of functions, loading data, the importance of having questions to guide data analysis, and aggregation and summarization.
-
-## Chapter 1
-
-There is no code to run from Chapter 1.
+  * Chapter 6: explain loading libraries, the concept of functions, loading data, the importance of having questions to guide data analysis, and aggregation and summarization.
 
 ## Chapter 3
 
@@ -76,7 +72,7 @@ Then run the following code to install the rmarkdown library
 install.packages('rmarkdown')
 ```
 
-## Chapter 5
+## Chapter 6
 
 ### Task 1: Load libraries
 **Task** Run the following code in the gray-colored codeblock below -- not in the console -- to load the tidyverse library. To run the code, click the little green play button (left facing arrow) at the top right of the codeblock. In Rmarkdown data notebooks, we write code inside of codeblocks, and explanatory text in the white area outside of it.   
