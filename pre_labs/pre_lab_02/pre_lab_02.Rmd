@@ -171,16 +171,16 @@ What is the number of applications that meet that criteria? Put your answer in t
 
 
 ## Dates
-The key to working with dates is that R needs to know that the column containing the date has a datatype of date (or datetime for timestamps). R will
+The key to working with dates is that R needs to know that the column containing the date has a datatype of date (or datetime for timestamps). Regular R will guess, and the tidyverse will make a better guess.
 
 
 ### Task 13: Load data using read.csv
-**Task** Unzip the data/ppp_applications_md.csv.zip file in the data directory, run the following code to load the application data, then use glimpse() to see the data type for `date_approved`. Note that we're using `read.csv`, not the tidyverse's `read_csv`:
+**Task** Run the following code to load the `ppp_maryland.csv` file, then use glimpse() to see the data type for `date_approved`. Note that we're using `read.csv`, not the tidyverse's `read_csv`:
 
 ```{r}
 # using read.csv
-maryland_ppp <- read.csv('data/ppp_applications_md.csv')
-glimpse(maryland_ppp)
+maryland_ppp_sample <- read.csv('data/ppp_maryland.csv')
+glimpse(maryland_ppp_sample)
 ```
 What is the datatype for `date_approved` (it's just to the right of the column name)? Put your answer in the space below.
 **Answer**
@@ -189,21 +189,22 @@ What is the datatype for `date_approved` (it's just to the right of the column n
 **Task** Run the following code to load the application data, then use glimpse() to see the data type for `date_approved`.
 
 ```{r}
-lubridate_maryland_ppp <- maryland_ppp %>% mutate(
+lubridate_maryland_ppp <- maryland_ppp_sample %>% mutate(
     CleanDate = ymd_hms(date_approved)
 )
 glimpse(lubridate_maryland_ppp)
 ```
-What is the datatype for `date_approved` (it's just to the right of the column name)? Put your answer in the space below.
+What is the datatype for `date_approved` (it's just to the right of the column name)? What is the datatype for `CleanDate`?
+Put your answers in the space below.
 **Answer**
 
 
 ### Task 15: Load data using read_csv
 **Task** Run the following code to load the application data, then use glimpse() to see the data type for `date_approved`.
 ```{r}
-# using read_csv
-maryland_ppp <- read_csv("data/ppp_applications_md.csv")
-glimpse(maryland_ppp)
+# using read_csv from the tidyverse
+maryland_ppp_sample <- read_csv('data/ppp_maryland.csv')
+glimpse(maryland_ppp_sample)
 ```
 What is the datatype for `date_approved` (it's just to the right of the column name)? Put your answer in the space below.
 **Answer**
