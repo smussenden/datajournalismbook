@@ -32,8 +32,8 @@ west_virginia_ppp <- read_rds("data/lab_02.rds")
 
 ## Answer questions
 
-Q1. Create a new column that divides the loan amounts into multiple options: under_10k, 10k_50k, 50k_100k, 100k_500k, 500k_1m, 1m_plus. How many loans are in each group?
-A1. The 10k-50k group has 15,089, the most of any group.
+**Q1** Create a new column that divides the loan amounts into the following options - under_10k, 10k_50k, 50k_100k, 100k_500k, 500k_1m, 1m_plus - and calculates how many loans are in each group. How would you describe the distribution of loans in a sentence?
+A1. The 10k-50k group has 15,089, the most of any group. More than 2/3rds of loans are for less than $50,000, with only a few hundred over $1 million, suggesting that the program reached actual small businesses.
 
 ```{r}
 west_virginia_ppp %>%
@@ -67,8 +67,11 @@ west_virginia_ppp %>%
   arrange(desc(total_loans))
 ```
 
-Q3. Which month in 2021 had the most loans approved?
-A3. March 2021, with 4,394.
+Q3. What are some potential reasons why a loan might not be paid out? What questions does that circumstance raise for you?
+A3. An applicant might apply not knowing if they needed the loan and then decline it. Or the lender might decide not to fund the loan for some reason - lack of information or something suspicious. Lots of potential questions here, including how often this has happened and whether undisbursed loans have some patterns.
+
+Q4. Which month in 2021 had the most loans approved?
+A4. March 2021, with 4,394.
 
 ```{r}
 west_virginia_ppp %>%
@@ -79,8 +82,8 @@ west_virginia_ppp %>%
   arrange(desc(total))
 ```
 
-Q4. How many loans went to West Virginia applicants that listed the maximum number of jobs retained (500)? Which one had the earliest approved date?
-A4. There were 10 applicants that listed 500 jobs retained. J. AUSTIN HEATING & COOLING, INC, which was approved on April 8, 2020, had the earliest approved date.
+Q5. How many loans went to West Virginia applicants that listed the maximum number of jobs retained (500)? Which one had the earliest approved date?
+A5. There were 10 applicants that listed 500 jobs retained. J. AUSTIN HEATING & COOLING, INC, which was approved on April 8, 2020, had the earliest approved date.
 
 ```{r}
 west_virginia_ppp %>%
