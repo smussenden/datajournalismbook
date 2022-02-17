@@ -24,15 +24,15 @@ library(tidyverse)
 Let's keep working with Maryland loan applications contained in the PPP data.
 
 ```{r}
-maryland_ppp <- read_csv('ppp_applications_md.csv')
+maryland_ppp <- read_rds('lab_04.rds')
 ```
 
 To answer the questions below, you'll need to join both the NAICS code data and the ZCTA demographic data from the book chapter. There's a particular set of steps you'll need to perform to make that work properly.
 
-First, let's load [the NAICS code data we have](https://umd.box.com/s/thou3merdzwzbdimbvd06zkax1zndcsk):
+First, let's load the NAICS code data:
 
 ```{r}
-naics_codes <- read_csv('naics_codes.csv')
+naics_codes <- read_csv('data/naics_codes.csv')
 ```
 
 Next join the two and then create a 5-character `zip5` column that we can use to join to the ZCTA data:
@@ -45,7 +45,7 @@ maryland_ppp_with_naics <- maryland_ppp_with_naics %>% mutate(zip5 = str_sub(zip
 Let's add the [Zip Code Tabulation Area dataset](https://umd.box.com/s/2xsq2rpkmg4ct3a77vt8j5bu4vu1z0tf). Remember that we'll need to make the `ZCTA5N` column a character column, not a numeric one:
 
 ```{r}
-maryland_zcta <- read_csv('maryland_zcta.csv')
+maryland_zcta <- read_csv('data/maryland_zcta.csv')
 maryland_zcta <- maryland_zcta %>% mutate(across(ZCTA5N, as.character))
 ```
 
@@ -111,9 +111,9 @@ maryland_ppp_with_naics_and_demographics %>%
 ```
 
 Q5. What might explain why 20850 has a significant Asian population (23.5%) and only 240 of the 3,186 loans (7.5%) are to Asian applicants?
-A5: A major factor likely is that the `race` column in the PPP data is rarely filled out, which means there could be many more loans to Asian applicants that are not easily identified in the data, especially when applicants often use business names, not individual names. There also could be additional reasons, such as a lack of formal banking relationships or issues with outreach that may have resulted in fewer applications. This is one reason it's useful to combine the PPP data with demographic data.
+A5. A major factor likely is that the `race` column in the PPP data is rarely filled out, which means there could be many more loans to Asian applicants that are not easily identified in the data, especially when applicants often use business names, not individual names. There also could be additional reasons, such as a lack of formal banking relationships or issues with outreach that may have resulted in fewer applications. This is one reason it's useful to combine the PPP data with demographic data.
 
-Q6. Are there Maryland zip codes that have loans with Asian applicants but do not appear to have Asian population in the ZCTA data? What's going on here?
+Q6. Check to see if any Maryland zip codes that have loans where the PPP data lists the applicant as being Asian BUT are located in a zip code that does not appear to have Asian population according to the ZCTA data. Take a look at these zip codes - what could explain this?
 A6. Yes! There are three zip codes, with 21031 having 6 loans worth $6.8 million in total. Let's look at that zip code using [the handy Census Reporter site](https://censusreporter.org/profiles/86000US21031-21031/). This zip code appears to have _no population at all_, which at first seems weird, but remember that population is based on where people _live_. A quick check of Google Maps shows [21031 to be a commercial area](https://www.google.com/maps/place/Hunt+Valley,+MD+21031/@39.4849896,-76.6652558,3300m/data=!3m2!1e3!4b1!4m5!3m4!1s0x89c81265c9fb1935:0x8d4cd6bbb903a99a!8m2!3d39.4894521!4d-76.6614853). The lesson here is that while population data can be very useful, it has its limitations in that it represents people, not businesses.
 
 ```{r}
