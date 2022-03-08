@@ -402,32 +402,7 @@ martinsburg_ppp_industries
 * Full-service restaurants may just be more common than other types of businesses in Martinsburg. If businesses in all industries were equally likely to apply for a loan -- which may not be a safe assumption to make! -- then it would make sense that more restaurants equals more loans.
 * Restaurants may have been more likely than businesses in other industries to apply for multiple loans with different lenders, leading to multiple records in the PPP data. For example, SISSY'S FAMILY RESTAURANT LLC, MOTHER SHUCKERS CRAB SHACK, LAS TRANCAS OF MARTINSBURG INC. and several others have two loans of differing amounts on different dates at the same address. Is this true of other big industries?
 * Sit-down restaurants were particularly vulnerable during the pandemic, especially the early months, as public health measures in many states limited or prevent in-restaurant dining. The economic hit may have driven restaurant owners to seek help with more urgency than in other industries.
-* The position of restaurants at the top may just be an artifact of using fine-grained NAICS data (see below).
-
-Q5. In response to the previous question, you identified the industry that had more loans than any other industry in the city with the most loans in West Virginia's second largest county. Examine the final table you produced. Are there any potential issues you see in the table that could affect the accuracy or validity of your answer?
-A5. Two issues come to mind, but there may be others.
-
-First, there are 14 NA values. The NA values are there because of an issue that arose on joining the Martinsburg PPP table to the NAICS lookup table. In the Martinsburg PPP table, seven loans had a NA value for NAICS code. Seven others had a 999990 value, and one had 333298.  Neither of those values exist in the NAICS lookup table. That's enough missing values that it might affect our ability to draw conclusions.
-
-Second, the NAICS industry code categories we're using here are very fine-grained.  If our question is which is the largest industry in town, do we need to do some additional refining to lump like industries together? For example, these are all separate categories related to shipping:
-
-* General Freight Trucking, Long-Distance, Less Than Truckload
-* Freight Transportation Arrangement
-* Specialized Freight (except Used Goods) Trucking, Long-Distance
-* General Freight Trucking, Local
-* Specialized Freight (except Used Goods) Trucking, Local
-* General Freight Trucking, Long-Distance, Truckload
-
-NAICS codes have a special format. The digits are ordered from the broadest category on the left to the narrowest sub category on the right. Two-digit codes are the broadest, six-digit codes are the most specific. Here's an example:
-
-* 72	Accommodation and Food Services
-* 7225	Restaurants and Other Eating Places
-* 722511	Full-Service Restaurants	369,862
-* 722513	Limited-Service Restaurants	285,678
-* 722514	Cafeterias, Grill Buffets, and Buffets
-* 722515	Snack and Nonalcoholic Beverage Bars
-
-If we wanted to get a broader picture, we could use str_sub() to create a new column that keeps only the first four digits of the NAICS code data, and join it with a NAICS lookup table that contained these higher level categories.
+* The position of restaurants at the top may just be an artifact of using fine-grained NAICS data.
 
 **Q5.** Start with a table of loans to all businesses in the city and industry that answered question 3. Answer the following questions:
 * What is the name of the business that got the highest approved loan amount?
