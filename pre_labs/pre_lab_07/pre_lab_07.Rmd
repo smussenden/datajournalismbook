@@ -440,9 +440,9 @@ employment_info
 
 Now we have a proper dataframe of 6 rows and 6 columns.  
 
-It has much more information than we need, so let's clean it up to isolate only the "Employment, all employees (seasonally adjusted)" value for June 2021.
+It has much more information than we need, so let's clean it up to isolate only the "Employment, all employees (seasonally adjusted)" value for Nov. 2021.
 
-Use clean_names() to standardize the column names, use slice() to keep only the second row, and use select() to keep two columns data_series and jun_2021.
+Use clean_names() to standardize the column names, use slice() to keep only the second row, and use select() to keep two columns data_series and nov_2021.
 
 ### Task 11: Run code to keep row 2 and light cleaning
 **Task** Run the following code to keep row 2 and light cleaning. Briefly describe the output that appears below the codeblock.
@@ -463,7 +463,7 @@ employment_info <- url %>%
 employment_info <- employment_info %>%
   clean_names() %>%
   slice(2) %>%
-  select(data_series, jun_2021)
+  select(data_series, nov_2021)
 
 # Display it so we can see what it looks like
 employment_info
@@ -707,7 +707,7 @@ employment_info <- url %>%
 employment_info <- employment_info %>%
   clean_names() %>%
   slice(2) %>%
-  select(data_series, jun_2021)
+  select(data_series, nov_2021)
 
 # Display it so we can see what it looks like
 employment_info
@@ -1029,9 +1029,9 @@ for(row_number in 1:nrow(naics_industry)) {
       clean_names() %>%
       slice(2) %>%
       bind_cols(each_row_df) %>%
-      mutate(jun_2021 = parse_number(jun_2021)) %>%
-      rename(jun_2021_employees = jun_2021) %>%
-      select(sector,description,jun_2021_employees)
+      mutate(nov_2021 = parse_number(nov_2021)) %>%
+      rename(nov_2021_employees = nov_2021) %>%
+      select(sector,description,nov_2021_employees)
 
     # To help us see what's happening as we build this, we're going to print the thing we're creating.  
     print(employment_info)
@@ -1085,9 +1085,9 @@ for(row_number in 1:nrow(naics_industry)) {
       clean_names() %>%
       slice(2) %>%
       bind_cols(each_row_df) %>%
-      mutate(jun_2021 = parse_number(jun_2021)) %>%
-      rename(jun_2021_employees = jun_2021) %>%
-      select(sector,description,jun_2021_employees)
+      mutate(nov_2021 = parse_number(nov_2021)) %>%
+      rename(nov_2021_employees = nov_2021) %>%
+      select(sector,description,nov_2021_employees)
 
     # Bind each individual employment info table to our employment_by_sector_all dataframe
     employment_by_sector_all <- employment_by_sector_all %>%
@@ -1144,7 +1144,7 @@ In the second row of this table, it has the unemployment rate. Nowhere on the pa
 ```{r}
 # remove the suspicious value for agriculture.
 employment_by_sector_all <- employment_by_sector_all %>%
-  mutate(jun_2021_employees = na_if(jun_2021_employees,7.5))
+  mutate(nov_2021_employees = na_if(nov_2021_employees,5.4))
 
 # display it
 employment_by_sector_all
