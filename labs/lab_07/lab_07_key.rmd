@@ -31,7 +31,7 @@ library(janitor)
 
 
 Q1. How many individual cases has the U.S. Department of Justice filed against people accused of fraud related to the PPP or EIDL loan program, according to the DOJ website listing those cases: https://www.justice.gov/criminal-fraud/cares-act-fraud?  An example of one case that appears on this page is "U.S. v. Richard Ayvazyan et al". To answer this question, you will need to use rvest to scrape the data on this single webpage into a dataframe that lists only case names. Hint: you will need to make use of html_elements() and html_text() -- a function that extracts text inside of an html tag -- for this.
-A1. 101.
+A1. 101 (but one appears to be a duplicate)
 
 ```{r}
 # Define URL
@@ -42,7 +42,7 @@ cases <- doj_url %>%
   read_html()  %>%
   html_elements('ul li b') %>%
   html_text() %>%
-  as_tibble() 
+  as_tibble()
 
 # Count cases
 cases %>%
@@ -52,7 +52,7 @@ cases %>%
 ```
 
 Q2. In how many individual judicial districts has the U.S. Department of Justice filed cases against people accused of fraud related to the PPP or EIDL loan program, according to the DOJ website listing those cases: https://www.justice.gov/criminal-fraud/cares-act-fraud?  Note: an example of a judicial district is "Southern District of Florida". You will need to use rvest scrape the data on this single webpage into a dataframe.
-A2. 28.
+A2. 31.
 
 ```{r}
 # Define URL
@@ -61,10 +61,9 @@ doj_url <- "https://www.justice.gov/criminal-fraud/cares-act-fraud"
 # Get html of page, extract all elements that are in a p tag.  Extract the text, turn it into a dataframe, keep only rows 14 and up, then count the number of rows.  
 case_districts <- doj_url %>%
   read_html()  %>%
-  html_elements('p') %>%
+  html_elements('p b i') %>%
   html_text() %>%
-  as_tibble() %>%
-  slice(14:41) 
+  as_tibble()
 
 # Count districts
 case_districts %>%
@@ -101,13 +100,13 @@ wiki_url <- "https://en.wikipedia.org/wiki/List_of_United_States_district_and_te
 # Get html from wiki page, extract all html tables into nested list of dataframes
 all_districts <- wiki_url %>%
   read_html()  %>%
-  html_table() 
+  html_table()
 
 # Keep the third table, clean names
 all_districts <- all_districts[[3]] %>%
   clean_names()
 
-# Join case_districts to all districts, populate non-cares act districts with no, group and count by cares act district column, create a column with total districts, then calculate percentage. 
+# Join case_districts to all districts, populate non-cares act districts with no, group and count by cares act district column, create a column with total districts, then calculate percentage.
 
 all_districts_count <- all_districts %>%
   left_join(case_districts, by=c("region"="districts")) %>%
@@ -125,7 +124,7 @@ all_districts_count <- all_districts %>%
 # Display count
 all_districts_count
 ```
-Q6. What might explain why, according to this site, the DOJ has filed PPP-related fraud cases in less than half of the country's judicial districts? 
+Q6. What might explain why, according to this site, the DOJ has filed PPP-related fraud cases in less than half of the country's judicial districts?
 A6. The DOJ press website could be wrong; it could have missed related cases filed in other districts. It also only lists "publicly charged" cases; there may be additional cases filed later that are currently under investigation. There could be less fraud happening in districts where no cases were filed. The U.S. Attorney in charge of bringing cases in a judicial district that has no cases may have other priorities.  
 
 Q7. Which state had the most approved PPP loans per 100,000 population? [This web page](https://dwillis.github.io/jour472files/ppp_scraping_example/index.html) has links to 52 individual web pages, one for each state (plus Washington, D.C. and Puerto Rico). Each of those web pages contains a one-row html table that has the name of the state, the number of approved loans, and the 2019 population. Here's an example for [Alabama](https://dwillis.github.io/jour472files/ppp_scraping_example/states/alabama.html). You'll need to loop over the individual state urls, scrape each individual page and combine the information on each page into a single dataframe to answer this question. Don't forget to calculation the loans per 100,000.
@@ -141,7 +140,7 @@ state_urls <- state_url %>%
   html_table()
 
 # Extract the table from the nested list
-state_urls <- state_urls[[1]] 
+state_urls <- state_urls[[1]]
 
 # Create an empty dataframe to hold information from each state
 state_ppp_all <- tibble()
@@ -152,22 +151,22 @@ for (row_number in 1:nrow(state_urls)) {
   # Keep only the row for a given row number, get rid of every other row
   each_row_df <- state_urls %>%
     slice(row_number)
-  
+
   # Define url of page to get
   url <- each_row_df$url
-  
-  # Create a dataframe called individual_state_info by visiting the URL for a state, read in the html, and extract the table as a nested list. 
+
+  # Create a dataframe called individual_state_info by visiting the URL for a state, read in the html, and extract the table as a nested list.
   individual_state_info <- url %>%
     read_html() %>%
     html_table()
-  
-  # Extract the table from the nested list, select only the URL column and turn it into a proper list. 
+
+  # Extract the table from the nested list, select only the URL column and turn it into a proper list.
   individual_state_info <- individual_state_info[[1]]
-  
+
   # Bind each individual state info dataframe to the empty dataframe we created above
   state_ppp_all <- state_ppp_all %>%
     bind_rows(individual_state_info)
-  
+
 }
 
 # Update the table by calculating the nubmer of loans per 100K population
