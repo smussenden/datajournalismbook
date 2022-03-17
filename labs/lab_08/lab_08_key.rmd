@@ -35,7 +35,7 @@ You'll need your Census API Key:
 **Task** set your API Key
 
 ```{r echo=FALSE}
-census_api_key("YOUR KEY HERE", install=TRUE)
+#census_api_key("YOUR KEY HERE", install=TRUE)
 ```
 
 ## Load and view ACS variables
