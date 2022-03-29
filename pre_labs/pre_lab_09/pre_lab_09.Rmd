@@ -79,7 +79,7 @@ maryland_ppp_top_counties %>%
 
 Next we need to tell ggplot what kind of chart to make. 
 
-In ggplot, we work with two key concepts called  geometries (abbreivated frequently as geom) and asthetics (abbreviated as aes). 
+In ggplot, we work with two key concepts called  geometries (abbreviated frequently as geom) and asthetics (abbreviated as aes). 
 
 Geometries are the shape that the data will take; think of line charts, bar charts, scatterplots, histograms, pie charts and other common graphics forms.  
 
@@ -91,7 +91,7 @@ In the codeblock below, we've added a new function, geom_bar().
 
 Using geom_bar() -- as opposed to geom_line() -- says we're making a bar chart.  
 
-Inside of that function, the asthetic, aes, says which columns to use in drawing the chart. 
+Inside of that function, the aesthetic, aes, says which columns to use in drawing the chart. 
 
 We're setting the values on the x axis (horizontal) to be the name of the county. We set weight to total loans, and it uses that value to "weight" or set the height of each bar. 
 
