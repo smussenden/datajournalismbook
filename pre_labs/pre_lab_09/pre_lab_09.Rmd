@@ -83,7 +83,7 @@ In ggplot, we work with two key concepts called  geometries (abbreviated frequen
 
 Geometries are the shape that the data will take; think of line charts, bar charts, scatterplots, histograms, pie charts and other common graphics forms.  
 
-Asesthetics help ggplot know what component of our data to visualize -- why we'll visualize values from one column instead of another. 
+Aesthetics help ggplot know what component of our data to visualize -- why we'll visualize values from one column instead of another. 
 
 In a bar chart, we first pass in the data to the geometry, then set the aesthetic. 
 
