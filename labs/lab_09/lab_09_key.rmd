@@ -24,7 +24,6 @@ options(scipen=999)
 # Load the tidyverse.
 library(tidyverse)
 library(tidycensus)
-library(rvest)
 library(janitor)
 
 # Establish API Key for Census
