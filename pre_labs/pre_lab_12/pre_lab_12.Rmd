@@ -225,7 +225,7 @@ Now we're going to use a function called paste to merge some text together. We'r
 **Answer**
 
 ```{r}
-sub <- paste("The number of people in Prince George's County fully vaccinated on ", format(latest_date$vaccination_date, format="%B %d"), " ", direction, " by ", changetext, " percent compared to the week before", sep="")
+sub <- paste("The number of people in Prince George's County who got fully vaccinated on ", format(latest_date$vaccination_date, format="%B %d"), " ", direction, " by ", changetext, " percent compared to the week before", sep="")
 sub
 ```
 
@@ -343,4 +343,4 @@ ggplot() +
   labs(title = paste("COVID-19 cases as of ", current[[1]], sep=""))
 ```
 
-As it stands, we can run this every day and get an up-to-date map.
+As long as the state continues to produce data, we could make a map every day.
