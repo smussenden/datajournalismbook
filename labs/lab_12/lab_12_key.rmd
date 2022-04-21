@@ -24,78 +24,58 @@ options(scipen=999)
 
 # Load the tidyverse.
 library(tidyverse)
-library(tidycensus)
 library(lubridate)
 library(janitor)
-library(sf)
-library(tigris)
-
-# Establish API Key for Census
-census_api_key("549950d36c22ff16455fe196bbbd01d63cfbe6cf")
 
 ```
 
 ## Questions
 
-**Q1.** You are interested in tracking vaccinations by age group, and in particular how many children are being vaccinated over time. You want to generate a sentence that describes the daily change in first daily dose among children between 5-11 years old, and also compares it to the most recent same day of the week, describing the change in percentage terms and the direction of the change.
+**Q1.** You are interested in tracking police incidents around the West Virginia University campus over time, with the goal of surfacing interesting incidents and patterns. In particular, you want to know whether the latest incident titles are relatively new/novel compared to previous reports and whether an incident has happened before in the past 30 days.
 
-Using [CSV data posted by the state](https://raw.githubusercontent.com/state-of-maryland/VaccineCSVs/master/MD_COVID19_VaccinationPercentAgeGroupPopulation.csv), making the column names more readable and ensuring each day is formatted as a date column that only contains the date, not a time.
+Using [CSV data](https://raw.githubusercontent.com/dwillis/wvu-projects/master/crime-log/crime_log.csv), making the column names more readable and ensuring each datetime is separated into a date column and an hour column and also create a day_of_week column and populate that using lubridate.
 
-Then write code that will construct the sentence about the data described above comparing the most recent data to the previous date and the most recent previous date for the same day of the week. To do that, you will need:
+Then write code that will construct a paragraph about the data described above comparing the most recent data to the previous date and the most recent previous date for the same day of the week. To do that, you will need to produce:
 
-1. A dataframe with vaccination data for the under-12 age group.
-2. A column in your dataframe that contains the day of the week that each date represents (you may need to google how to do that).
-3. Data from the previous day and the most recent previous same day of the week.
-4. The percentage changes compared to the previous day and most recent previous same day of the week.
-5. A template for your sentence using paste.
+1. A dataframe with the crime log data loaded and the datetime column converted to the proper datatype.
+2. Columns in your dataframe that contain the date, time and day of the week that each date represents (you may need to google how to do that).
+3. Generate a dataframe of the most recent date's incidents.
+4. Using the first title in that dataframe, find the number of incidents that occurred in the previous 30 days and write out a sentence using paste. The sentence should include the most recent date, the title of the incident and the number of times that kind of incident has occurred in the previous 30 days.
 
-Put your sentence in the answer below.
+Put your sentence in the answer below, along with one other question you could ask of this data.
 
-**A1.** "The number of Maryland children aged 5-11 who received their first vaccination shot on November 14 decreased by -88.91 percent compared to the day before, and decreased by -88.95 percent compared to the week before."
+**A1.** ""
 
 ```{r}
 
-# Read in a table of daily vaccination totals by age group and clean the column names
+# Read in a table of WVU crime incidents
 
-vaccinations_by_age <- read_csv("https://raw.githubusercontent.com/state-of-maryland/VaccineCSVs/master/MD_COVID19_VaccinationPercentAgeGroupPopulation.csv") %>% clean_names()
+wvu_crime <- read_csv("https://raw.githubusercontent.com/dwillis/wvu-projects/master/crime-log/crime_log.csv") %>% clean_names()
 
-vaccinations_by_age <- vaccinations_by_age %>%
-  mutate(vaccination_date = date(mdy_hms(vaccination_date)))
+wvu_crime <- wvu_crime %>%
+  mutate(datetime = mdy_hm(datetime)) %>%
+  mutate(date = date(datetime), hour = hour(datetime), day_of_week = wday(date))
 
-under_12 <- vaccinations_by_age %>%
-  filter(age_range == '11 and Under') %>%
-  mutate(day_of_week = weekdays(vaccination_date)) %>%
-  arrange(vaccination_date)
-
-latest_date <- under_12 %>%
-  arrange(desc(vaccination_date)) %>%
+max_date <- wvu_crime %>%
+  arrange(desc(date)) %>%
   slice(1)
 
-previous_day <- under_12 %>%
-  filter(vaccination_date == latest_date$vaccination_date - 1) %>%
-  slice(1)
+most_recent <- wvu_crime %>%
+  filter(date == max_date$date)
 
-previous_week <- under_12 %>%
-  arrange(desc(vaccination_date)) %>%
-  filter(day_of_week == latest_date$day_of_week, vaccination_date < latest_date$vaccination_date) %>%
-  slice(1)
+first_title <- most_recent %>% select(title) %>% slice(1)
 
-latest_date <- latest_date %>%
-  mutate(pct_change_day = (first_daily_dose - previous_day$first_daily_dose)/previous_day$first_daily_dose *100) %>%
-  mutate(pct_change_week = (first_daily_dose - previous_week$first_daily_dose)/previous_week$first_daily_dose *100)
+previous_30 <- wvu_crime %>%
+  arrange(desc(date)) %>%
+  filter(title == first_title$title) %>%
+  filter(date >= most_recent$date - 30) %>% nrow()
 
-day_changetext <- round(latest_date$pct_change_day[[1]], digits=2)
-day_direction <- if_else(day_changetext > 0, "increased", "decreased")
-
-week_changetext <- round(latest_date$pct_change_week[[1]], digits=2)
-week_direction <- if_else(week_changetext > 0, "increased", "decreased")
-
-sentence <- paste("The number of Maryland children aged 5-11 who received their first vaccination shot on ", format(latest_date$vaccination_date, format="%B %d"), " ", day_direction, " by ", day_changetext, " percent compared to the day before, and ", week_direction," by ", week_changetext, " percent compared to the week before.", sep="")
+sentence <- paste("The first incident on ", format(max_date$date, format="%B %d"), " was ", first_title$title, " and has occurred ", previous_30, " times in the past 30 days.", sep="")
 
 sentence
 ```
 
-**Q2.** Maryland produces a [CSV file](https://raw.githubusercontent.com/state-of-maryland/VaccineCSVs/master/Vax_ZIP_CODE_FirstSecondSingle_Totals_Raw.csv) showing the total number of vaccinations by zip code and -- interestingly -- it includes non-Maryland zip codes (as well as some that seem to be bad data). write a script that reads the CSV file, making the columns more readable and adding today's date. Then output the top 25 Maryland zip codes and top 25 non-Maryland zip codes based on number of people fully vaccinated, and write both dataframes out to CSV files, using the following name formats:
+**Q2.** Maryland produces a [CSV file](https://raw.githubusercontent.com/state-of-maryland/VaccineCSVs/master/Vax_ZIP_CODE_FirstSecondSingle_Totals_Raw.csv) showing the total number of vaccinations by zip code and -- interestingly -- it includes non-Maryland zip codes (as well as some that seem to be bad data). write a script that reads the CSV file, making the columns more readable and adding today's date to the dataframe. Then output the top 25 Maryland zip codes and top 25 non-Maryland zip codes based on number of people fully vaccinated, and write both dataframes out to CSV files, using the following name formats:
 
 Maryland zips: maryland_zips_yyyymmdd.csv
 Non-Maryland zips: non_maryland_zips_yyyymmdd.csv
