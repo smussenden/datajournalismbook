@@ -50,13 +50,13 @@ Let's go to page 30 of the PDF, Table 2A, "International Migration for Maryland'
 
 Let's load it into R, and in doing so we'll skip the first two rows and add our own headers that are cleaner. `read_csv` allows us to do this ([and more](https://readr.tidyverse.org/reference/read_delim.html)):
 
-**Task** Write code to read the CSV file into a dataframe called `international_migration`. As in the pre_lab, you may have to skip 1 or more rows and you may want to supply easier to use column names that use underscores.
+**Task** Write code to read the CSV file into a dataframe called `international_migration`. As in the pre_lab, you may have to skip 1 or more rows and you may want to supply easier-to-use column names that use underscores and don't begin with numbers.
 
 ```{r}
 # Write the code to load the CSV file here
 ```
 
-Add a column for the type of migration ("international") and populate it:
+Add a column that will contain the type of migration ("international") and populate it:
 
 **Task** Write the code to add a `migration_type` column to the data and give it the value of "international"
 
@@ -66,7 +66,7 @@ Add a column for the type of migration ("international") and populate it:
 
 ## Answer questions
 
-**Q1** Which region and county/city _below_ the state level accounted for the largest percentage of international migration for the entire time period? You'll need to add and populate a column representing percent of total using `mutate`.
+**Q1** Which region AND county/city _below_ the state level accounted for the largest percentage of international migration for the entire time period? You'll need to add and populate a column representing the percent of total using `mutate`.
 **A1** [write your answer here]
 
 ```{r}
