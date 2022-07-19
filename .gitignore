@@ -12,3 +12,5 @@ data/LPD_Dispatch_Records.csv
 data/ppp_loan_data/raw/
 data/ppp_loan_data/processed/full/
 
+
+/.quarto/
