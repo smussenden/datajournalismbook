@@ -34,7 +34,9 @@ You can keep doing that for as many libraries as you need.
 
 ## Importing data
 
-The first thing we need to do is get some data to work with. We do that by reading it in. In our case, we're going to read a datatable from an "rds" file, which is a format for storing data with R. Later in the course, we'll more frequently work with a format called a CSV. A CSV is a stripped down version of a spreadsheet you might open in a program like Excel, in which each column is separated by a comma. RDS files are less common when getting data from other people.  But reading in CSVs is less foolproof than reading in rds files, so for now we'll work with rds. 
+The first thing we need to do is get some data to work with. We do that by reading it in. 
+
+In our case, we're going to read a datatable from an "rds" file, which is a format for storing data with R. Later in the course, we'll more frequently work with a format called a CSV. A CSV is a stripped down version of a spreadsheet you might open in a program like Excel, in which each column is separated by a comma. RDS files are less common when getting data from other people.  But reading in CSVs is less foolproof than reading in rds files, so for now we'll work with rds. 
 
 The rds file we're going to read in is from the [Small Business Administration's Paycheck Protection Program(https://www.sba.gov/funding-programs/loans/covid-19-relief-options/paycheck-protection-program)]. The program gave loans to businesses to keep people employed during the Covid-19 pandemic. We'll be working with a slice of the data that documents loans to Maryland businesses. 
 

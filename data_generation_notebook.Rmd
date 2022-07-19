@@ -1,0 +1,205 @@
+---
+title: "data_generation_notebook"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(tidycensus)
+library(janitor)
+census_api_key("549950d36c22ff16455fe196bbbd01d63cfbe6cf")
+```
+
+```{r}
+
+## Get list of states (Exclude non-states, except DC)
+states <- fips_codes %>%
+  select(state) %>%
+  distinct() %>%
+  head(51) %>%
+  as_vector() 
+
+# Get census tract data for all states
+county_demographics <- get_acs(geography = "county", variables = c( "B01001_001","B02001_002","B02001_003","B02001_004","B03001_003","B06012_002","B19013_001"), state=states,year = 2020) %>%
+  select(GEOID, NAME, variable, estimate) %>%
+  pivot_wider(names_from=variable, values_from=estimate) %>%
+  rename(
+    total_pop = B01001_001,
+    white_pop = B02001_002,
+    black_pop = B02001_003,
+    hispanic_pop = B03001_003,
+    poverty_pop = B06012_002,
+    median_income = B19013_001
+  ) %>%
+  mutate(pct_white = round(white_pop/total_pop,2)*100,
+         pct_nonwhite = 100-round(white_pop/total_pop,2)*100,
+         pct_black = round(black_pop/total_pop,2)*100,
+         pct_hispanic = round(hispanic_pop/total_pop,2)*100,
+         pct_poverty = round(poverty_pop/total_pop,2)*100
+         ) %>%
+  clean_names() %>%
+  select(geoid,name,-ends_with("pop"), starts_with("pct"),median_income) %>%
+  separate(name, into=c("county","state"), sep=",") %>%
+  mutate(state = str_trim(state,side="both")) %>%
+  select(state,county,geoid,everything())
+
+
+```
+
+# Load decennial census demographics
+```{r}
+###
+# Get list of states (Exclude non-states, except DC)
+###
+states <- fips_codes %>%
+  select(state) %>%
+  distinct() %>%
+  head(51) %>%
+  as_vector() 
+
+###
+# Get variable list for 2010 and 2020
+###
+
+# 2010
+vars_2010 <- load_variables(2010,"pl") %>%
+  filter(str_detect(name,"^P00100|P002002|P002003")) %>%
+  mutate(label = str_remove_all(label,"Total!!|Population of one race|!!| alone")) %>%
+  filter(label != "") %>%
+  select(-concept) %>%
+  rename(var_2010 = name)
+
+vars_list_2010 <- vars_2010 %>%
+  select(var_2010) %>%
+  as_vector()
+
+# 2020
+vars_2020 <- load_variables(2020,"pl") %>%
+  filter(str_detect(name,"^P1_00|P2_002N|P2_003N"))  %>%
+  mutate(label = str_remove_all(label," !!Total:!!Population of one race:!!| !!Total:!!Population of | !!Total:!!| !!|:| alone")) %>%
+  filter(label != "") %>%
+  filter(name != "P1_002N") %>%
+  mutate(label = str_replace(label,"two or more races","Two or More Races")) %>%
+  select(-concept) %>%
+  rename(var_2020 = name)
+
+vars_list_2020 <- vars_2020 %>%
+  select(var_2020) %>%
+  as_vector()
+
+###
+# Create crosswalk to connect 2010 and 2020 vars
+###
+
+vars_crosswalk <- vars_2010 %>%
+  inner_join(vars_2020, by=c("label")) %>%
+  select(label, var_2010,var_2020) %>%
+  mutate(label = tolower(label)) %>%
+  mutate(label = case_when(
+    str_detect(label,"^black") ~ str_sub(label, start=1L, end=5L),
+    str_detect(label,"indian") ~ "amer_ind",
+    str_detect(label,"native") ~ "nhpi",
+    str_detect(label,"some") ~ "other",
+    str_detect(label,"two") ~ "two_or_more",
+    str_detect(label,"hispanic") ~ str_remove(label," or latino"),
+    TRUE ~ label
+  ))
+
+###
+# Define function to get decennial df for each year
+###
+
+get_decennial_data_frame <- function(race_variable,year) {
+  
+  temp <- get_decennial(geography = "county", state=states, sumfile="pl",
+                       variables = race_variable, 
+                       year = year) %>%
+    mutate(year = year)
+  
+  all_vars <- all_vars %>%
+    bind_rows(temp)
+  
+  
+  assign("all_vars",all_vars,envir=.GlobalEnv)
+}
+
+###
+# Run function for 2010
+###
+
+# Empty dataframe
+all_vars <- tibble()
+
+# Loop through vars
+lapply(vars_list_2010, get_decennial_data_frame, year=2010)
+
+# Pivot
+pivoted_2010 <- all_vars %>%
+  inner_join(vars_crosswalk,by=c("variable" = "var_2010")) %>%
+  mutate(label = paste0(label,"_",year)) %>%
+  clean_names() %>%
+  select(geoid,name,label,value) %>%
+  pivot_wider(names_from = label,values_from=value)
+
+###
+# Run function for 2020
+###
+
+# Empty dataframe
+all_vars <- tibble()
+
+# Loop through vars
+lapply(vars_list_2020, get_decennial_data_frame, year=2020)
+
+# Pivot
+pivoted_2020 <- all_vars %>%
+  inner_join(vars_crosswalk,by=c("variable" = "var_2020")) %>%
+  mutate(label = paste0(label,"_",year)) %>%
+  clean_names() %>%
+  select(geoid,name,label,value) %>%
+  pivot_wider(names_from = label,values_from=value)
+
+
+###
+# Join into one dataframe
+###
+
+all_data <- pivoted_2010 %>%
+  inner_join(pivoted_2020) %>%
+  separate(name, into=c("county","state"),sep=", ") %>%
+  select(geoid,county,state,everything()) 
+
+national_data <- all_data %>%
+  pivot_longer(cols=(4:23), names_to = "category") %>%
+  group_by(category) %>%
+  summarise(
+    population = sum(value)
+  ) %>%
+  mutate(year = str_sub(category,start=-4L, end=-1L)) %>%
+  mutate(year = paste0("race_pop_",year)) %>%
+  mutate(category = str_remove_all(category, "_2010|_2020")) %>%
+  select(category, year, population) %>%
+  pivot_wider(names_from = year, values_from=population) %>%
+  arrange(desc(race_pop_2020)) %>%
+  filter(!str_detect(category,"total"))
+
+national_race_data <- national_data %>%
+  filter(!str_detect(category,"hispanic"))
+
+national_hispanic_data <- national_data %>%
+  filter(str_detect(category,"hispanic"))
+  
+pivot_long
+###
+# Write to rds
+###
+	 
+write_rds(all_data,"decennial_census_demographics_2010_2020.rds")
+
+write_rds(all_data,"labs/sample_lab_04/decennial_census_demographics_2010_2020.rds")
+
+```
