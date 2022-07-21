@@ -68,6 +68,6 @@ or_prince_georges <- primary_18 %>% filter(jurisdiction == "Prince George's" | o
 
 nrow(or_prince_georges)
 ```
-So there's 355 rows that are EITHER in Prince George's OR are governor results. OR is inclusive; AND is exclusive.
+So there's 355 rows that are EITHER in Prince George's OR are governor results. OR is additive; AND is restrictive.
 
 A general tip about using filter: it's easier to work your way towards the filter syntax you need rather than try and write it once and trust the result. Each time you modify your filter, check the results to see if they make sense. This adds a little time to your process but you'll thank yourself for doing it because it helps avoid mistakes.

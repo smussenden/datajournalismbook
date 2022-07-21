@@ -60,7 +60,7 @@ Only a handful of candidates got less than 50 percent of their total votes in a 
 
 ## Another use of mutate
 
-Mutate is also useful for standardizing data - making different spellings of "
+Mutate is also useful for standardizing data - for example, making different spellings of, say, cities into a single one.
 
 Let's load some campaign contribution data - in this case Maryland donors to Republican committees via WinRed's online platform earlier this year - and take a look at the `city` column in our data.
 
@@ -123,4 +123,4 @@ maryland_winred_categories %>%
 
 The largest category - by far - in dollar amount is the sub-$100 category, which makes sense for an online fundraising platform. Big little money.
 
-Mutate is there to make your data more useful and to make it easier for you to ask more amd better questions of it.
+Mutate is there to make your data more useful and to make it easier for you to ask more and better questions of it.
