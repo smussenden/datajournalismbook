@@ -37,7 +37,7 @@ census_api_key("549950d36c22ff16455fe196bbbd01d63cfbe6cf")
 **Task** Create a codeblock and load the WV slice of the PPP loan data, which is in the data folder and is called lab_11.rds.
 
 ```{r}
-ppp_wv_loans <- read_rds("data/lab_11.rds")
+wv_ppp <- read_rds("data/lab_11.rds")
 
 ```
 

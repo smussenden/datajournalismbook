@@ -35,7 +35,7 @@ To use the API, you need to [an API key from the Census Bureau](https://api.cens
 **Task** Replace YOUR KEY HERE in the codeblock below with your Census API Key (leave the quotemarks).
 
 ```{r echo=FALSE}
-#census_api_key("YOUR KEY HERE", install=TRUE)
+census_api_key("102c0c72d8f8eb880608f9dacb53fdf9100f8ba0")
 ```
 
 The `install=TRUE` part saves your key for future use.
@@ -230,5 +230,5 @@ top_zips <- maryland_ppp %>%
 ```{r}
 md_zipcodes <- get_acs(geography="zcta", variables = "B19013_001", state='MD')
 md_zips_with_acs <- top_zips %>% left_join(md_zipcodes, by=c('zip5'='GEOID'))
-
+md_zips_with_acs <- md_zips_with_acs %>% mutate(min=(estimate-moe), max=(estimate+moe))
 ```

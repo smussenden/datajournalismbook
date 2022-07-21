@@ -44,3 +44,5 @@ vignettes/*.pdf
 # Ignore camtasiafiles
 labs/labs_01/lab_01_video/*
 
+
+/.quarto/
