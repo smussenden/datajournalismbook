@@ -193,13 +193,15 @@ national_race_data <- national_data %>%
 national_hispanic_data <- national_data %>%
   filter(str_detect(category,"hispanic"))
   
-pivot_long
+
 ###
 # Write to rds
 ###
 	 
 write_rds(all_data,"decennial_census_demographics_2010_2020.rds")
-
 write_rds(all_data,"labs/sample_lab_04/decennial_census_demographics_2010_2020.rds")
+
+write_rds(national_race_data,"national_race_decennial_census_demographics_2010_2020.rds")
+write_rds(national_race_data, "labs/sample_lab_04/national_race_decennial_census_demographics_2010_2020.rds")
 
 ```

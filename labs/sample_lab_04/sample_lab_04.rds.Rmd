@@ -17,7 +17,7 @@ This lab is accumulative. It is designed to test methods and concepts you've lea
 
 ## The frame
 
-You are a data journalist at a national news organization. New U.S. Census figures were relased today showing demographic change in the U.S. between 2010 and 2020.  Your editor has asked you to produce a data notebook with the most interesting growth trends you can find, which can be used as the foundation for a fully-reported story. You have the following hypotheses, based on interviews, 
+You are a data journalist at a national news organization. New U.S. Census figures were released today showing demographic change in the U.S. between 2010 and 2020.  Your editor has asked you to produce a data notebook with the most interesting growth trends you can find, which can be used as the foundation for a fully-reported story. You have the following hypotheses, based on interviews, 
 ## How to complete this lab
 
 To complete this lab, you will need to do one or more of the following task:
@@ -49,6 +49,10 @@ We're going to load the slice of PPP loans for West Virginia.
 **Task** Run the codeblock below to load the data.
 
 ```{r}
+
+national_race_decennial_census_demographics_2010_2020 <- read_rds("national_race_decennial_census_demographics_2010_2020.rds")
+
+
 decennial_census_demographics_2010_2020 <- read_rds("decennial_census_demographics_2010_2020.rds")
 
 
@@ -60,14 +64,32 @@ decennial_census_demographics_2010_2020 <- read_rds("decennial_census_demographi
 What happened to the share of the population for each demographic group between 2010 and 2020?
 
 ```{r}
-x <- decennial_census_demographics_2010_2020 %>%
-  summarise(
-    white_2010 = sum(white_2010),
-    white_2020 = sum(white_2020)
-  )
-  summarise(across(where(is.numeric), sum))
+
+
+
+x <- national_race_decennial_census_demographics_2010_2020 %>%
+  mutate(pct_change_2010_2020 = (race_pop_2020-race_pop_2010)/race_pop_2010*100) %>%
+  mutate(total_pop_2010 = sum(race_pop_2010),
+         total_pop_2020 = sum(race_pop_2020)) %>%
+  mutate(share_of_total_2010 = race_pop_2010/total_pop_2010*100) %>%
+  mutate(share_of_total_2020 = race_pop_2020/total_pop_2020*100) %>%
+  mutate(percentage_share_change_2010_2020 = share_of_total_2020-share_of_total_2010)
 
 ```
+
+Which state saw the largest percentage point decline in the share of the population that is white. 
+
+```{r}
+y <- x <- national_race_decennial_census_demographics_2010_2020 %>%
+  mutate(pct_change_2010_2020 = (race_pop_2020-race_pop_2010)/race_pop_2010*100) %>%
+  mutate(total_pop_2010 = sum(race_pop_2010),
+         total_pop_2020 = sum(race_pop_2020)) %>%
+  mutate(share_of_total_2010 = race_pop_2010/total_pop_2010*100) %>%
+  mutate(share_of_total_2020 = race_pop_2020/total_pop_2020*100) %>%
+  mutate(percentage_share_change_2010_2020 = share_of_total_2020-share_of_total_2010)
+
+```
+
 
 What states had biggest pop growth. Which had smallest. 
 https://www.washingtonpost.com/nation/interactive/2021/census-population-changes/
