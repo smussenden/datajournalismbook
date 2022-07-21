@@ -20,7 +20,7 @@ book:
     - replication.qmd
     - mutating.qmd
     - workingwithdates.qmd
-
+    - aggregates.qmd
 
 
 format:
