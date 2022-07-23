@@ -44,12 +44,7 @@ library(tidyverse)
 
 ## Load Data
 
-We're going to load the slice of PPP loans for West Virginia.
-
-**Task** Run the codeblock below to load the data.
-
-```{r}
-
+We're going to load the slice o               gjdegfucthhffftyigjnjrjudfkd
 national_race_decennial_census_demographics_2010_2020 <- read_rds("national_race_decennial_census_demographics_2010_2020.rds")
 
 
