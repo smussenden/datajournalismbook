@@ -20,7 +20,7 @@ This lab is accumulative. It is designed to test methods and concepts you've lea
 You are a data journalist at a national news organization. New U.S. Census figures were released today showing demographic change in the U.S. between 2010 and 2020.  Your editor has asked you to produce a data notebook with the most interesting growth trends you can find, which can be used as the foundation for a fully-reported story. You have the following hypotheses, based on interviews, 
 ## How to complete this lab
 
-To complete this lab, you will need to do one or more of the following task:
+To complete this lab, you will need to do one or more of the following **Tasks**:
 * Run prewritten code in an existing codeblock.
 * Modify prewritten code in an existing codeblock and run.
 * Write code in a preexisting codeblock and run.
@@ -44,7 +44,9 @@ library(tidyverse)
 
 ## Load Data
 
-We're going to load the slice o               gjdegfucthhffftyigjnjrjudfkd
+We're going to load the slice o
+
+```{r}
 national_race_decennial_census_demographics_2010_2020 <- read_rds("national_race_decennial_census_demographics_2010_2020.rds")
 
 
@@ -53,8 +55,117 @@ decennial_census_demographics_2010_2020 <- read_rds("decennial_census_demographi
 
 ```
 
+## Answer questions
+
+**Q1** Which racial category had the largest percent increase between 2010 and 2020? Modify the code below by completing the empty `mutate()` and `arrange()` functions to produce a table with the answer.
+**A1** The "two or more races" category grew by 275 percent, a nearly 4X increase.  
+# https://www.census.gov/library/stories/2021/08/improved-race-ethnicity-measures-reveal-united-states-population-much-more-multiracial.html
+
+```{r}
+
+pct_change_by_category <- national_race_decennial_census_demographics_2010_2020 %>%
+  mutate() %>%
+  arrange()
+
+pct_change_by_category
+
+### Key
+#pct_change_by_category <- national_race_decennial_census_demographics_2010_2020 %>%
+#  mutate(pct_change_2010_2020 = (race_pop_2020-race_pop_2010)/race_pop_2010*100) %>%
+#  arrange(desc(pct_change_2010_2020))
+
+```
+
+**Q2** Which racial category saw a decline in population between 2010 and 2020? Write code below to produce a table with the answer.
+**A2** The white population declined by nine percentage points between 2010 and 2020. 
+```{r}
+
+### Key
+#pct_change_by_category <- national_race_decennial_census_demographics_2010_2020 %>%
+#  mutate(pct_change_2010_2020 = (race_pop_2020-race_pop_2010)/race_pop_2010*100) %>%
+#  arrange(pct_change_2010_2020)
+
+
+```
+
+**Q3** Write a lede for a news story based on the tables produced in questions 1 and 2. Your lede should be one or two sentences. You may find it helpful to scan this page before writing.  https://www.census.gov/library/stories/2021/08/improved-race-ethnicity-measures-reveal-united-states-population-much-more-multiracial.html
+**A3** The number of Americans who identify as multiracial jumped sharply between 2010 and 2020, while the "white alone" population declined, an analysis of new U.S. Census data shows. Adjustments to Census questionnaires were partly responsible for the changes, the agency said. [NOTE: we'll have them read this story this week https://www.npr.org/2021/08/22/1029609786/2020-census-data-results-white-population-shrinking-decline-non-hispanic-race]
+
+**Q4** Which Maryland county had the biggest raw number increase in total population between 2010 and 2020? Which county had the biggest loss? 
+**A4** Prince George's County had the biggest increase. Baltimore County had the biggest loss. 
+
+```{r}
+maryland_counties <- decennial_census_demographics_2010_2020 %>%
+  filter(state == "Maryland") %>%
+  mutate(change_total_pop_2010_2020 = (total_2020-total_2010))
+
+```
+
+**Q5** Which Maryland county had the biggest percentage increase in total population between 2010 and 2020? Which county had the biggest percentage loss? 
+**Q5** Frederick County had the biggest increase. Allegany County had the largest loss.
+
+```{r}
+maryland_counties <- decennial_census_demographics_2010_2020 %>%
+  filter(state == "Maryland") %>%
+  mutate(pct_change_total_pop_2010_2020 = (total_2020-total_2010)/total_2010*100)
+
+```
+
+**Q6** What percentage of Maryland's population lived in Montgomery County in 2020?
+**Q6** 17 percent.
+
+```{r}
+maryland_counties <- decennial_census_demographics_2010_2020 %>%
+  filter(state == "Maryland") %>%
+  mutate(maryland_total_2020 = sum(total_2020)) %>%
+  mutate(share_of_maryland_pop_2020 = total_2020/maryland_total_2020*100)
+
+```
+
+**Q7** Using all of your powers, identify the most interesting lede that you can about changes in the Hispanic population in Maryland between 2010 and 2020.  You'll need to start by generating a few questions, write code to perationalize those questions and synthesis the results. 
+**Q7** 
+* Maryland's Hispanic population exploded over the last decade, growing at nearly 10 times the rate as the state as a whole, an analysis of new U.S. Census data showed. 
+* Every single county in the state saw its Hispanic population increase, including the seven Maryland counties that saw their overall population shrink. 
+* The share of the state's population that identifies as Hispanic grew from one-in-12 in 2010 to one-in-8 in 2020. 
+* Maryland's Hispanic population is concentrated in Montgomery and Prince George's County.  Though only a third of Maryland's population lives in those two large suburban D.C. counties, together they house more than 60 percent of the state's Hispanic population.
+
+```{r}
+
+maryland_hispanic <- decennial_census_demographics_2010_2020 %>%
+  select(county, state, contains("total"), hispanic_2010,hispanic_2020) %>%
+  filter(state == "Maryland") %>%
+  mutate(maryland_total_2020 = sum(total_2020),
+         maryland_hispanic_2020 = sum(hispanic_2020),
+         maryland_total_2010 = sum(total_2010),
+         maryland_hispanic_2010 = sum(hispanic_2010)
+         ) %>%
+  mutate(overall_hispanic_percentage_2020 = maryland_hispanic_2020/maryland_total_2020,
+         overall_hispanic_percentage_2010 = maryland_hispanic_2010/maryland_total_2010) %>%
+  mutate(share_of_maryland_total_2020 = total_2020/maryland_total_2020*100,
+         share_of_maryland_hispanic_2020 = hispanic_2020/maryland_hispanic_2020*100,
+         share_of_maryland_total_2010 = total_2010/maryland_total_2010*100,
+         share_of_maryland_hispanic_2010 = hispanic_2010/maryland_hispanic_2010*100,
+         total_change_2010_2020 = (total_2020-total_2010)/total_2010*100,
+         hispanic_change_2010_2020 = (hispanic_2020-hispanic_2010)/hispanic_2010*100,
+         ) %>%
+  mutate(pct_change_maryland_hispanic_2010_2020 = (maryland_hispanic_2020-maryland_hispanic_2010)/maryland_hispanic_2010*100,
+         pct_change_maryland_total_2010_2020 = (maryland_total_2020-maryland_total_2010)/maryland_total_2010*100)
+
+```
+
+```{r}
+**Q4** What might be the biggest loss. 
+https://www.census.gov/library/stories/2021/08/improved-race-ethnicity-measures-reveal-united-states-population-much-more-multiracial.html
+
+Filtering
+Sorting
+Mutating pct/change, difference, pct of total
+
+## 
+
 
 ## Explore for now
+# SAMPLE LAB 05 AGGREGATES
 
 What happened to the share of the population for each demographic group between 2010 and 2020?
 
@@ -84,6 +195,9 @@ y <- x <- national_race_decennial_census_demographics_2010_2020 %>%
   mutate(percentage_share_change_2010_2020 = share_of_total_2020-share_of_total_2010)
 
 ```
+
+
+Which county in Maryland saw the biggest
 
 
 What states had biggest pop growth. Which had smallest. 
