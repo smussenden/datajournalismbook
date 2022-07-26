@@ -1,0 +1,286 @@
+---
+title: "lab_04_sample"
+author: "sean mussenden"
+date: "8/19/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# Turn off scientific notation
+options(scipen=999)
+```
+
+## About this lab
+
+This lab is accumulative. It is designed to test methods and concepts you've learned in prior weeks, with special emphasis on things learned in this week's pre_lab book chapters.    
+
+## The frame
+
+New U.S. Census figures were released today showing demographic change in the U.S. between 2010 and 2020.  Your editor has asked you to produce a data notebook with the most interesting growth trends you can find, which can be used as the foundation for a fully-reported story about changes in the U.S. and in Maryland. 
+
+You start your analysis with the following two hypotheses, based on interviews and other research that preceded the data release: 
+
+* The white population is growing smaller, relative to other racial groups. 
+* The Hispanic population is getting larger, relative to non-Hispanic groups. 
+
+## How to complete this lab
+
+To complete this lab, you will need to do one or more of the following **Tasks**:
+* Run prewritten code in an existing codeblock.
+* Modify prewritten code in an existing codeblock and run.
+* Write code in a preexisting codeblock and run.
+* Create a new codeblock, write code and run. 
+* Write out an answer to a question in the form of a complete sentence.
+* Develop a question to answer.  
+
+When you are finished, commit changes and push to your personal GitHub repo, then submit the URL to this document on ELMS.
+
+## Load libraries and establish settings
+
+**Task** Run the codeblock below to load the Tidyverse. To run the codeblock, hit the little green play button in the upper right corner of the gray area (the codeblock) below.
+
+```{r}
+
+# Load the tidyverse. 
+# If you have not installed the tidyverse already, remove the # from the next line and run it first.  
+# install.packages('tidyverse')
+
+library(tidyverse)
+```
+
+## Load Data
+
+We will load two dataframes. 
+
+The first contains aggregated national figures showing population levels in 2010 and 2020 in different racial groups. 
+
+**Task** Run the codeblock below to load the aggregated national table. 
+
+```{r}
+
+###
+# Load national race table
+###
+
+# Data Dictionary
+## category
+### white = White Alone
+### black = Black or African American Alone
+### asian = Asian Alone
+### nhpi = Native Hawaiian or Other Pacific Islander Alone
+### amer_ind = American Indian or Alaska Native Alone
+### other = Some Other Race Alone
+### two_or_more = Two or More Races
+## race_pop_2010 - total population for racial group for 2010
+## race_pop_2020 - total population for racial group for 2020
+
+# Load the data
+national_race_2010_2020 <- read_rds("national_race_decennial_census_demographics_2010_2020.rds")
+
+```
+
+The second dataframe contains information for each U.S. county showing population levels in 2010 and 2020 in different racial and ethnic groups. 
+
+**Task** Edit the codeblock below -- specifically the `read_rds()` function to load the county table. Then run it.  The name of the file to load is `decennial_census_demographics_2010_2020.rds`
+
+```{r}
+
+###
+# Load county race and ethnicity table
+###
+
+# Data Dictionary
+## geoid - five digit unique identifier for a county
+## county - county name
+## state - state name
+## total_2010 = total county population in 2010
+## white_2010 = White Alone population in 2010
+## black_2010 = Black or African American Alone population in 2010
+## asian_2010 = Asian Alone population in 2010
+## nhpi_2010 = Native Hawaiian or Other Pacific Islander Alone population in 2010
+## amer_ind_2010 = American Indian or Alaska Native Alone population in 2010
+## other_2010 = Some Other Race Alone population in 2010
+## two_or_more_2010 = Two or More Races population in 2010
+## hispanic_2010 = Hispanic population in 2010 (ethnic, not race, categorization)
+## nothispanic_2010 = Hispanic population in 2010 (ethnic, not race, categorization)
+## *repeat race and ethnic categories for 2020*
+
+county_race_ethnicity_2010_2020 <- read_rds()
+
+###
+# Correct code answer 
+###
+# county_race_ethnicity_2010_2020 <- read_rds("decennial_census_demographics_2010_2020.rds")
+
+```
+
+## Answer questions comparing the two tables
+
+**Q1** Compare the two dataframes you just loaded. What "real world thing" does each row represent in the national table and what "real world thing" does each row represent in the county table? How do they differ? Write your answer in the space below. 
+**A1** 
+In the "county" table, each row represents a county, a physical/geographic boundary that exists in the real world. 
+
+In the "national" table, each row represents a group of people who belong to a given racial group (or groups). These groups exist in a physical space -- the United States -- but they are distributed across the country, not confined to a county.
+
+## Answer questions using the national table
+
+**Q2** Nationally, which racial category had the largest percentage increase between 2010 and 2020? **Task** Modify the code below by completing the empty `mutate()` and `arrange()` functions to produce a table with the answer.
+**A2** The "two or more races" category grew by 275 percent, a nearly 4X increase.  
+
+```{r}
+# Calculate percent change
+pct_change_by_category <- national_race_2010_2020 %>%
+  mutate() %>%
+  arrange()
+
+# display the resulting table
+pct_change_by_category
+
+###
+# Correct code answer 
+###
+
+# Calculate percent change
+# pct_change_by_category <- national_race_2010_2020  %>%
+#   mutate(pct_change_2010_2020 = (race_pop_2020-race_pop_2010)/race_pop_2010*100) %>%
+#   arrange(desc(pct_change_2010_2020))
+
+# display the resulting table
+# pct_change_by_category
+
+```
+
+**Q3** Nationally, which racial category saw a decline in population between 2010 and 2020? 
+**Task** Write code below to produce a table with the answer.
+**A3** The white alone population declined by nine percentage points between 2010 and 2020. 
+```{r}
+
+# Calculate percent change
+
+
+# Display the resulting table
+
+
+###
+# Correct code answer 
+###
+
+# Calculate percent change
+# pct_change_by_category <- national_race_2010_2020  %>%
+#   mutate(pct_change_2010_2020 = (race_pop_2020-race_pop_2010)/race_pop_2010*100) %>%
+#   arrange(pct_change_2010_2020)
+
+# display the resulting table
+# pct_change_by_category
+```
+
+**Q4** Write a lede for a news story based on the tables produced in questions 1 and 2. Your lede should be one or two sentences, and represent a synthesis of your finding. You may find it helpful to reread the dictionary AND scan this explainer page from the U.S. Census before writing. https://www.census.gov/library/stories/2021/08/improved-race-ethnicity-measures-reveal-united-states-population-much-more-multiracial.html
+**A4** The number of Americans who identify as multiracial jumped sharply between 2010 and 2020, while the "white alone" population declined, an analysis of new U.S. Census data shows. Adjustments to Census questionnaires were partly responsible for the changes, the agency said. 
+[EDS NOTE: we'll have them read this story this week after doing the lab https://www.npr.org/2021/08/22/1029609786/2020-census-data-results-white-population-shrinking-decline-non-hispanic-race]
+
+## Answer questions using Maryland table
+
+**Q5** Which Maryland county had the biggest raw number increase in total population between 2010 and 2020? Which county had the biggest loss? 
+**Task** Write code below to produce a table with the answer.
+**A5** Prince George's County had the biggest increase. Baltimore County had the biggest loss. 
+
+```{r}
+
+###
+# Correct code answer 
+###
+
+# create subset of data and calculate change
+# maryland_counties <- county_race_ethnicity_2010_2020 %>%
+#    filter(state == "Maryland") %>%
+#    mutate(change_total_pop_2010_2020 = (total_2020-total_2010)) %>%
+#    arrange(desc(change_total_pop_2010_2020))
+# 
+# display the resulting table
+# maryland_counties
+```
+
+**Q6** Which Maryland county had the biggest percentage increase in total population between 2010 and 2020? Which county had the biggest percentage loss? 
+**Task** Write code below to produce a table with the answer.
+**A6** Frederick County had the biggest increase. Allegany County had the largest loss.
+
+```{r}
+
+###
+# Correct code answer 
+###
+
+# create subset of data and calculate pct change
+# maryland_counties <- county_race_ethnicity_2010_2020 %>%
+#   filter(state == "Maryland") %>%
+#   mutate(pct_change_total_pop_2010_2020 = (total_2020-total_2010)/total_2010*100) %>%
+#   arrange(desc(pct_change_total_pop_2010_2020))
+
+# display the resulting table
+# maryland_counties
+```
+
+**Q6** What percentage of Maryland's population lived in Montgomery County in 2020?
+**Task** Write code below to produce a table with the answer.
+**A7** 17 percent.
+
+```{r}
+###
+# Correct code answer 
+###
+# calculate share of total
+# montgomery_county <- county_race_ethnicity_2010_2020 %>%
+#   filter(state == "Maryland") %>%
+#   mutate(maryland_total_2020 = sum(total_2020)) %>%
+#   mutate(share_of_maryland_pop_2020 = total_2020/maryland_total_2020*100) %>%
+#   filter(county == "Montgomery County")
+
+# display the resulting table
+# montgomery county
+
+```
+
+**Q8** Using all of your powers, identify the most interesting lede that you can about changes in the Hispanic population in Maryland between 2010 and 2020.  You'll need to start by generating a few questions, write code to operationalize those questions and synthesize the results. 
+**Task** Write code below to produce a table with the information that supports your lede.
+**A8** Here are some interesting findings. 
+* Maryland's Hispanic population exploded over the last decade, growing at nearly 10 times the rate as the state as a whole, an analysis of new U.S. Census data showed. 
+* Every single county in the state saw its Hispanic population increase, including the seven Maryland counties that saw their overall population shrink. 
+* The share of the state's population that identifies as Hispanic grew from one-in-12 in 2010 to one-in-8 in 2020. 
+* Maryland's Hispanic population is concentrated in Montgomery and Prince George's County.  Though only a third of Maryland's population lives in those two large suburban D.C. counties, together they house more than 60 percent of the state's Hispanic population.
+
+```{r}
+
+###
+# Sample code to generate some of these results
+###
+# 
+# maryland_hispanic <- county_race_ethnicity_2010_2020 %>%
+#   select(county, state, total_2010, total_2020, hispanic_2010,hispanic_2020) %>%
+#   filter(state == "Maryland") %>%
+#   # create statewide total population
+#   mutate(maryland_total_2010 = sum(total_2010),
+#          maryland_total_2020 = sum(total_2020)) %>%
+#   # create statewide hispanic population
+#   mutate(maryland_hispanic_2010 = sum(hispanic_2010),
+#          maryland_hispanic_2020 = sum(hispanic_2020)) %>%
+#   # create pct of total statewide population that is Hispanic
+#   mutate(overall_hispanic_percentage_2010 = maryland_hispanic_2010/maryland_total_2010*100,
+#          overall_hispanic_percentage_2020 = maryland_hispanic_2020/maryland_total_2020*100) %>%
+#   # create share of total state population that lives in each county
+#   mutate(share_of_maryland_total_2010 = total_2010/maryland_total_2010*100,
+#          share_of_maryland_total_2020 = total_2020/maryland_total_2020*100) %>%
+#   # create share of hispanic state population that lives in each county
+#   mutate(share_of_maryland_hispanic_2010 = hispanic_2010/maryland_hispanic_2010*100,
+#          share_of_maryland_hispanic_2020 = hispanic_2020/maryland_hispanic_2020*100) %>%
+#   # create percent change in total population and hispanic population in each county       
+#   mutate(total_change_2010_2020 = (total_2020-total_2010)/total_2010*100,
+#          hispanic_change_2010_2020 = (hispanic_2020-hispanic_2010)/hispanic_2010*100) %>%
+#   # create statewide percent change in total population and hispanic population
+#   mutate(pct_change_maryland_hispanic_2010_2020 = (maryland_hispanic_2020-maryland_hispanic_2010)/maryland_hispanic_2010*100,
+#          pct_change_maryland_total_2010_2020 = (maryland_total_2020-maryland_total_2010)/maryland_total_2010*100)
+
+```
+**Q9: Extra Credit** Using all of your powers, identify the most interesting lede that you can about any racial group in Maryland.  You'll need to start by generating a few questions, write code to operationalize those questions and synthesize the results. 
+**Task** Write code below to produce a table with the information that supports your lede.
+**Q9**
